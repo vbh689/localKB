@@ -2,6 +2,7 @@ import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { ContentStatus, PrismaClient, Role } from "@prisma/client";
 import { hashPassword } from "../src/lib/auth/password";
+import { syncAllPublishedContent } from "../src/lib/search-index";
 import { slugify } from "../src/lib/utils";
 
 const adapter = new PrismaPg({
@@ -177,6 +178,9 @@ async function main() {
   console.log(
     `Seeded ${articleSeeds.length} articles, ${faqSeeds.length} FAQs and ${categories.length} categories.`,
   );
+
+  await syncAllPublishedContent();
+  console.log("Synced published content to Meilisearch.");
 }
 
 main()

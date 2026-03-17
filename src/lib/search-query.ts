@@ -1,6 +1,8 @@
 import { ContentStatus } from "@prisma/client";
 import { db } from "@/lib/db";
 import { createExcerpt } from "@/lib/utils";
+import { ensureSearchIndex } from "@/lib/search-index";
+import { searchClient } from "@/lib/search";
 
 export type SearchItem = {
   id: string;
@@ -22,23 +24,21 @@ export type SearchPayload = {
   };
 };
 
-export async function searchPublishedContent(
-  rawQuery: string,
-  limitPerType = 5,
+function createEmptyPayload(query: string): SearchPayload {
+  return {
+    query,
+    results: [],
+    totalByType: {
+      article: 0,
+      faq: 0,
+    },
+  };
+}
+
+async function searchPublishedContentFallback(
+  query: string,
+  limitPerType: number,
 ): Promise<SearchPayload> {
-  const query = rawQuery.trim();
-
-  if (query.length < 2) {
-    return {
-      query,
-      results: [],
-      totalByType: {
-        article: 0,
-        faq: 0,
-      },
-    };
-  }
-
   const [articles, faqs] = await Promise.all([
     db.article.findMany({
       where: {
@@ -99,7 +99,7 @@ export async function searchPublishedContent(
     type: "faq",
   }));
 
-  const payload: SearchPayload = {
+  return {
     query,
     results: [...articleResults, ...faqResults],
     totalByType: {
@@ -107,6 +107,64 @@ export async function searchPublishedContent(
       faq: faqResults.length,
     },
   };
+}
+
+export async function searchPublishedContent(
+  rawQuery: string,
+  limitPerType = 5,
+): Promise<SearchPayload> {
+  const query = rawQuery.trim();
+
+  if (query.length < 2) {
+    return createEmptyPayload(query);
+  }
+
+  let payload: SearchPayload;
+
+  try {
+    await ensureSearchIndex();
+
+    const result = await searchClient
+      .index<{
+        id: string;
+        recordId: string;
+        type: "article" | "faq";
+        title: string;
+        slug: string;
+        summary: string;
+        highlight: string;
+        category: string | null;
+        tags: string[];
+      }>("knowledge_base")
+      .search(query, {
+        attributesToHighlight: ["title", "summary", "highlight"],
+        hitsPerPage: limitPerType * 2,
+        limit: limitPerType * 2,
+        showMatchesPosition: false,
+      });
+
+    const results: SearchItem[] = result.hits.map((item) => ({
+      category: item.category,
+      highlight: item.highlight,
+      id: item.recordId,
+      slug: item.slug,
+      summary: item.summary,
+      tags: item.tags,
+      title: item.title,
+      type: item.type,
+    }));
+
+    payload = {
+      query,
+      results,
+      totalByType: {
+        article: results.filter((item) => item.type === "article").length,
+        faq: results.filter((item) => item.type === "faq").length,
+      },
+    };
+  } catch {
+    payload = await searchPublishedContentFallback(query, limitPerType);
+  }
 
   await db.searchLog.create({
     data: {

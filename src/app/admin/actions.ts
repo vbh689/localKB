@@ -4,6 +4,11 @@ import { ContentStatus, RevisionEntityType, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireRoles } from "@/lib/auth/session";
+import {
+  removeDocument,
+  syncArticleDocument,
+  syncFaqDocument,
+} from "@/lib/search-index";
 import { slugify } from "@/lib/utils";
 
 function getString(formData: FormData, key: string) {
@@ -121,7 +126,7 @@ export async function createArticle(formData: FormData) {
     return;
   }
 
-  await db.article.create({
+  const article = await db.article.create({
     data: {
       authorId: session.user.id,
       body,
@@ -149,6 +154,10 @@ export async function createArticle(formData: FormData) {
     },
   });
 
+  if (status === ContentStatus.PUBLISHED) {
+    await syncArticleDocument(article.id);
+  }
+
   revalidatePath("/admin/articles");
   revalidatePath("/");
   revalidatePath("/search");
@@ -167,6 +176,8 @@ export async function deleteArticle(formData: FormData) {
       id,
     },
   });
+
+  await removeDocument(`article_${id}`);
 
   revalidatePath("/admin/articles");
   revalidatePath("/");
@@ -204,6 +215,8 @@ export async function updateArticleStatus(formData: FormData) {
     });
   }
 
+  await syncArticleDocument(article.id);
+
   revalidatePath("/admin/articles");
   revalidatePath("/");
   revalidatePath("/search");
@@ -224,7 +237,7 @@ export async function createFaq(formData: FormData) {
     return;
   }
 
-  await db.faq.create({
+  const faq = await db.faq.create({
     data: {
       answer,
       categoryId,
@@ -250,6 +263,10 @@ export async function createFaq(formData: FormData) {
     },
   });
 
+  if (status === ContentStatus.PUBLISHED) {
+    await syncFaqDocument(faq.id);
+  }
+
   revalidatePath("/admin/faqs");
   revalidatePath("/");
   revalidatePath("/faq");
@@ -269,6 +286,8 @@ export async function deleteFaq(formData: FormData) {
       id,
     },
   });
+
+  await removeDocument(`faq_${id}`);
 
   revalidatePath("/admin/faqs");
   revalidatePath("/");
@@ -307,9 +326,10 @@ export async function updateFaqStatus(formData: FormData) {
     });
   }
 
+  await syncFaqDocument(faq.id);
+
   revalidatePath("/admin/faqs");
   revalidatePath("/");
   revalidatePath("/faq");
   revalidatePath("/search");
 }
-
