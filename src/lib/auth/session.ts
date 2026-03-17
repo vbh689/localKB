@@ -1,5 +1,8 @@
 import { randomBytes } from "node:crypto";
 import { serialize } from "cookie";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { Role } from "@prisma/client";
 import type { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { getConfig } from "@/lib/config";
@@ -90,3 +93,44 @@ export async function deleteSessionByToken(token: string) {
   });
 }
 
+export async function getCurrentSession() {
+  const { SESSION_COOKIE_NAME } = getConfig();
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+
+  if (!token) {
+    return null;
+  }
+
+  return db.session.findFirst({
+    where: {
+      token,
+      expiresAt: {
+        gt: new Date(),
+      },
+    },
+    include: {
+      user: true,
+    },
+  });
+}
+
+export async function requireUserSession() {
+  const session = await getCurrentSession();
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  return session;
+}
+
+export async function requireRoles(roles: Role[]) {
+  const session = await requireUserSession();
+
+  if (!roles.includes(session.user.role)) {
+    redirect("/");
+  }
+
+  return session;
+}

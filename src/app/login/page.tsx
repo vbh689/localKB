@@ -1,7 +1,15 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { LoginForm } from "@/components/auth/login-form";
+import { getCurrentSession } from "@/lib/auth/session";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const session = await getCurrentSession();
+
+  if (session) {
+    redirect("/admin");
+  }
+
   return (
     <main className="section-grid min-h-screen px-6 py-8 md:px-10 xl:px-14">
       <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
@@ -47,4 +55,3 @@ export default function LoginPage() {
     </main>
   );
 }
-
