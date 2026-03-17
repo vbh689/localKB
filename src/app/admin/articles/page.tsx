@@ -1,4 +1,5 @@
 import { ContentStatus, Role } from "@prisma/client";
+import { BulkSelectionControls } from "@/components/ui/bulk-selection-controls";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
 import {
@@ -236,6 +237,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <BulkSelectionControls formId="article-bulk-form" />
               <button
                 type="submit"
                 name="operation"
