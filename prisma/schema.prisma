@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+}
+
+enum RevisionEntityType {
+  ARTICLE
+  FAQ
+}
+
+enum SearchResultType {
+  ARTICLE
+  FAQ
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  passwordHash String
+  role         Role        @default(VIEWER)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  articles     Article[]
+  sessions     Session[]
+  revisions    Revision[]
+  searchLogs   SearchLog[]
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  token        String   @unique
+  userId       String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  lastSeenAt   DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  articles  Article[]
+  faqs      Faq[]
+}
+
+model Tag {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  articles  Article[]
+  faqs      Faq[]
+}
+
+model Article {
+  id          String         @id @default(cuid())
+  title       String
+  slug        String         @unique
+  summary     String
+  body        String
+  status      ContentStatus  @default(DRAFT)
+  categoryId  String?
+  authorId    String
+  publishedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  author      User           @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  category    Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags        Tag[]
+  revisions   Revision[]
+
+  @@index([status])
+  @@index([categoryId])
+  @@index([authorId])
+}
+
+model Faq {
+  id          String         @id @default(cuid())
+  question    String
+  slug        String         @unique
+  answer      String
+  status      ContentStatus  @default(DRAFT)
+  categoryId  String?
+  publishedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  category    Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  tags        Tag[]
+  revisions   Revision[]
+
+  @@index([status])
+  @@index([categoryId])
+}
+
+model Revision {
+  id            String             @id @default(cuid())
+  entityType    RevisionEntityType
+  articleId     String?
+  faqId         String?
+  snapshotTitle String
+  snapshotBody  String
+  createdAt     DateTime           @default(now())
+  createdById   String
+  article       Article?           @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  faq           Faq?               @relation(fields: [faqId], references: [id], onDelete: Cascade)
+  createdBy     User               @relation(fields: [createdById], references: [id], onDelete: Restrict)
+
+  @@index([entityType])
+  @@index([articleId])
+  @@index([faqId])
+  @@index([createdById])
+}
+
+model SearchLog {
+  id          String           @id @default(cuid())
+  query       String
+  resultCount Int
+  resultType  SearchResultType?
+  userId      String?
+  createdAt   DateTime         @default(now())
+  user        User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([resultType])
+  @@index([userId])
+}

@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: localkb-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: localkb
+      POSTGRES_USER: localkb
+      POSTGRES_PASSWORD: localkb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U localkb -d localkb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.15
+    container_name: localkb-meilisearch
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: localkb-master-key
+      MEILI_ENV: production
+    ports:
+      - "7700:7700"
+    volumes:
+      - meili_data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--spider", "http://127.0.0.1:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  meili_data:
+
