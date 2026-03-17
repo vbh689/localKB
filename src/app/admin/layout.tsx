@@ -9,6 +9,7 @@ const adminLinks = [
   { href: "/admin/faqs", label: "FAQs" },
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/tags", label: "Tags" },
+  { href: "/admin/search-logs", label: "Search logs" },
 ];
 
 export default async function AdminLayout({
@@ -63,4 +64,3 @@ export default async function AdminLayout({
     </main>
   );
 }
-
