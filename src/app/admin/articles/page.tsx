@@ -2,6 +2,7 @@ import { ContentStatus, Role } from "@prisma/client";
 import { BulkSelectionControls } from "@/components/ui/bulk-selection-controls";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 import {
   bulkUpdateArticles,
   createArticle,
@@ -34,6 +35,11 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
   const statusFilter = getParam(resolvedSearchParams.status) ?? "all";
   const categoryFilter = getParam(resolvedSearchParams.categoryId) ?? "all";
   const sort = getParam(resolvedSearchParams.sort) ?? "updated_desc";
+  const currentPage = Math.max(
+    1,
+    Number.parseInt(getParam(resolvedSearchParams.page) ?? "1", 10) || 1,
+  );
+  const pageSize = 10;
 
   const orderBy =
     sort === "title_asc"
@@ -42,38 +48,42 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
         ? [{ publishedAt: "desc" as const }, { updatedAt: "desc" as const }]
         : [{ updatedAt: "desc" as const }];
 
-  const [articles, categories, tags] = await Promise.all([
+  const articleWhere = {
+    categoryId: categoryFilter === "all" ? undefined : categoryFilter,
+    status:
+      statusFilter === "all"
+        ? undefined
+        : (statusFilter as ContentStatus),
+    OR: query
+      ? [
+          {
+            title: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+          {
+            summary: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+          {
+            body: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+        ]
+      : undefined,
+  };
+
+  const [articles, articleCount, categories, tags] = await Promise.all([
     db.article.findMany({
-      where: {
-        categoryId: categoryFilter === "all" ? undefined : categoryFilter,
-        status:
-          statusFilter === "all"
-            ? undefined
-            : (statusFilter as ContentStatus),
-        OR: query
-          ? [
-              {
-                title: {
-                  contains: query,
-                  mode: "insensitive",
-                },
-              },
-              {
-                summary: {
-                  contains: query,
-                  mode: "insensitive",
-                },
-              },
-              {
-                body: {
-                  contains: query,
-                  mode: "insensitive",
-                },
-              },
-            ]
-          : undefined,
-      },
+      where: articleWhere,
       orderBy,
+      skip: (currentPage - 1) * pageSize,
+      take: pageSize,
       include: {
         author: true,
         category: true,
@@ -86,6 +96,9 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
         },
         tags: true,
       },
+    }),
+    db.article.count({
+      where: articleWhere,
     }),
     db.category.findMany({ orderBy: [{ name: "asc" }] }),
     db.tag.findMany({ orderBy: [{ name: "asc" }] }),
@@ -219,7 +232,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
             </div>
           </div>
           <p className="mt-3 text-sm text-muted">
-            Dang hien thi {articles.length} article.
+            Dang hien thi {articles.length} / {articleCount} article.
           </p>
         </form>
 
@@ -493,6 +506,14 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
             </div>
           </article>
         ))}
+
+        <PaginationControls
+          basePath="/admin/articles"
+          currentPage={currentPage}
+          pageSize={pageSize}
+          searchParams={resolvedSearchParams}
+          totalItems={articleCount}
+        />
       </div>
     </section>
   );

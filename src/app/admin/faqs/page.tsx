@@ -2,6 +2,7 @@ import { ContentStatus, Role } from "@prisma/client";
 import { BulkSelectionControls } from "@/components/ui/bulk-selection-controls";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 import {
   bulkUpdateFaqs,
   createFaq,
@@ -34,6 +35,11 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
   const statusFilter = getParam(resolvedSearchParams.status) ?? "all";
   const categoryFilter = getParam(resolvedSearchParams.categoryId) ?? "all";
   const sort = getParam(resolvedSearchParams.sort) ?? "updated_desc";
+  const currentPage = Math.max(
+    1,
+    Number.parseInt(getParam(resolvedSearchParams.page) ?? "1", 10) || 1,
+  );
+  const pageSize = 10;
 
   const orderBy =
     sort === "question_asc"
@@ -42,32 +48,36 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
         ? [{ publishedAt: "desc" as const }, { updatedAt: "desc" as const }]
         : [{ updatedAt: "desc" as const }];
 
-  const [faqs, categories, tags] = await Promise.all([
+  const faqWhere = {
+    categoryId: categoryFilter === "all" ? undefined : categoryFilter,
+    status:
+      statusFilter === "all"
+        ? undefined
+        : (statusFilter as ContentStatus),
+    OR: query
+      ? [
+          {
+            question: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+          {
+            answer: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+        ]
+      : undefined,
+  };
+
+  const [faqs, faqCount, categories, tags] = await Promise.all([
     db.faq.findMany({
-      where: {
-        categoryId: categoryFilter === "all" ? undefined : categoryFilter,
-        status:
-          statusFilter === "all"
-            ? undefined
-            : (statusFilter as ContentStatus),
-        OR: query
-          ? [
-              {
-                question: {
-                  contains: query,
-                  mode: "insensitive",
-                },
-              },
-              {
-                answer: {
-                  contains: query,
-                  mode: "insensitive",
-                },
-              },
-            ]
-          : undefined,
-      },
+      where: faqWhere,
       orderBy,
+      skip: (currentPage - 1) * pageSize,
+      take: pageSize,
       include: {
         category: true,
         revisions: {
@@ -79,6 +89,9 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
         },
         tags: true,
       },
+    }),
+    db.faq.count({
+      where: faqWhere,
     }),
     db.category.findMany({ orderBy: [{ name: "asc" }] }),
     db.tag.findMany({ orderBy: [{ name: "asc" }] }),
@@ -205,7 +218,7 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
             </div>
           </div>
           <p className="mt-3 text-sm text-muted">
-            Dang hien thi {faqs.length} FAQ.
+            Dang hien thi {faqs.length} / {faqCount} FAQ.
           </p>
         </form>
 
@@ -469,6 +482,14 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
             </div>
           </article>
         ))}
+
+        <PaginationControls
+          basePath="/admin/faqs"
+          currentPage={currentPage}
+          pageSize={pageSize}
+          searchParams={resolvedSearchParams}
+          totalItems={faqCount}
+        />
       </div>
     </section>
   );

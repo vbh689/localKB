@@ -1,5 +1,6 @@
 import { Role } from "@prisma/client";
 import { FormNotice } from "@/components/ui/form-notice";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
@@ -23,23 +24,34 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
   const query = getParam(resolvedSearchParams.q)?.trim() ?? "";
   const resultFilter = getParam(resolvedSearchParams.resultFilter) ?? "all";
   const sort = getParam(resolvedSearchParams.sort) ?? "latest";
+  const currentPage = Math.max(
+    1,
+    Number.parseInt(getParam(resolvedSearchParams.page) ?? "1", 10) || 1,
+  );
+  const pageSize = 20;
 
-  const [recentLogs, noResultLogs] = await Promise.all([
+  const recentLogsWhere = {
+    query: query
+      ? {
+          contains: query,
+          mode: "insensitive" as const,
+        }
+      : undefined,
+    resultCount: resultFilter === "no-result" ? 0 : undefined,
+  };
+
+  const [recentLogs, recentLogCount, noResultLogs] = await Promise.all([
     db.searchLog.findMany({
-      where: {
-        query: query
-          ? {
-              contains: query,
-              mode: "insensitive",
-            }
-          : undefined,
-        resultCount: resultFilter === "no-result" ? 0 : undefined,
-      },
+      where: recentLogsWhere,
       orderBy:
         sort === "results_desc"
           ? [{ resultCount: "desc" }, { createdAt: "desc" }]
           : [{ createdAt: "desc" }],
-      take: 25,
+      skip: (currentPage - 1) * pageSize,
+      take: pageSize,
+    }),
+    db.searchLog.count({
+      where: recentLogsWhere,
     }),
     db.searchLog.groupBy({
       by: ["query"],
@@ -134,7 +146,7 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
           Recent search logs
         </p>
         <p className="mt-2 text-sm text-muted">
-          Dang hien thi {recentLogs.length} logs.
+          Dang hien thi {recentLogs.length} / {recentLogCount} logs.
         </p>
         <div className="mt-5 grid gap-3">
           {recentLogs.map((log) => (
@@ -153,6 +165,15 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
               </p>
             </div>
           ))}
+        </div>
+        <div className="mt-5">
+          <PaginationControls
+            basePath="/admin/search-logs"
+            currentPage={currentPage}
+            pageSize={pageSize}
+            searchParams={resolvedSearchParams}
+            totalItems={recentLogCount}
+          />
         </div>
       </div>
     </section>
