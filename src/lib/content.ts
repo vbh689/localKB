@@ -1,5 +1,4 @@
 import { ContentStatus, Prisma } from "@prisma/client";
-import { cache } from "react";
 import { db } from "@/lib/db";
 
 const publishedArticleInclude = {
@@ -19,7 +18,7 @@ const publishedFaqInclude = {
   tags: true,
 } satisfies Prisma.FaqInclude;
 
-export const getHomepageCounts = cache(async () => {
+export async function getHomepageCounts() {
   const [articleCount, faqCount, todayCount] = await Promise.all([
     db.article.count({
       where: {
@@ -46,9 +45,9 @@ export const getHomepageCounts = cache(async () => {
     faqCount,
     todayCount,
   };
-});
+}
 
-export const getFeaturedArticles = cache(async () => {
+export async function getFeaturedArticles() {
   return db.article.findMany({
     where: {
       status: ContentStatus.PUBLISHED,
@@ -57,9 +56,9 @@ export const getFeaturedArticles = cache(async () => {
     take: 3,
     include: publishedArticleInclude,
   });
-});
+}
 
-export const getPublishedArticleBySlug = cache(async (slug: string) => {
+export async function getPublishedArticleBySlug(slug: string) {
   return db.article.findFirst({
     where: {
       slug,
@@ -67,9 +66,9 @@ export const getPublishedArticleBySlug = cache(async (slug: string) => {
     },
     include: publishedArticleInclude,
   });
-});
+}
 
-export const getPublishedFaqBySlug = cache(async (slug: string) => {
+export async function getPublishedFaqBySlug(slug: string) {
   return db.faq.findFirst({
     where: {
       slug,
@@ -77,9 +76,9 @@ export const getPublishedFaqBySlug = cache(async (slug: string) => {
     },
     include: publishedFaqInclude,
   });
-});
+}
 
-export const getPublishedFaqs = cache(async () => {
+export async function getPublishedFaqs() {
   return db.faq.findMany({
     where: {
       status: ContentStatus.PUBLISHED,
@@ -87,5 +86,4 @@ export const getPublishedFaqs = cache(async () => {
     orderBy: [{ updatedAt: "desc" }],
     include: publishedFaqInclude,
   });
-});
-
+}

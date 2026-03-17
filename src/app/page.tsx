@@ -1,33 +1,33 @@
 import Link from "next/link";
+import { getFeaturedArticles, getHomepageCounts } from "@/lib/content";
+import { createExcerpt } from "@/lib/utils";
+import { InstantSearch } from "@/components/search/instant-search";
 
-const quickStats = [
-  { label: "Bai viet", value: "128" },
-  { label: "FAQ", value: "64" },
-  { label: "Cap nhat hom nay", value: "12" },
-];
+export const dynamic = "force-dynamic";
 
-const liveResults = [
-  {
-    type: "Wiki",
-    title: "Quy trinh onboarding nhan su moi",
-    description: "Checklist tai khoan, email, tool va 30 ngay dau tien.",
-    tag: "HR",
-  },
-  {
-    type: "FAQ",
-    title: "Xin quyen truy cap VPN nhu the nao?",
-    description: "Huong dan gui request va SLA phe duyet noi bo.",
-    tag: "IT Support",
-  },
-  {
-    type: "Wiki",
-    title: "Quy chuan dat ten du an va repository",
-    description: "Convention cho service, frontend app va package noi bo.",
-    tag: "Engineering",
-  },
-];
+export default async function Home() {
+  const [counts, featuredArticles] = await Promise.all([
+    getHomepageCounts(),
+    getFeaturedArticles(),
+  ]);
 
-export default function Home() {
+  const quickStats = [
+    { label: "Bai viet", value: String(counts.articleCount) },
+    { label: "FAQ", value: String(counts.faqCount) },
+    { label: "Cap nhat hom nay", value: String(counts.todayCount) },
+  ];
+
+  const featuredItems = featuredArticles.map((item) => ({
+    category: item.category?.name ?? null,
+    highlight: item.summary,
+    id: item.id,
+    slug: item.slug,
+    summary: item.summary || createExcerpt(item.body, 140),
+    tags: item.tags.map((tag) => tag.name),
+    title: item.title,
+    type: "article" as const,
+  }));
+
   return (
     <main className="section-grid min-h-screen px-6 py-8 text-foreground md:px-10 xl:px-14">
       <div className="mx-auto flex max-w-7xl flex-col gap-10">
@@ -79,46 +79,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="glass-panel rounded-[2rem] p-4 md:p-5">
-              <div className="flex flex-col gap-3 rounded-[1.5rem] bg-surface-strong p-4 md:p-5">
-                <div className="flex items-center gap-3 rounded-[1.25rem] border border-line bg-background px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]">
-                  <span className="font-mono text-sm uppercase tracking-[0.2em] text-muted">
-                    Search
-                  </span>
-                  <input
-                    aria-label="Tim kiem noi dung"
-                    className="w-full bg-transparent text-base outline-none placeholder:text-muted/70"
-                    placeholder="Vi du: onboarding, VPN, quy trinh nghi phep..."
-                    readOnly
-                    value="onboarding"
-                  />
-                  <span className="rounded-full bg-accent px-3 py-1 font-mono text-xs text-white">
-                    live
-                  </span>
-                </div>
-                <div className="grid gap-3">
-                  {liveResults.map((item) => (
-                    <article
-                      key={item.title}
-                      className="rounded-[1.4rem] border border-line bg-background px-4 py-4 transition-transform duration-200 hover:-translate-y-0.5"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-strong">
-                          {item.type}
-                        </span>
-                        <span className="text-sm text-muted">{item.tag}</span>
-                      </div>
-                      <h3 className="mt-3 text-xl font-semibold tracking-tight">
-                        {item.title}
-                      </h3>
-                      <p className="mt-2 text-sm leading-7 text-muted">
-                        {item.description}
-                      </p>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <InstantSearch initialItems={featuredItems} />
           </div>
 
           <aside className="space-y-5">
