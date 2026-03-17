@@ -52,6 +52,31 @@ export async function createCategory(formData: FormData) {
   revalidatePath("/admin/faqs");
 }
 
+export async function updateCategory(formData: FormData) {
+  await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const id = getString(formData, "id");
+  const name = getString(formData, "name");
+
+  if (!id || !name) {
+    return;
+  }
+
+  await db.category.update({
+    where: {
+      id,
+    },
+    data: {
+      name,
+      slug: slugify(name),
+    },
+  });
+
+  revalidatePath("/admin/categories");
+  revalidatePath("/admin/articles");
+  revalidatePath("/admin/faqs");
+  revalidatePath("/");
+}
+
 export async function deleteCategory(formData: FormData) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
   const id = getString(formData, "id");
@@ -89,6 +114,31 @@ export async function createTag(formData: FormData) {
   revalidatePath("/admin/tags");
   revalidatePath("/admin/articles");
   revalidatePath("/admin/faqs");
+}
+
+export async function updateTag(formData: FormData) {
+  await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const id = getString(formData, "id");
+  const name = getString(formData, "name");
+
+  if (!id || !name) {
+    return;
+  }
+
+  await db.tag.update({
+    where: {
+      id,
+    },
+    data: {
+      name,
+      slug: slugify(name),
+    },
+  });
+
+  revalidatePath("/admin/tags");
+  revalidatePath("/admin/articles");
+  revalidatePath("/admin/faqs");
+  revalidatePath("/");
 }
 
 export async function deleteTag(formData: FormData) {
@@ -220,6 +270,62 @@ export async function updateArticleStatus(formData: FormData) {
   revalidatePath("/admin/articles");
   revalidatePath("/");
   revalidatePath("/search");
+  revalidatePath("/kb");
+}
+
+export async function updateArticle(formData: FormData) {
+  const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const id = getString(formData, "id");
+  const title = getString(formData, "title");
+  const summary = getString(formData, "summary");
+  const body = getString(formData, "body");
+  const categoryId = getOptionalString(formData, "categoryId");
+  const status = getStatus(getString(formData, "status"));
+  const tagIds = formData
+    .getAll("tagIds")
+    .map((value) => String(value))
+    .filter(Boolean);
+
+  if (!id || !title || !summary || !body) {
+    return;
+  }
+
+  const article = await db.article.update({
+    where: {
+      id,
+    },
+    data: {
+      body,
+      categoryId,
+      publishedAt: getPublishedAt(status),
+      slug: slugify(title),
+      status,
+      summary,
+      tags: {
+        set: tagIds.map((tagId) => ({ id: tagId })),
+      },
+      title,
+    },
+  });
+
+  if (status === ContentStatus.PUBLISHED) {
+    await db.revision.create({
+      data: {
+        articleId: article.id,
+        createdById: session.user.id,
+        entityType: RevisionEntityType.ARTICLE,
+        snapshotBody: article.body,
+        snapshotTitle: article.title,
+      },
+    });
+  }
+
+  await syncArticleDocument(article.id);
+
+  revalidatePath("/admin/articles");
+  revalidatePath("/");
+  revalidatePath("/search");
+  revalidatePath(`/kb/${article.slug}`);
 }
 
 export async function createFaq(formData: FormData) {
@@ -332,4 +438,58 @@ export async function updateFaqStatus(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/faq");
   revalidatePath("/search");
+}
+
+export async function updateFaq(formData: FormData) {
+  const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const id = getString(formData, "id");
+  const question = getString(formData, "question");
+  const answer = getString(formData, "answer");
+  const categoryId = getOptionalString(formData, "categoryId");
+  const status = getStatus(getString(formData, "status"));
+  const tagIds = formData
+    .getAll("tagIds")
+    .map((value) => String(value))
+    .filter(Boolean);
+
+  if (!id || !question || !answer) {
+    return;
+  }
+
+  const faq = await db.faq.update({
+    where: {
+      id,
+    },
+    data: {
+      answer,
+      categoryId,
+      publishedAt: getPublishedAt(status),
+      question,
+      slug: slugify(question),
+      status,
+      tags: {
+        set: tagIds.map((tagId) => ({ id: tagId })),
+      },
+    },
+  });
+
+  if (status === ContentStatus.PUBLISHED) {
+    await db.revision.create({
+      data: {
+        createdById: session.user.id,
+        entityType: RevisionEntityType.FAQ,
+        faqId: faq.id,
+        snapshotBody: faq.answer,
+        snapshotTitle: faq.question,
+      },
+    });
+  }
+
+  await syncFaqDocument(faq.id);
+
+  revalidatePath("/admin/faqs");
+  revalidatePath("/");
+  revalidatePath("/faq");
+  revalidatePath("/search");
+  revalidatePath(`/faq/${faq.slug}`);
 }

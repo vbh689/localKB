@@ -2,6 +2,7 @@ import { ContentStatus, Role } from "@prisma/client";
 import {
   createArticle,
   deleteArticle,
+  updateArticle,
   updateArticleStatus,
 } from "@/app/admin/actions";
 import { requireRoles } from "@/lib/auth/session";
@@ -122,6 +123,86 @@ export default async function AdminArticlesPage() {
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-2">
+                <details>
+                  <summary className="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong">
+                    Sua
+                  </summary>
+                  <form
+                    action={updateArticle}
+                    className="mt-4 grid gap-3 rounded-[1.4rem] border border-line bg-white p-4"
+                  >
+                    <input type="hidden" name="id" value={article.id} />
+                    <input
+                      type="text"
+                      name="title"
+                      required
+                      defaultValue={article.title}
+                      className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                    />
+                    <textarea
+                      name="summary"
+                      required
+                      rows={3}
+                      defaultValue={article.summary}
+                      className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                    />
+                    <textarea
+                      name="body"
+                      required
+                      rows={8}
+                      defaultValue={article.body}
+                      className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                    />
+                    <select
+                      name="categoryId"
+                      className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                      defaultValue={article.categoryId ?? ""}
+                    >
+                      <option value="">Khong co category</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      name="status"
+                      className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                      defaultValue={article.status}
+                    >
+                      <option value={ContentStatus.DRAFT}>Draft</option>
+                      <option value={ContentStatus.PUBLISHED}>Published</option>
+                      <option value={ContentStatus.UNPUBLISHED}>Unpublished</option>
+                    </select>
+                    <div className="rounded-2xl border border-line bg-background p-4">
+                      <p className="text-sm font-medium">Gan tags</p>
+                      <div className="mt-3 flex flex-wrap gap-3">
+                        {tags.map((tag) => (
+                          <label
+                            key={`${article.id}-${tag.id}`}
+                            className="flex items-center gap-2 text-sm text-muted"
+                          >
+                            <input
+                              type="checkbox"
+                              name="tagIds"
+                              value={tag.id}
+                              defaultChecked={article.tags.some(
+                                (articleTag) => articleTag.id === tag.id,
+                              )}
+                            />
+                            {tag.name}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+                    >
+                      Cap nhat article
+                    </button>
+                  </form>
+                </details>
                 <form action={updateArticleStatus}>
                   <input type="hidden" name="id" value={article.id} />
                   <input
@@ -159,4 +240,3 @@ export default async function AdminArticlesPage() {
     </section>
   );
 }
-

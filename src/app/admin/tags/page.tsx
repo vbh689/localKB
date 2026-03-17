@@ -1,5 +1,5 @@
 import { Role } from "@prisma/client";
-import { createTag, deleteTag } from "@/app/admin/actions";
+import { createTag, deleteTag, updateTag } from "@/app/admin/actions";
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 
@@ -53,15 +53,41 @@ export default async function AdminTagsPage() {
                   {tag._count.articles} articles - {tag._count.faqs} FAQs
                 </p>
               </div>
-              <form action={deleteTag}>
-                <input type="hidden" name="id" value={tag.id} />
-                <button
-                  type="submit"
-                  className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
-                >
-                  Xoa
-                </button>
-              </form>
+                <div className="flex flex-wrap items-center gap-2">
+                  <details>
+                    <summary className="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong">
+                      Sua
+                    </summary>
+                    <form
+                      action={updateTag}
+                      className="mt-3 flex flex-wrap items-center gap-2"
+                    >
+                      <input type="hidden" name="id" value={tag.id} />
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        defaultValue={tag.name}
+                        className="rounded-2xl border border-line bg-white px-4 py-2 text-sm outline-none focus:border-accent"
+                      />
+                      <button
+                        type="submit"
+                        className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-white"
+                      >
+                        Luu
+                      </button>
+                    </form>
+                  </details>
+                  <form action={deleteTag}>
+                    <input type="hidden" name="id" value={tag.id} />
+                    <button
+                      type="submit"
+                      className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
+                    >
+                      Xoa
+                    </button>
+                  </form>
+                </div>
             </div>
           </article>
         ))}
@@ -69,4 +95,3 @@ export default async function AdminTagsPage() {
     </section>
   );
 }
-

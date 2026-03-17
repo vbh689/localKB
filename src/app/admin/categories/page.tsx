@@ -1,5 +1,9 @@
 import { Role } from "@prisma/client";
-import { createCategory, deleteCategory } from "@/app/admin/actions";
+import {
+  createCategory,
+  deleteCategory,
+  updateCategory,
+} from "@/app/admin/actions";
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 
@@ -55,15 +59,41 @@ export default async function AdminCategoriesPage() {
                   {category._count.articles} articles - {category._count.faqs} FAQs
                 </p>
               </div>
-              <form action={deleteCategory}>
-                <input type="hidden" name="id" value={category.id} />
-                <button
-                  type="submit"
-                  className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
-                >
-                  Xoa
-                </button>
-              </form>
+                <div className="flex flex-wrap items-center gap-2">
+                  <details>
+                    <summary className="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong">
+                      Sua
+                    </summary>
+                    <form
+                      action={updateCategory}
+                      className="mt-3 flex flex-wrap items-center gap-2"
+                    >
+                      <input type="hidden" name="id" value={category.id} />
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        defaultValue={category.name}
+                        className="rounded-2xl border border-line bg-white px-4 py-2 text-sm outline-none focus:border-accent"
+                      />
+                      <button
+                        type="submit"
+                        className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-white"
+                      >
+                        Luu
+                      </button>
+                    </form>
+                  </details>
+                  <form action={deleteCategory}>
+                    <input type="hidden" name="id" value={category.id} />
+                    <button
+                      type="submit"
+                      className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
+                    >
+                      Xoa
+                    </button>
+                  </form>
+                </div>
             </div>
           </article>
         ))}
@@ -71,4 +101,3 @@ export default async function AdminCategoriesPage() {
     </section>
   );
 }
-
