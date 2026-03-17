@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const quickStats = [
   { label: "Bai viet", value: "128" },
   { label: "FAQ", value: "64" },
@@ -50,6 +52,14 @@ export default function Home() {
                 <p className="mt-2 text-2xl font-semibold">{item.value}</p>
               </div>
             ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="inline-flex items-center justify-center rounded-full border border-line bg-white px-5 py-3 text-sm font-medium transition hover:border-accent hover:text-accent-strong"
+            >
+              Dang nhap
+            </Link>
           </div>
         </header>
 
