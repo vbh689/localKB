@@ -4,6 +4,7 @@ import { ContentStatus, RevisionEntityType, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { requireRoles } from "@/lib/auth/session";
+import { hashPassword } from "@/lib/auth/password";
 import {
   removeDocument,
   syncArticleDocument,
@@ -30,6 +31,139 @@ function getStatus(value: string) {
 
 function getPublishedAt(status: ContentStatus) {
   return status === ContentStatus.PUBLISHED ? new Date() : null;
+}
+
+function getRole(value: string) {
+  return value === Role.ADMIN
+    ? Role.ADMIN
+    : value === Role.EDITOR
+      ? Role.EDITOR
+      : Role.VIEWER;
+}
+
+async function ensureAnotherAdminExists(excludedUserId: string) {
+  const adminCount = await db.user.count({
+    where: {
+      role: Role.ADMIN,
+      id: {
+        not: excludedUserId,
+      },
+    },
+  });
+
+  return adminCount > 0;
+}
+
+export async function createUser(formData: FormData) {
+  await requireRoles([Role.ADMIN]);
+  const email = getString(formData, "email").toLowerCase();
+  const password = getString(formData, "password");
+  const role = getRole(getString(formData, "role"));
+
+  if (!email || password.length < 8) {
+    return;
+  }
+
+  await db.user.create({
+    data: {
+      email,
+      passwordHash: await hashPassword(password),
+      role,
+    },
+  });
+
+  revalidatePath("/admin/users");
+}
+
+export async function updateUser(formData: FormData) {
+  const session = await requireRoles([Role.ADMIN]);
+  const id = getString(formData, "id");
+  const email = getString(formData, "email").toLowerCase();
+  const password = getString(formData, "password");
+  const role = getRole(getString(formData, "role"));
+
+  if (!id || !email) {
+    return;
+  }
+
+  if (session.user.id === id && role !== Role.ADMIN) {
+    return;
+  }
+
+  const currentUser = await db.user.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!currentUser) {
+    return;
+  }
+
+  if (currentUser.role === Role.ADMIN && role !== Role.ADMIN) {
+    const hasAnotherAdmin = await ensureAnotherAdminExists(id);
+
+    if (!hasAnotherAdmin) {
+      return;
+    }
+  }
+
+  await db.user.update({
+    where: {
+      id,
+    },
+    data: {
+      email,
+      passwordHash:
+        password.length >= 8
+          ? await hashPassword(password)
+          : undefined,
+      role,
+    },
+  });
+
+  revalidatePath("/admin/users");
+}
+
+export async function deleteUser(formData: FormData) {
+  const session = await requireRoles([Role.ADMIN]);
+  const id = getString(formData, "id");
+
+  if (!id || id === session.user.id) {
+    return;
+  }
+
+  const currentUser = await db.user.findUnique({
+    where: {
+      id,
+    },
+  });
+
+  if (!currentUser) {
+    return;
+  }
+
+  if (currentUser.role === Role.ADMIN) {
+    const hasAnotherAdmin = await ensureAnotherAdminExists(id);
+
+    if (!hasAnotherAdmin) {
+      return;
+    }
+  }
+
+  await db.session.deleteMany({
+    where: {
+      userId: id,
+    },
+  });
+
+  await db.user.delete({
+    where: {
+      id,
+    },
+  });
+
+  revalidatePath("/admin/users");
 }
 
 export async function createCategory(formData: FormData) {
