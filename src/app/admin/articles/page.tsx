@@ -1,4 +1,5 @@
 import { ContentStatus, Role } from "@prisma/client";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
 import {
   createArticle,
@@ -195,12 +196,12 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                             <input type="hidden" name="articleId" value={article.id} />
                             <input type="hidden" name="revisionId" value={revision.id} />
                             <input type="hidden" name="currentSlug" value={article.slug} />
-                            <button
-                              type="submit"
+                            <ConfirmSubmitButton
+                              confirmMessage="Ban co chac muon restore revision nay khong?"
                               className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
                             >
                               Restore revision
-                            </button>
+                            </ConfirmSubmitButton>
                           </form>
                         </div>
                       ))
@@ -302,24 +303,28 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                         : ContentStatus.PUBLISHED
                     }
                   />
-                  <button
-                    type="submit"
+                  <ConfirmSubmitButton
+                    confirmMessage={
+                      article.status === ContentStatus.PUBLISHED
+                        ? "Ban co chac muon unpublish article nay khong?"
+                        : "Ban co chac muon publish article nay khong?"
+                    }
                     className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
                   >
                     {article.status === ContentStatus.PUBLISHED
                       ? "Unpublish"
                       : "Publish"}
-                  </button>
+                  </ConfirmSubmitButton>
                 </form>
                 <form action={deleteArticle}>
                   <input type="hidden" name="redirectTo" value="/admin/articles" />
                   <input type="hidden" name="id" value={article.id} />
-                  <button
-                    type="submit"
+                  <ConfirmSubmitButton
+                    confirmMessage="Ban co chac muon xoa article nay khong?"
                     className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
                   >
                     Xoa
-                  </button>
+                  </ConfirmSubmitButton>
                 </form>
               </div>
             </div>

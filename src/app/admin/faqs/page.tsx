@@ -1,4 +1,5 @@
 import { ContentStatus, Role } from "@prisma/client";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
 import {
   createFaq,
@@ -186,12 +187,12 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
                             <input type="hidden" name="faqId" value={faq.id} />
                             <input type="hidden" name="revisionId" value={revision.id} />
                             <input type="hidden" name="currentSlug" value={faq.slug} />
-                            <button
-                              type="submit"
+                            <ConfirmSubmitButton
+                              confirmMessage="Ban co chac muon restore revision nay khong?"
                               className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
                             >
                               Restore revision
-                            </button>
+                            </ConfirmSubmitButton>
                           </form>
                         </div>
                       ))
@@ -286,22 +287,26 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
                         : ContentStatus.PUBLISHED
                     }
                   />
-                  <button
-                    type="submit"
+                  <ConfirmSubmitButton
+                    confirmMessage={
+                      faq.status === ContentStatus.PUBLISHED
+                        ? "Ban co chac muon unpublish FAQ nay khong?"
+                        : "Ban co chac muon publish FAQ nay khong?"
+                    }
                     className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
                   >
                     {faq.status === ContentStatus.PUBLISHED ? "Unpublish" : "Publish"}
-                  </button>
+                  </ConfirmSubmitButton>
                 </form>
                 <form action={deleteFaq}>
                   <input type="hidden" name="redirectTo" value="/admin/faqs" />
                   <input type="hidden" name="id" value={faq.id} />
-                  <button
-                    type="submit"
+                  <ConfirmSubmitButton
+                    confirmMessage="Ban co chac muon xoa FAQ nay khong?"
                     className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
                   >
                     Xoa
-                  </button>
+                  </ConfirmSubmitButton>
                 </form>
               </div>
             </div>

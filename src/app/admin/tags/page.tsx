@@ -1,4 +1,5 @@
 import { Role } from "@prisma/client";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
 import { createTag, deleteTag, updateTag } from "@/app/admin/actions";
 import { requireRoles } from "@/lib/auth/session";
@@ -91,12 +92,12 @@ export default async function AdminTagsPage({ searchParams }: Props) {
                   <form action={deleteTag}>
                     <input type="hidden" name="redirectTo" value="/admin/tags" />
                     <input type="hidden" name="id" value={tag.id} />
-                    <button
-                      type="submit"
+                    <ConfirmSubmitButton
+                      confirmMessage="Ban co chac muon xoa tag nay khong?"
                       className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
                     >
                       Xoa
-                    </button>
+                    </ConfirmSubmitButton>
                   </form>
                 </div>
             </div>

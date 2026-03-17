@@ -1,4 +1,5 @@
 import { Role } from "@prisma/client";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
 import {
   createUser,
@@ -146,13 +147,13 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                   <form action={deleteUser}>
                     <input type="hidden" name="redirectTo" value="/admin/users" />
                     <input type="hidden" name="id" value={user.id} />
-                    <button
-                      type="submit"
+                    <ConfirmSubmitButton
+                      confirmMessage="Ban co chac muon xoa user nay khong?"
                       disabled={isCurrentUser}
                       className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       Xoa
-                    </button>
+                    </ConfirmSubmitButton>
                   </form>
                 </div>
               </div>
