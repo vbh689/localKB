@@ -25,6 +25,13 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
       orderBy: [{ updatedAt: "desc" }],
       include: {
         category: true,
+        revisions: {
+          orderBy: [{ createdAt: "desc" }],
+          take: 5,
+          include: {
+            createdBy: true,
+          },
+        },
         tags: true,
       },
     }),
@@ -121,6 +128,34 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
                     </span>
                   ))}
                 </div>
+                <details className="rounded-[1.25rem] border border-line bg-white/70 p-4">
+                  <summary className="cursor-pointer text-sm font-medium text-accent-strong">
+                    Revision history ({faq.revisions.length})
+                  </summary>
+                  <div className="mt-4 grid gap-3">
+                    {faq.revisions.length === 0 ? (
+                      <p className="text-sm text-muted">Chua co revision nao.</p>
+                    ) : (
+                      faq.revisions.map((revision) => (
+                        <div
+                          key={revision.id}
+                          className="rounded-[1.1rem] border border-line bg-background p-4"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="text-sm font-medium">{revision.snapshotTitle}</p>
+                            <p className="text-xs text-muted">
+                              {revision.createdBy.email} -{" "}
+                              {revision.createdAt.toLocaleString("vi-VN")}
+                            </p>
+                          </div>
+                          <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">
+                            {revision.snapshotBody}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </details>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <details>
