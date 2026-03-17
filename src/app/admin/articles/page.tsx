@@ -3,6 +3,7 @@ import { FormNotice } from "@/components/ui/form-notice";
 import {
   createArticle,
   deleteArticle,
+  restoreArticleRevision,
   updateArticle,
   updateArticleStatus,
 } from "@/app/admin/actions";
@@ -160,6 +161,18 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                           <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">
                             {revision.snapshotBody}
                           </p>
+                          <form action={restoreArticleRevision} className="mt-4">
+                            <input type="hidden" name="redirectTo" value="/admin/articles" />
+                            <input type="hidden" name="articleId" value={article.id} />
+                            <input type="hidden" name="revisionId" value={revision.id} />
+                            <input type="hidden" name="currentSlug" value={article.slug} />
+                            <button
+                              type="submit"
+                              className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
+                            >
+                              Restore revision
+                            </button>
+                          </form>
                         </div>
                       ))
                     )}

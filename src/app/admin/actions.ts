@@ -111,6 +111,146 @@ async function ensureAnotherAdminExists(excludedUserId: string) {
   return adminCount > 0;
 }
 
+async function restoreArticleFromRevision(
+  articleId: string,
+  revisionId: string,
+  userId: string,
+): Promise<
+  | {
+      error: string;
+    }
+  | {
+      article: {
+        id: string;
+        slug: string;
+        status: ContentStatus;
+        title: string;
+      };
+    }
+> {
+  const revision = await db.revision.findFirst({
+    where: {
+      id: revisionId,
+      articleId,
+      entityType: RevisionEntityType.ARTICLE,
+    },
+    select: {
+      id: true,
+      snapshotBody: true,
+      snapshotTitle: true,
+    },
+  });
+
+  if (!revision) {
+    return { error: "Khong tim thay revision article can khoi phuc." };
+  }
+
+  const slug = slugify(revision.snapshotTitle);
+
+  if (!(await ensureUniqueSlug("article", slug, articleId))) {
+    return {
+      error: "Khong the restore vi tieu de snapshot dang trung voi mot article khac.",
+    };
+  }
+
+  const article = await db.article.update({
+    where: {
+      id: articleId,
+    },
+    data: {
+      body: revision.snapshotBody,
+      slug,
+      title: revision.snapshotTitle,
+      revisions: {
+        create: {
+          createdById: userId,
+          entityType: RevisionEntityType.ARTICLE,
+          snapshotBody: revision.snapshotBody,
+          snapshotTitle: revision.snapshotTitle,
+        },
+      },
+    },
+    select: {
+      id: true,
+      slug: true,
+      status: true,
+      title: true,
+    },
+  });
+
+  return { article };
+}
+
+async function restoreFaqFromRevision(
+  faqId: string,
+  revisionId: string,
+  userId: string,
+): Promise<
+  | {
+      error: string;
+    }
+  | {
+      faq: {
+        id: string;
+        question: string;
+        slug: string;
+        status: ContentStatus;
+      };
+    }
+> {
+  const revision = await db.revision.findFirst({
+    where: {
+      id: revisionId,
+      faqId,
+      entityType: RevisionEntityType.FAQ,
+    },
+    select: {
+      id: true,
+      snapshotBody: true,
+      snapshotTitle: true,
+    },
+  });
+
+  if (!revision) {
+    return { error: "Khong tim thay revision FAQ can khoi phuc." };
+  }
+
+  const slug = slugify(revision.snapshotTitle);
+
+  if (!(await ensureUniqueSlug("faq", slug, faqId))) {
+    return {
+      error: "Khong the restore vi cau hoi snapshot dang trung voi mot FAQ khac.",
+    };
+  }
+
+  const faq = await db.faq.update({
+    where: {
+      id: faqId,
+    },
+    data: {
+      answer: revision.snapshotBody,
+      question: revision.snapshotTitle,
+      slug,
+      revisions: {
+        create: {
+          createdById: userId,
+          entityType: RevisionEntityType.FAQ,
+          snapshotBody: revision.snapshotBody,
+          snapshotTitle: revision.snapshotTitle,
+        },
+      },
+    },
+    select: {
+      id: true,
+      question: true,
+      slug: true,
+      status: true,
+    },
+  });
+
+  return { faq };
+}
+
 export async function createUser(formData: FormData) {
   await requireRoles([Role.ADMIN]);
   const redirectTo = getRedirectTo(formData, "/admin/users");
@@ -773,6 +913,48 @@ export async function updateArticle(formData: FormData) {
   });
 }
 
+export async function restoreArticleRevision(formData: FormData) {
+  const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/articles");
+  const articleId = getString(formData, "articleId");
+  const revisionId = getString(formData, "revisionId");
+  const currentSlug = getString(formData, "currentSlug");
+
+  if (!articleId || !revisionId) {
+    redirectWithFeedback(redirectTo, {
+      message: "Khong du thong tin de restore article revision.",
+      status: "error",
+    });
+  }
+
+  const result = await restoreArticleFromRevision(
+    articleId,
+    revisionId,
+    session.user.id,
+  );
+
+  if ("error" in result) {
+    redirectWithFeedback(redirectTo, {
+      message: result.error,
+      status: "error",
+    });
+  }
+
+  if (result.article.status === ContentStatus.PUBLISHED) {
+    await syncArticleDocument(result.article.id);
+  }
+
+  revalidatePath("/admin/articles");
+  revalidatePath("/");
+  revalidatePath("/search");
+  revalidatePath(`/kb/${currentSlug}`);
+  revalidatePath(`/kb/${result.article.slug}`);
+  redirectWithFeedback(redirectTo, {
+    message: `Da restore article ${result.article.title} tu revision cu.`,
+    status: "success",
+  });
+}
+
 export async function createFaq(formData: FormData) {
   const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
   const redirectTo = getRedirectTo(formData, "/admin/faqs");
@@ -997,6 +1179,49 @@ export async function updateFaq(formData: FormData) {
   revalidatePath(`/faq/${faq.slug}`);
   redirectWithFeedback(redirectTo, {
     message: `Da cap nhat FAQ ${faq.question}.`,
+    status: "success",
+  });
+}
+
+export async function restoreFaqRevision(formData: FormData) {
+  const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/faqs");
+  const faqId = getString(formData, "faqId");
+  const revisionId = getString(formData, "revisionId");
+  const currentSlug = getString(formData, "currentSlug");
+
+  if (!faqId || !revisionId) {
+    redirectWithFeedback(redirectTo, {
+      message: "Khong du thong tin de restore FAQ revision.",
+      status: "error",
+    });
+  }
+
+  const result = await restoreFaqFromRevision(
+    faqId,
+    revisionId,
+    session.user.id,
+  );
+
+  if ("error" in result) {
+    redirectWithFeedback(redirectTo, {
+      message: result.error,
+      status: "error",
+    });
+  }
+
+  if (result.faq.status === ContentStatus.PUBLISHED) {
+    await syncFaqDocument(result.faq.id);
+  }
+
+  revalidatePath("/admin/faqs");
+  revalidatePath("/");
+  revalidatePath("/faq");
+  revalidatePath("/search");
+  revalidatePath(`/faq/${currentSlug}`);
+  revalidatePath(`/faq/${result.faq.slug}`);
+  redirectWithFeedback(redirectTo, {
+    message: `Da restore FAQ ${result.faq.question} tu revision cu.`,
     status: "success",
   });
 }
