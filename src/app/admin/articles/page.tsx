@@ -151,6 +151,16 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                           key={revision.id}
                           className="rounded-[1.1rem] border border-line bg-background p-4"
                         >
+                          {revision.snapshotTitle !== article.title ||
+                          revision.snapshotBody !== article.body ? (
+                            <div className="mb-3 inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-amber-700">
+                              Co thay doi so voi ban hien tai
+                            </div>
+                          ) : (
+                            <div className="mb-3 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-emerald-700">
+                              Giong ban hien tai
+                            </div>
+                          )}
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <p className="text-sm font-medium">{revision.snapshotTitle}</p>
                             <p className="text-xs text-muted">
@@ -158,9 +168,28 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                               {revision.createdAt.toLocaleString("vi-VN")}
                             </p>
                           </div>
-                          <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">
-                            {revision.snapshotBody}
-                          </p>
+                          <div className="mt-4 grid gap-3 xl:grid-cols-2">
+                            <div className="rounded-[1rem] border border-line bg-white p-4">
+                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
+                                Snapshot
+                              </p>
+                              <p className="mt-3 text-sm font-medium">
+                                {revision.snapshotTitle}
+                              </p>
+                              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">
+                                {revision.snapshotBody}
+                              </p>
+                            </div>
+                            <div className="rounded-[1rem] border border-line bg-white p-4">
+                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
+                                Current
+                              </p>
+                              <p className="mt-3 text-sm font-medium">{article.title}</p>
+                              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">
+                                {article.body}
+                              </p>
+                            </div>
+                          </div>
                           <form action={restoreArticleRevision} className="mt-4">
                             <input type="hidden" name="redirectTo" value="/admin/articles" />
                             <input type="hidden" name="articleId" value={article.id} />
