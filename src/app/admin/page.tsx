@@ -1,5 +1,6 @@
-import { ContentStatus, Role } from "@prisma/client";
+import { ContentStatus, Prisma, Role } from "@prisma/client";
 import Link from "next/link";
+import { TrendChart } from "@/components/admin/trend-chart";
 import { FormNotice } from "@/components/ui/form-notice";
 import { db } from "@/lib/db";
 import { requireRoles } from "@/lib/auth/session";
@@ -10,6 +11,76 @@ export const dynamic = "force-dynamic";
 type Props = {
   searchParams: SearchParamInput;
 };
+
+type SearchTrendRow = {
+  day: Date;
+  no_result: number;
+  total: number;
+};
+
+type PublishTrendRow = {
+  day: Date;
+  published: number;
+};
+
+function formatShortDate(date: Date) {
+  return date.toLocaleDateString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+  });
+}
+
+function getTrendDelta(current: number, previous: number) {
+  if (previous === 0) {
+    return current === 0 ? "0%" : "+100%";
+  }
+
+  const delta = Math.round(((current - previous) / previous) * 100);
+  return `${delta > 0 ? "+" : ""}${delta}%`;
+}
+
+async function getSearchTrend(days: number) {
+  return db.$queryRaw<SearchTrendRow[]>(Prisma.sql`
+    SELECT
+      day::date AS day,
+      COALESCE(COUNT(sl.id), 0)::int AS total,
+      COALESCE(COUNT(*) FILTER (WHERE sl."resultCount" = 0), 0)::int AS no_result
+    FROM generate_series(
+      date_trunc('day', NOW()) - (${days - 1} * interval '1 day'),
+      date_trunc('day', NOW()),
+      interval '1 day'
+    ) AS day
+    LEFT JOIN "SearchLog" sl
+      ON date_trunc('day', sl."createdAt") = day
+    GROUP BY day
+    ORDER BY day ASC
+  `);
+}
+
+async function getPublishTrend(days: number) {
+  return db.$queryRaw<PublishTrendRow[]>(Prisma.sql`
+    SELECT
+      day::date AS day,
+      COALESCE(COUNT(published_items.day), 0)::int AS published
+    FROM generate_series(
+      date_trunc('day', NOW()) - (${days - 1} * interval '1 day'),
+      date_trunc('day', NOW()),
+      interval '1 day'
+    ) AS day
+    LEFT JOIN (
+      SELECT "publishedAt"::date AS day
+      FROM "Article"
+      WHERE "publishedAt" IS NOT NULL
+      UNION ALL
+      SELECT "publishedAt"::date AS day
+      FROM "Faq"
+      WHERE "publishedAt" IS NOT NULL
+    ) AS published_items
+      ON published_items.day = day::date
+    GROUP BY day
+    ORDER BY day ASC
+  `);
+}
 
 export default async function AdminDashboardPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
@@ -31,6 +102,8 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
     topQueries,
     recentArticles,
     recentFaqs,
+    searchTrend30d,
+    publishTrend30d,
   ] = await Promise.all([
     db.article.count(),
     db.faq.count(),
@@ -105,7 +178,26 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
         status: true,
       },
     }),
+    getSearchTrend(30),
+    getPublishTrend(30),
   ]);
+
+  const currentSearch7d = searchTrend30d
+    .slice(-7)
+    .reduce((sum, item) => sum + item.total, 0);
+  const previousSearch7d = searchTrend30d
+    .slice(-14, -7)
+    .reduce((sum, item) => sum + item.total, 0);
+  const currentNoResult7d = searchTrend30d
+    .slice(-7)
+    .reduce((sum, item) => sum + item.no_result, 0);
+  const previousNoResult7d = searchTrend30d
+    .slice(-14, -7)
+    .reduce((sum, item) => sum + item.no_result, 0);
+  const currentPublished30d = publishTrend30d.reduce(
+    (sum, item) => sum + item.published,
+    0,
+  );
 
   const cards = [
     { label: "Articles", value: articles, href: "/admin/articles" },
@@ -217,6 +309,77 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+        <TrendChart
+          title="Search trend 30 ngay"
+          description="Luong tim kiem va so truy van no-result theo tung ngay."
+          series={[
+            {
+              color: "#c46a2f",
+              name: "Searches",
+              points: searchTrend30d.map((item) => ({
+                label: formatShortDate(new Date(item.day)),
+                value: item.total,
+              })),
+            },
+            {
+              color: "#d97706",
+              name: "No-result",
+              points: searchTrend30d.map((item) => ({
+                label: formatShortDate(new Date(item.day)),
+                value: item.no_result,
+              })),
+            },
+          ]}
+        />
+
+        <div className="grid gap-6">
+          <div className="glass-panel rounded-[1.8rem] p-6">
+            <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+              7-day trend
+            </p>
+            <div className="mt-5 grid gap-4">
+              <div className="rounded-2xl border border-line bg-white p-4">
+                <p className="text-sm text-muted">Searches vs 7 ngay truoc</p>
+                <p className="mt-2 text-3xl font-semibold">{currentSearch7d}</p>
+                <p className="mt-1 text-sm text-muted">
+                  {getTrendDelta(currentSearch7d, previousSearch7d)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-line bg-white p-4">
+                <p className="text-sm text-muted">No-result vs 7 ngay truoc</p>
+                <p className="mt-2 text-3xl font-semibold">{currentNoResult7d}</p>
+                <p className="mt-1 text-sm text-muted">
+                  {getTrendDelta(currentNoResult7d, previousNoResult7d)}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-line bg-white p-4">
+                <p className="text-sm text-muted">Published content / 30 ngay</p>
+                <p className="mt-2 text-3xl font-semibold">{currentPublished30d}</p>
+                <p className="mt-1 text-sm text-muted">
+                  Tong article va FAQ duoc publish trong 30 ngay gan day
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <TrendChart
+            title="Publishing trend 30 ngay"
+            description="So article va FAQ duoc publish theo tung ngay."
+            series={[
+              {
+                color: "#0f766e",
+                name: "Published",
+                points: publishTrend30d.map((item) => ({
+                  label: formatShortDate(new Date(item.day)),
+                  value: item.published,
+                })),
+              },
+            ]}
+          />
         </div>
       </section>
     </div>
