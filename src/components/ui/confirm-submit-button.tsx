@@ -7,7 +7,9 @@ type Props = {
   className?: string;
   confirmMessage: string;
   disabled?: boolean;
+  name?: string;
   type?: "submit";
+  value?: string;
 };
 
 export function ConfirmSubmitButton({
@@ -15,7 +17,9 @@ export function ConfirmSubmitButton({
   className,
   confirmMessage,
   disabled = false,
+  name,
   type = "submit",
+  value,
 }: Props) {
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -25,6 +29,8 @@ export function ConfirmSubmitButton({
       type={type}
       disabled={disabled}
       className={className}
+      name={name}
+      value={value}
       onClick={(event) => {
         if (!window.confirm(confirmMessage)) {
           event.preventDefault();

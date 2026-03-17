@@ -2,6 +2,7 @@ import { ContentStatus, Role } from "@prisma/client";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
 import {
+  bulkUpdateArticles,
   createArticle,
   deleteArticle,
   restoreArticleRevision,
@@ -114,11 +115,64 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
       </form>
 
       <div className="grid gap-4">
+        <form
+          id="article-bulk-form"
+          action={bulkUpdateArticles}
+          className="glass-panel rounded-[1.6rem] p-5"
+        >
+          <input type="hidden" name="redirectTo" value="/admin/articles" />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-medium">Bulk actions</p>
+              <p className="text-sm text-muted">
+                Chon nhieu article ben duoi roi publish, unpublish hoac xoa.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="submit"
+                name="operation"
+                value="publish"
+                className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
+              >
+                Publish selected
+              </button>
+              <ConfirmSubmitButton
+                type="submit"
+                name="operation"
+                value="unpublish"
+                confirmMessage="Ban co chac muon unpublish cac article da chon khong?"
+                className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
+              >
+                Unpublish selected
+              </ConfirmSubmitButton>
+              <ConfirmSubmitButton
+                type="submit"
+                name="operation"
+                value="delete"
+                confirmMessage="Ban co chac muon xoa cac article da chon khong?"
+                className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
+              >
+                Delete selected
+              </ConfirmSubmitButton>
+            </div>
+          </div>
+        </form>
+
         {articles.map((article) => (
           <article key={article.id} className="glass-panel rounded-[1.6rem] p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
+                  <label className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1 text-xs font-medium text-accent-strong">
+                    <input
+                      type="checkbox"
+                      name="ids"
+                      value={article.id}
+                      form="article-bulk-form"
+                    />
+                    Chon
+                  </label>
                   <span className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-strong">
                     {article.status}
                   </span>

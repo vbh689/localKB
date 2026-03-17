@@ -22,6 +22,13 @@ function getOptionalString(formData: FormData, key: string) {
   return value.length > 0 ? value : null;
 }
 
+function getStringList(formData: FormData, key: string) {
+  return formData
+    .getAll(key)
+    .map((value) => String(value).trim())
+    .filter(Boolean);
+}
+
 function getStatus(value: string) {
   return value === ContentStatus.PUBLISHED
     ? ContentStatus.PUBLISHED
@@ -955,6 +962,108 @@ export async function restoreArticleRevision(formData: FormData) {
   });
 }
 
+export async function bulkUpdateArticles(formData: FormData) {
+  const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/articles");
+  const operation = getString(formData, "operation");
+  const ids = getStringList(formData, "ids");
+
+  if (ids.length === 0) {
+    redirectWithFeedback(redirectTo, {
+      message: "Hay chon it nhat mot article de thao tac.",
+      status: "error",
+    });
+  }
+
+  const articles = await db.article.findMany({
+    where: {
+      id: {
+        in: ids,
+      },
+    },
+    select: {
+      body: true,
+      id: true,
+      slug: true,
+      title: true,
+    },
+  });
+
+  if (articles.length === 0) {
+    redirectWithFeedback(redirectTo, {
+      message: "Khong tim thay article nao hop le de thao tac.",
+      status: "error",
+    });
+  }
+
+  if (operation === "delete") {
+    await db.article.deleteMany({
+      where: {
+        id: {
+          in: articles.map((article) => article.id),
+        },
+      },
+    });
+
+    await Promise.all(
+      articles.map((article) => removeDocument(`article_${article.id}`)),
+    );
+
+    revalidatePath("/admin/articles");
+    revalidatePath("/");
+    revalidatePath("/search");
+    redirectWithFeedback(redirectTo, {
+      message: `Da xoa ${articles.length} article.`,
+      status: "success",
+    });
+  }
+
+  if (operation !== "publish" && operation !== "unpublish") {
+    redirectWithFeedback(redirectTo, {
+      message: "Bulk action article khong hop le.",
+      status: "error",
+    });
+  }
+
+  const status =
+    operation === "publish" ? ContentStatus.PUBLISHED : ContentStatus.UNPUBLISHED;
+
+  for (const article of articles) {
+    await db.article.update({
+      where: {
+        id: article.id,
+      },
+      data: {
+        publishedAt: getPublishedAt(status),
+        status,
+        ...(status === ContentStatus.PUBLISHED
+          ? {
+              revisions: {
+                create: {
+                  createdById: session.user.id,
+                  entityType: RevisionEntityType.ARTICLE,
+                  snapshotBody: article.body,
+                  snapshotTitle: article.title,
+                },
+              },
+            }
+          : {}),
+      },
+    });
+
+    await syncArticleDocument(article.id);
+    revalidatePath(`/kb/${article.slug}`);
+  }
+
+  revalidatePath("/admin/articles");
+  revalidatePath("/");
+  revalidatePath("/search");
+  redirectWithFeedback(redirectTo, {
+    message: `Da ${operation === "publish" ? "publish" : "unpublish"} ${articles.length} article.`,
+    status: "success",
+  });
+}
+
 export async function createFaq(formData: FormData) {
   const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
   const redirectTo = getRedirectTo(formData, "/admin/faqs");
@@ -1222,6 +1331,108 @@ export async function restoreFaqRevision(formData: FormData) {
   revalidatePath(`/faq/${result.faq.slug}`);
   redirectWithFeedback(redirectTo, {
     message: `Da restore FAQ ${result.faq.question} tu revision cu.`,
+    status: "success",
+  });
+}
+
+export async function bulkUpdateFaqs(formData: FormData) {
+  const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/faqs");
+  const operation = getString(formData, "operation");
+  const ids = getStringList(formData, "ids");
+
+  if (ids.length === 0) {
+    redirectWithFeedback(redirectTo, {
+      message: "Hay chon it nhat mot FAQ de thao tac.",
+      status: "error",
+    });
+  }
+
+  const faqs = await db.faq.findMany({
+    where: {
+      id: {
+        in: ids,
+      },
+    },
+    select: {
+      answer: true,
+      id: true,
+      question: true,
+      slug: true,
+    },
+  });
+
+  if (faqs.length === 0) {
+    redirectWithFeedback(redirectTo, {
+      message: "Khong tim thay FAQ nao hop le de thao tac.",
+      status: "error",
+    });
+  }
+
+  if (operation === "delete") {
+    await db.faq.deleteMany({
+      where: {
+        id: {
+          in: faqs.map((faq) => faq.id),
+        },
+      },
+    });
+
+    await Promise.all(faqs.map((faq) => removeDocument(`faq_${faq.id}`)));
+
+    revalidatePath("/admin/faqs");
+    revalidatePath("/");
+    revalidatePath("/faq");
+    revalidatePath("/search");
+    redirectWithFeedback(redirectTo, {
+      message: `Da xoa ${faqs.length} FAQ.`,
+      status: "success",
+    });
+  }
+
+  if (operation !== "publish" && operation !== "unpublish") {
+    redirectWithFeedback(redirectTo, {
+      message: "Bulk action FAQ khong hop le.",
+      status: "error",
+    });
+  }
+
+  const status =
+    operation === "publish" ? ContentStatus.PUBLISHED : ContentStatus.UNPUBLISHED;
+
+  for (const faq of faqs) {
+    await db.faq.update({
+      where: {
+        id: faq.id,
+      },
+      data: {
+        publishedAt: getPublishedAt(status),
+        status,
+        ...(status === ContentStatus.PUBLISHED
+          ? {
+              revisions: {
+                create: {
+                  createdById: session.user.id,
+                  entityType: RevisionEntityType.FAQ,
+                  snapshotBody: faq.answer,
+                  snapshotTitle: faq.question,
+                },
+              },
+            }
+          : {}),
+      },
+    });
+
+    await syncFaqDocument(faq.id);
+    revalidatePath(`/faq/${faq.slug}`);
+  }
+
+  revalidatePath("/admin/faqs");
+  revalidatePath("/");
+  revalidatePath("/faq");
+  revalidatePath("/search");
+  redirectWithFeedback(redirectTo, {
+    message: `Da ${operation === "publish" ? "publish" : "unpublish"} ${faqs.length} FAQ.`,
     status: "success",
   });
 }
