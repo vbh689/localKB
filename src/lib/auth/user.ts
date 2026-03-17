@@ -14,3 +14,6 @@ export function serializeUser(user: AuthUser) {
   };
 }
 
+export function canAccessAdmin(role: Role) {
+  return role === "ADMIN" || role === "EDITOR";
+}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { getCurrentSession } from "@/lib/auth/session";
+import { canAccessAdmin } from "@/lib/auth/user";
 import { getFeaturedArticles, getHomepageCounts } from "@/lib/content";
 import { createExcerpt } from "@/lib/utils";
 import { InstantSearch } from "@/components/search/instant-search";
@@ -59,12 +60,18 @@ export default async function Home() {
           <div className="flex items-center gap-3">
             {session ? (
               <>
-                <Link
-                  href="/admin"
-                  className="inline-flex items-center justify-center rounded-full border border-line bg-white px-5 py-3 text-sm font-medium transition hover:border-accent hover:text-accent-strong"
-                >
-                  Admin
-                </Link>
+                {canAccessAdmin(session.user.role) ? (
+                  <Link
+                    href="/admin"
+                    className="inline-flex items-center justify-center rounded-full border border-line bg-white px-5 py-3 text-sm font-medium transition hover:border-accent hover:text-accent-strong"
+                  >
+                    Admin
+                  </Link>
+                ) : (
+                  <span className="inline-flex items-center justify-center rounded-full border border-line bg-white px-5 py-3 text-sm font-medium text-muted">
+                    {session.user.role}
+                  </span>
+                )}
                 <LogoutButton />
               </>
             ) : (
