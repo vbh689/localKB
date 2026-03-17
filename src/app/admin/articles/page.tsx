@@ -19,13 +19,60 @@ type Props = {
   searchParams: SearchParamInput;
 };
 
+function getParam(
+  value: string | string[] | undefined,
+) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 export default async function AdminArticlesPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
-  const feedback = await getFeedback(searchParams);
+  const resolvedSearchParams = await searchParams;
+  const feedback = await getFeedback(resolvedSearchParams);
+  const query = getParam(resolvedSearchParams.q)?.trim() ?? "";
+  const statusFilter = getParam(resolvedSearchParams.status) ?? "all";
+  const categoryFilter = getParam(resolvedSearchParams.categoryId) ?? "all";
+  const sort = getParam(resolvedSearchParams.sort) ?? "updated_desc";
+
+  const orderBy =
+    sort === "title_asc"
+      ? [{ title: "asc" as const }]
+      : sort === "published_desc"
+        ? [{ publishedAt: "desc" as const }, { updatedAt: "desc" as const }]
+        : [{ updatedAt: "desc" as const }];
 
   const [articles, categories, tags] = await Promise.all([
     db.article.findMany({
-      orderBy: [{ updatedAt: "desc" }],
+      where: {
+        categoryId: categoryFilter === "all" ? undefined : categoryFilter,
+        status:
+          statusFilter === "all"
+            ? undefined
+            : (statusFilter as ContentStatus),
+        OR: query
+          ? [
+              {
+                title: {
+                  contains: query,
+                  mode: "insensitive",
+                },
+              },
+              {
+                summary: {
+                  contains: query,
+                  mode: "insensitive",
+                },
+              },
+              {
+                body: {
+                  contains: query,
+                  mode: "insensitive",
+                },
+              },
+            ]
+          : undefined,
+      },
+      orderBy,
       include: {
         author: true,
         category: true,
@@ -115,6 +162,66 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
       </form>
 
       <div className="grid gap-4">
+        <form className="glass-panel rounded-[1.6rem] p-5">
+          <div className="grid gap-3 lg:grid-cols-[1.2fr_0.7fr_0.8fr_0.8fr_auto]">
+            <input
+              type="text"
+              name="q"
+              defaultValue={query}
+              placeholder="Tim theo title, summary, body"
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+            />
+            <select
+              name="status"
+              defaultValue={statusFilter}
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+            >
+              <option value="all">Tat ca status</option>
+              <option value={ContentStatus.DRAFT}>Draft</option>
+              <option value={ContentStatus.PUBLISHED}>Published</option>
+              <option value={ContentStatus.UNPUBLISHED}>Unpublished</option>
+            </select>
+            <select
+              name="categoryId"
+              defaultValue={categoryFilter}
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+            >
+              <option value="all">Tat ca category</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            <select
+              name="sort"
+              defaultValue={sort}
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+            >
+              <option value="updated_desc">Moi cap nhat</option>
+              <option value="title_asc">Tieu de A-Z</option>
+              <option value="published_desc">Moi publish</option>
+            </select>
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="submit"
+                className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+              >
+                Loc
+              </button>
+              <a
+                href="/admin/articles"
+                className="rounded-full border border-line px-4 py-3 text-sm font-medium text-accent-strong"
+              >
+                Reset
+              </a>
+            </div>
+          </div>
+          <p className="mt-3 text-sm text-muted">
+            Dang hien thi {articles.length} article.
+          </p>
+        </form>
+
         <form
           id="article-bulk-form"
           action={bulkUpdateArticles}

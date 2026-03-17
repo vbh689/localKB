@@ -10,19 +10,47 @@ type Props = {
   searchParams: SearchParamInput;
 };
 
+function getParam(
+  value: string | string[] | undefined,
+) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 export default async function AdminSearchLogsPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
-  const feedback = await getFeedback(searchParams);
+  const resolvedSearchParams = await searchParams;
+  const feedback = await getFeedback(resolvedSearchParams);
+  const query = getParam(resolvedSearchParams.q)?.trim() ?? "";
+  const resultFilter = getParam(resolvedSearchParams.resultFilter) ?? "all";
+  const sort = getParam(resolvedSearchParams.sort) ?? "latest";
 
   const [recentLogs, noResultLogs] = await Promise.all([
     db.searchLog.findMany({
-      orderBy: [{ createdAt: "desc" }],
+      where: {
+        query: query
+          ? {
+              contains: query,
+              mode: "insensitive",
+            }
+          : undefined,
+        resultCount: resultFilter === "no-result" ? 0 : undefined,
+      },
+      orderBy:
+        sort === "results_desc"
+          ? [{ resultCount: "desc" }, { createdAt: "desc" }]
+          : [{ createdAt: "desc" }],
       take: 25,
     }),
     db.searchLog.groupBy({
       by: ["query"],
       where: {
         resultCount: 0,
+        query: query
+          ? {
+              contains: query,
+              mode: "insensitive",
+            }
+          : undefined,
       },
       _count: {
         query: true,
@@ -40,6 +68,45 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
     <section className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
       <div className="glass-panel rounded-[1.8rem] p-6">
         <FormNotice feedback={feedback} />
+        <form className="mb-6 grid gap-3 lg:grid-cols-[1.2fr_0.8fr_0.8fr_auto]">
+          <input
+            type="text"
+            name="q"
+            defaultValue={query}
+            placeholder="Tim theo query"
+            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+          />
+          <select
+            name="resultFilter"
+            defaultValue={resultFilter}
+            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+          >
+            <option value="all">Tat ca ket qua</option>
+            <option value="no-result">Chi no-result</option>
+          </select>
+          <select
+            name="sort"
+            defaultValue={sort}
+            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+          >
+            <option value="latest">Moi nhat</option>
+            <option value="results_desc">Nhieu ket qua nhat</option>
+          </select>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="submit"
+              className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+            >
+              Loc
+            </button>
+            <a
+              href="/admin/search-logs"
+              className="rounded-full border border-line px-4 py-3 text-sm font-medium text-accent-strong"
+            >
+              Reset
+            </a>
+          </div>
+        </form>
         <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
           Top no-result
         </p>
@@ -65,6 +132,9 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
       <div className="glass-panel rounded-[1.8rem] p-6">
         <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
           Recent search logs
+        </p>
+        <p className="mt-2 text-sm text-muted">
+          Dang hien thi {recentLogs.length} logs.
         </p>
         <div className="mt-5 grid gap-3">
           {recentLogs.map((log) => (
