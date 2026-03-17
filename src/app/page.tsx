@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { LogoutButton } from "@/components/auth/logout-button";
+import { getCurrentSession } from "@/lib/auth/session";
 import { getFeaturedArticles, getHomepageCounts } from "@/lib/content";
 import { createExcerpt } from "@/lib/utils";
 import { InstantSearch } from "@/components/search/instant-search";
@@ -6,9 +8,10 @@ import { InstantSearch } from "@/components/search/instant-search";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [counts, featuredArticles] = await Promise.all([
+  const [counts, featuredArticles, session] = await Promise.all([
     getHomepageCounts(),
     getFeaturedArticles(),
+    getCurrentSession(),
   ]);
 
   const quickStats = [
@@ -54,12 +57,24 @@ export default async function Home() {
             ))}
           </div>
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="inline-flex items-center justify-center rounded-full border border-line bg-white px-5 py-3 text-sm font-medium transition hover:border-accent hover:text-accent-strong"
-            >
-              Dang nhap
-            </Link>
+            {session ? (
+              <>
+                <Link
+                  href="/admin"
+                  className="inline-flex items-center justify-center rounded-full border border-line bg-white px-5 py-3 text-sm font-medium transition hover:border-accent hover:text-accent-strong"
+                >
+                  Admin
+                </Link>
+                <LogoutButton />
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="inline-flex items-center justify-center rounded-full border border-line bg-white px-5 py-3 text-sm font-medium transition hover:border-accent hover:text-accent-strong"
+              >
+                Dang nhap
+              </Link>
+            )}
           </div>
         </header>
 
