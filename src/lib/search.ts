@@ -1,9 +1,11 @@
 import { Meilisearch } from "meilisearch";
-import { config } from "@/lib/config";
+import { getConfig } from "@/lib/config";
 
 declare global {
   var meilisearch: Meilisearch | undefined;
 }
+
+const config = getConfig();
 
 export const searchClient =
   globalThis.meilisearch ??
@@ -15,4 +17,3 @@ export const searchClient =
 if (process.env.NODE_ENV !== "production") {
   globalThis.meilisearch = searchClient;
 }
-

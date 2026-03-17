@@ -32,4 +32,6 @@ Copy `.env.example` to `.env` before running database-related commands.
 ```bash
 docker compose up -d
 npm run db:generate
+npm run db:push
+npm run db:seed
 ```
