@@ -1,0 +1,146 @@
+import { ContentStatus, Role } from "@prisma/client";
+import { createFaq, deleteFaq, updateFaqStatus } from "@/app/admin/actions";
+import { requireRoles } from "@/lib/auth/session";
+import { db } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
+
+export default async function AdminFaqsPage() {
+  await requireRoles([Role.ADMIN, Role.EDITOR]);
+
+  const [faqs, categories, tags] = await Promise.all([
+    db.faq.findMany({
+      orderBy: [{ updatedAt: "desc" }],
+      include: {
+        category: true,
+        tags: true,
+      },
+    }),
+    db.category.findMany({ orderBy: [{ name: "asc" }] }),
+    db.tag.findMany({ orderBy: [{ name: "asc" }] }),
+  ]);
+
+  return (
+    <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
+      <form action={createFaq} className="glass-panel rounded-[1.8rem] p-6">
+        <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+          Tao FAQ
+        </p>
+        <div className="mt-5 space-y-4">
+          <input
+            type="text"
+            name="question"
+            required
+            placeholder="Cau hoi"
+            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+          />
+          <textarea
+            name="answer"
+            required
+            rows={8}
+            placeholder="Cau tra loi"
+            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+          />
+          <select
+            name="categoryId"
+            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+            defaultValue=""
+          >
+            <option value="">Khong co category</option>
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
+          <select
+            name="status"
+            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+            defaultValue={ContentStatus.DRAFT}
+          >
+            <option value={ContentStatus.DRAFT}>Draft</option>
+            <option value={ContentStatus.PUBLISHED}>Published</option>
+            <option value={ContentStatus.UNPUBLISHED}>Unpublished</option>
+          </select>
+          <div className="rounded-2xl border border-line bg-white p-4">
+            <p className="text-sm font-medium">Gan tags</p>
+            <div className="mt-3 flex flex-wrap gap-3">
+              {tags.map((tag) => (
+                <label key={tag.id} className="flex items-center gap-2 text-sm text-muted">
+                  <input type="checkbox" name="tagIds" value={tag.id} />
+                  {tag.name}
+                </label>
+              ))}
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+          >
+            Tao FAQ
+          </button>
+        </div>
+      </form>
+
+      <div className="grid gap-4">
+        {faqs.map((faq) => (
+          <article key={faq.id} className="glass-panel rounded-[1.6rem] p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
+                  <span className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-strong">
+                    {faq.status}
+                  </span>
+                  {faq.category ? <span>{faq.category.name}</span> : null}
+                </div>
+                <h2 className="text-xl font-semibold tracking-tight">
+                  {faq.question}
+                </h2>
+                <p className="text-sm leading-7 text-muted">{faq.answer}</p>
+                <div className="flex flex-wrap gap-2">
+                  {faq.tags.map((tag) => (
+                    <span
+                      key={tag.id}
+                      className="rounded-full border border-line bg-white px-3 py-1 text-xs text-muted"
+                    >
+                      #{tag.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <form action={updateFaqStatus}>
+                  <input type="hidden" name="id" value={faq.id} />
+                  <input
+                    type="hidden"
+                    name="status"
+                    value={
+                      faq.status === ContentStatus.PUBLISHED
+                        ? ContentStatus.UNPUBLISHED
+                        : ContentStatus.PUBLISHED
+                    }
+                  />
+                  <button
+                    type="submit"
+                    className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
+                  >
+                    {faq.status === ContentStatus.PUBLISHED ? "Unpublish" : "Publish"}
+                  </button>
+                </form>
+                <form action={deleteFaq}>
+                  <input type="hidden" name="id" value={faq.id} />
+                  <button
+                    type="submit"
+                    className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
+                  >
+                    Xoa
+                  </button>
+                </form>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
