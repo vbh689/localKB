@@ -1,4 +1,5 @@
 import { Role } from "@prisma/client";
+import { FormNotice } from "@/components/ui/form-notice";
 import {
   createCategory,
   deleteCategory,
@@ -6,11 +7,17 @@ import {
 } from "@/app/admin/actions";
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
+import { getFeedback, type SearchParamInput } from "@/lib/feedback";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminCategoriesPage() {
+type Props = {
+  searchParams: SearchParamInput;
+};
+
+export default async function AdminCategoriesPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const feedback = await getFeedback(searchParams);
   const categories = await db.category.findMany({
     orderBy: [{ name: "asc" }],
     include: {
@@ -26,10 +33,12 @@ export default async function AdminCategoriesPage() {
   return (
     <section className="grid gap-6 xl:grid-cols-[0.7fr_1.3fr]">
       <form action={createCategory} className="glass-panel rounded-[1.8rem] p-6">
+        <input type="hidden" name="redirectTo" value="/admin/categories" />
         <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
           Tao category
         </p>
         <div className="mt-5 space-y-3">
+          <FormNotice feedback={feedback} />
           <input
             type="text"
             name="name"
@@ -68,6 +77,7 @@ export default async function AdminCategoriesPage() {
                       action={updateCategory}
                       className="mt-3 flex flex-wrap items-center gap-2"
                     >
+                      <input type="hidden" name="redirectTo" value="/admin/categories" />
                       <input type="hidden" name="id" value={category.id} />
                       <input
                         type="text"
@@ -85,6 +95,7 @@ export default async function AdminCategoriesPage() {
                     </form>
                   </details>
                   <form action={deleteCategory}>
+                    <input type="hidden" name="redirectTo" value="/admin/categories" />
                     <input type="hidden" name="id" value={category.id} />
                     <button
                       type="submit"

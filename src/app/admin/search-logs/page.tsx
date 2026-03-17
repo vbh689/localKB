@@ -1,11 +1,18 @@
 import { Role } from "@prisma/client";
+import { FormNotice } from "@/components/ui/form-notice";
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
+import { getFeedback, type SearchParamInput } from "@/lib/feedback";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminSearchLogsPage() {
+type Props = {
+  searchParams: SearchParamInput;
+};
+
+export default async function AdminSearchLogsPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const feedback = await getFeedback(searchParams);
 
   const [recentLogs, noResultLogs] = await Promise.all([
     db.searchLog.findMany({
@@ -32,6 +39,7 @@ export default async function AdminSearchLogsPage() {
   return (
     <section className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
       <div className="glass-panel rounded-[1.8rem] p-6">
+        <FormNotice feedback={feedback} />
         <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
           Top no-result
         </p>

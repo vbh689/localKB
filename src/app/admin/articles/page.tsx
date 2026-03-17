@@ -1,4 +1,5 @@
 import { ContentStatus, Role } from "@prisma/client";
+import { FormNotice } from "@/components/ui/form-notice";
 import {
   createArticle,
   deleteArticle,
@@ -7,11 +8,17 @@ import {
 } from "@/app/admin/actions";
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
+import { getFeedback, type SearchParamInput } from "@/lib/feedback";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminArticlesPage() {
+type Props = {
+  searchParams: SearchParamInput;
+};
+
+export default async function AdminArticlesPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const feedback = await getFeedback(searchParams);
 
   const [articles, categories, tags] = await Promise.all([
     db.article.findMany({
@@ -29,10 +36,12 @@ export default async function AdminArticlesPage() {
   return (
     <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
       <form action={createArticle} className="glass-panel rounded-[1.8rem] p-6">
+        <input type="hidden" name="redirectTo" value="/admin/articles" />
         <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
           Tao article
         </p>
         <div className="mt-5 space-y-4">
+          <FormNotice feedback={feedback} />
           <input
             type="text"
             name="title"
@@ -131,6 +140,7 @@ export default async function AdminArticlesPage() {
                     action={updateArticle}
                     className="mt-4 grid gap-3 rounded-[1.4rem] border border-line bg-white p-4"
                   >
+                    <input type="hidden" name="redirectTo" value="/admin/articles" />
                     <input type="hidden" name="id" value={article.id} />
                     <input
                       type="text"
@@ -204,6 +214,7 @@ export default async function AdminArticlesPage() {
                   </form>
                 </details>
                 <form action={updateArticleStatus}>
+                  <input type="hidden" name="redirectTo" value="/admin/articles" />
                   <input type="hidden" name="id" value={article.id} />
                   <input
                     type="hidden"
@@ -224,6 +235,7 @@ export default async function AdminArticlesPage() {
                   </button>
                 </form>
                 <form action={deleteArticle}>
+                  <input type="hidden" name="redirectTo" value="/admin/articles" />
                   <input type="hidden" name="id" value={article.id} />
                   <button
                     type="submit"

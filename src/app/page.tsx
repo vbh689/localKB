@@ -72,6 +72,12 @@ export default async function Home() {
                     {session.user.role}
                   </span>
                 )}
+                <Link
+                  href="/account/password"
+                  className="inline-flex items-center justify-center rounded-full border border-line bg-white px-5 py-3 text-sm font-medium transition hover:border-accent hover:text-accent-strong"
+                >
+                  Doi mat khau
+                </Link>
                 <LogoutButton />
               </>
             ) : (

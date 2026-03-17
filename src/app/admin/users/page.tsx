@@ -1,4 +1,5 @@
 import { Role } from "@prisma/client";
+import { FormNotice } from "@/components/ui/form-notice";
 import {
   createUser,
   deleteUser,
@@ -6,11 +7,17 @@ import {
 } from "@/app/admin/actions";
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
+import { getFeedback, type SearchParamInput } from "@/lib/feedback";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminUsersPage() {
+type Props = {
+  searchParams: SearchParamInput;
+};
+
+export default async function AdminUsersPage({ searchParams }: Props) {
   const session = await requireRoles([Role.ADMIN]);
+  const feedback = await getFeedback(searchParams);
 
   const [users, sessionCounts] = await Promise.all([
     db.user.findMany({
@@ -31,10 +38,12 @@ export default async function AdminUsersPage() {
   return (
     <section className="grid gap-6 xl:grid-cols-[0.78fr_1.22fr]">
       <form action={createUser} className="glass-panel rounded-[1.8rem] p-6">
+        <input type="hidden" name="redirectTo" value="/admin/users" />
         <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
           Tao user noi bo
         </p>
         <div className="mt-5 space-y-4">
+          <FormNotice feedback={feedback} />
           <input
             type="email"
             name="email"
@@ -100,6 +109,7 @@ export default async function AdminUsersPage() {
                       action={updateUser}
                       className="mt-4 grid gap-3 rounded-[1.4rem] border border-line bg-white p-4"
                     >
+                      <input type="hidden" name="redirectTo" value="/admin/users" />
                       <input type="hidden" name="id" value={user.id} />
                       <input
                         type="email"
@@ -134,6 +144,7 @@ export default async function AdminUsersPage() {
                   </details>
 
                   <form action={deleteUser}>
+                    <input type="hidden" name="redirectTo" value="/admin/users" />
                     <input type="hidden" name="id" value={user.id} />
                     <button
                       type="submit"

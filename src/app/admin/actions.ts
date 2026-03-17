@@ -2,9 +2,10 @@
 
 import { ContentStatus, RevisionEntityType, Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { redirectWithFeedback } from "@/lib/feedback";
 import { db } from "@/lib/db";
 import { requireRoles } from "@/lib/auth/session";
-import { hashPassword } from "@/lib/auth/password";
+import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import {
   removeDocument,
   syncArticleDocument,
@@ -33,6 +34,62 @@ function getPublishedAt(status: ContentStatus) {
   return status === ContentStatus.PUBLISHED ? new Date() : null;
 }
 
+function getRedirectTo(formData: FormData, fallback: string) {
+  return getString(formData, "redirectTo") || fallback;
+}
+
+async function ensureUniqueSlug(
+  model: "article" | "faq" | "category" | "tag",
+  slug: string,
+  excludeId?: string,
+) {
+  if (model === "article") {
+    const existing = await db.article.findFirst({
+      where: {
+        slug,
+        id: excludeId ? { not: excludeId } : undefined,
+      },
+      select: { id: true },
+    });
+
+    return !existing;
+  }
+
+  if (model === "faq") {
+    const existing = await db.faq.findFirst({
+      where: {
+        slug,
+        id: excludeId ? { not: excludeId } : undefined,
+      },
+      select: { id: true },
+    });
+
+    return !existing;
+  }
+
+  if (model === "category") {
+    const existing = await db.category.findFirst({
+      where: {
+        slug,
+        id: excludeId ? { not: excludeId } : undefined,
+      },
+      select: { id: true },
+    });
+
+    return !existing;
+  }
+
+  const existing = await db.tag.findFirst({
+    where: {
+      slug,
+      id: excludeId ? { not: excludeId } : undefined,
+    },
+    select: { id: true },
+  });
+
+  return !existing;
+}
+
 function getRole(value: string) {
   return value === Role.ADMIN
     ? Role.ADMIN
@@ -56,12 +113,35 @@ async function ensureAnotherAdminExists(excludedUserId: string) {
 
 export async function createUser(formData: FormData) {
   await requireRoles([Role.ADMIN]);
+  const redirectTo = getRedirectTo(formData, "/admin/users");
   const email = getString(formData, "email").toLowerCase();
   const password = getString(formData, "password");
   const role = getRole(getString(formData, "role"));
 
-  if (!email || password.length < 8) {
-    return;
+  if (!email) {
+    redirectWithFeedback(redirectTo, {
+      message: "Email la bat buoc.",
+      status: "error",
+    });
+  }
+
+  if (password.length < 8) {
+    redirectWithFeedback(redirectTo, {
+      message: "Mat khau moi phai co it nhat 8 ky tu.",
+      status: "error",
+    });
+  }
+
+  const existing = await db.user.findUnique({
+    where: { email },
+    select: { id: true },
+  });
+
+  if (existing) {
+    redirectWithFeedback(redirectTo, {
+      message: "Email nay da ton tai trong he thong.",
+      status: "error",
+    });
   }
 
   await db.user.create({
@@ -73,21 +153,32 @@ export async function createUser(formData: FormData) {
   });
 
   revalidatePath("/admin/users");
+  redirectWithFeedback(redirectTo, {
+    message: `Da tao user ${email}.`,
+    status: "success",
+  });
 }
 
 export async function updateUser(formData: FormData) {
   const session = await requireRoles([Role.ADMIN]);
+  const redirectTo = getRedirectTo(formData, "/admin/users");
   const id = getString(formData, "id");
   const email = getString(formData, "email").toLowerCase();
   const password = getString(formData, "password");
   const role = getRole(getString(formData, "role"));
 
   if (!id || !email) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong du thong tin de cap nhat user.",
+      status: "error",
+    });
   }
 
   if (session.user.id === id && role !== Role.ADMIN) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Ban khong the tu ha quyen chinh minh khoi ADMIN.",
+      status: "error",
+    });
   }
 
   const currentUser = await db.user.findUnique({
@@ -97,14 +188,46 @@ export async function updateUser(formData: FormData) {
   });
 
   if (!currentUser) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong tim thay user can cap nhat.",
+      status: "error",
+    });
+  }
+
+  if (password.length > 0 && password.length < 8) {
+    redirectWithFeedback(redirectTo, {
+      message: "Mat khau moi phai co it nhat 8 ky tu.",
+      status: "error",
+    });
+  }
+
+  const emailOwner = await db.user.findFirst({
+    where: {
+      email,
+      id: {
+        not: id,
+      },
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (emailOwner) {
+    redirectWithFeedback(redirectTo, {
+      message: "Email nay dang thuoc ve mot user khac.",
+      status: "error",
+    });
   }
 
   if (currentUser.role === Role.ADMIN && role !== Role.ADMIN) {
     const hasAnotherAdmin = await ensureAnotherAdminExists(id);
 
     if (!hasAnotherAdmin) {
-      return;
+      redirectWithFeedback(redirectTo, {
+        message: "Khong the ha quyen admin cuoi cung.",
+        status: "error",
+      });
     }
   }
 
@@ -123,14 +246,22 @@ export async function updateUser(formData: FormData) {
   });
 
   revalidatePath("/admin/users");
+  redirectWithFeedback(redirectTo, {
+    message: `Da cap nhat user ${email}.`,
+    status: "success",
+  });
 }
 
 export async function deleteUser(formData: FormData) {
   const session = await requireRoles([Role.ADMIN]);
+  const redirectTo = getRedirectTo(formData, "/admin/users");
   const id = getString(formData, "id");
 
   if (!id || id === session.user.id) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Ban khong the xoa tai khoan dang dang nhap.",
+      status: "error",
+    });
   }
 
   const currentUser = await db.user.findUnique({
@@ -140,14 +271,20 @@ export async function deleteUser(formData: FormData) {
   });
 
   if (!currentUser) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong tim thay user can xoa.",
+      status: "error",
+    });
   }
 
   if (currentUser.role === Role.ADMIN) {
     const hasAnotherAdmin = await ensureAnotherAdminExists(id);
 
     if (!hasAnotherAdmin) {
-      return;
+      redirectWithFeedback(redirectTo, {
+        message: "Khong the xoa admin cuoi cung.",
+        status: "error",
+      });
     }
   }
 
@@ -164,35 +301,69 @@ export async function deleteUser(formData: FormData) {
   });
 
   revalidatePath("/admin/users");
+  redirectWithFeedback(redirectTo, {
+    message: `Da xoa user ${currentUser.email}.`,
+    status: "success",
+  });
 }
 
 export async function createCategory(formData: FormData) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/categories");
   const name = getString(formData, "name");
 
   if (!name) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Ten category la bat buoc.",
+      status: "error",
+    });
+  }
+
+  const slug = slugify(name);
+
+  if (!(await ensureUniqueSlug("category", slug))) {
+    redirectWithFeedback(redirectTo, {
+      message: "Category nay da ton tai.",
+      status: "error",
+    });
   }
 
   await db.category.create({
     data: {
       name,
-      slug: slugify(name),
+      slug,
     },
   });
 
   revalidatePath("/admin/categories");
   revalidatePath("/admin/articles");
   revalidatePath("/admin/faqs");
+  redirectWithFeedback(redirectTo, {
+    message: `Da tao category ${name}.`,
+    status: "success",
+  });
 }
 
 export async function updateCategory(formData: FormData) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/categories");
   const id = getString(formData, "id");
   const name = getString(formData, "name");
 
   if (!id || !name) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong du thong tin de cap nhat category.",
+      status: "error",
+    });
+  }
+
+  const slug = slugify(name);
+
+  if (!(await ensureUniqueSlug("category", slug, id))) {
+    redirectWithFeedback(redirectTo, {
+      message: "Category voi ten nay da ton tai.",
+      status: "error",
+    });
   }
 
   await db.category.update({
@@ -201,7 +372,7 @@ export async function updateCategory(formData: FormData) {
     },
     data: {
       name,
-      slug: slugify(name),
+      slug,
     },
   });
 
@@ -209,14 +380,34 @@ export async function updateCategory(formData: FormData) {
   revalidatePath("/admin/articles");
   revalidatePath("/admin/faqs");
   revalidatePath("/");
+  redirectWithFeedback(redirectTo, {
+    message: `Da cap nhat category ${name}.`,
+    status: "success",
+  });
 }
 
 export async function deleteCategory(formData: FormData) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/categories");
   const id = getString(formData, "id");
 
   if (!id) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong tim thay category can xoa.",
+      status: "error",
+    });
+  }
+
+  const category = await db.category.findUnique({
+    where: { id },
+    select: { name: true },
+  });
+
+  if (!category) {
+    redirectWithFeedback(redirectTo, {
+      message: "Category khong ton tai.",
+      status: "error",
+    });
   }
 
   await db.category.delete({
@@ -228,35 +419,69 @@ export async function deleteCategory(formData: FormData) {
   revalidatePath("/admin/categories");
   revalidatePath("/admin/articles");
   revalidatePath("/admin/faqs");
+  redirectWithFeedback(redirectTo, {
+    message: `Da xoa category ${category.name}.`,
+    status: "success",
+  });
 }
 
 export async function createTag(formData: FormData) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/tags");
   const name = getString(formData, "name");
 
   if (!name) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Ten tag la bat buoc.",
+      status: "error",
+    });
+  }
+
+  const slug = slugify(name);
+
+  if (!(await ensureUniqueSlug("tag", slug))) {
+    redirectWithFeedback(redirectTo, {
+      message: "Tag nay da ton tai.",
+      status: "error",
+    });
   }
 
   await db.tag.create({
     data: {
       name,
-      slug: slugify(name),
+      slug,
     },
   });
 
   revalidatePath("/admin/tags");
   revalidatePath("/admin/articles");
   revalidatePath("/admin/faqs");
+  redirectWithFeedback(redirectTo, {
+    message: `Da tao tag ${name}.`,
+    status: "success",
+  });
 }
 
 export async function updateTag(formData: FormData) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/tags");
   const id = getString(formData, "id");
   const name = getString(formData, "name");
 
   if (!id || !name) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong du thong tin de cap nhat tag.",
+      status: "error",
+    });
+  }
+
+  const slug = slugify(name);
+
+  if (!(await ensureUniqueSlug("tag", slug, id))) {
+    redirectWithFeedback(redirectTo, {
+      message: "Tag voi ten nay da ton tai.",
+      status: "error",
+    });
   }
 
   await db.tag.update({
@@ -265,7 +490,7 @@ export async function updateTag(formData: FormData) {
     },
     data: {
       name,
-      slug: slugify(name),
+      slug,
     },
   });
 
@@ -273,14 +498,34 @@ export async function updateTag(formData: FormData) {
   revalidatePath("/admin/articles");
   revalidatePath("/admin/faqs");
   revalidatePath("/");
+  redirectWithFeedback(redirectTo, {
+    message: `Da cap nhat tag ${name}.`,
+    status: "success",
+  });
 }
 
 export async function deleteTag(formData: FormData) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/tags");
   const id = getString(formData, "id");
 
   if (!id) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong tim thay tag can xoa.",
+      status: "error",
+    });
+  }
+
+  const tag = await db.tag.findUnique({
+    where: { id },
+    select: { name: true },
+  });
+
+  if (!tag) {
+    redirectWithFeedback(redirectTo, {
+      message: "Tag khong ton tai.",
+      status: "error",
+    });
   }
 
   await db.tag.delete({
@@ -292,10 +537,15 @@ export async function deleteTag(formData: FormData) {
   revalidatePath("/admin/tags");
   revalidatePath("/admin/articles");
   revalidatePath("/admin/faqs");
+  redirectWithFeedback(redirectTo, {
+    message: `Da xoa tag ${tag.name}.`,
+    status: "success",
+  });
 }
 
 export async function createArticle(formData: FormData) {
   const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/articles");
   const title = getString(formData, "title");
   const summary = getString(formData, "summary");
   const body = getString(formData, "body");
@@ -307,7 +557,19 @@ export async function createArticle(formData: FormData) {
   const status = getStatus(getString(formData, "status"));
 
   if (!title || !summary || !body) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Title, summary va body deu la bat buoc.",
+      status: "error",
+    });
+  }
+
+  const slug = slugify(title);
+
+  if (!(await ensureUniqueSlug("article", slug))) {
+    redirectWithFeedback(redirectTo, {
+      message: "Article voi tieu de nay da ton tai.",
+      status: "error",
+    });
   }
 
   const article = await db.article.create({
@@ -316,7 +578,7 @@ export async function createArticle(formData: FormData) {
       body,
       categoryId,
       publishedAt: getPublishedAt(status),
-      slug: slugify(title),
+      slug,
       status,
       summary,
       tags: {
@@ -345,14 +607,34 @@ export async function createArticle(formData: FormData) {
   revalidatePath("/admin/articles");
   revalidatePath("/");
   revalidatePath("/search");
+  redirectWithFeedback(redirectTo, {
+    message: `Da tao article ${title}.`,
+    status: "success",
+  });
 }
 
 export async function deleteArticle(formData: FormData) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/articles");
   const id = getString(formData, "id");
 
   if (!id) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong tim thay article can xoa.",
+      status: "error",
+    });
+  }
+
+  const article = await db.article.findUnique({
+    where: { id },
+    select: { title: true },
+  });
+
+  if (!article) {
+    redirectWithFeedback(redirectTo, {
+      message: "Article khong ton tai.",
+      status: "error",
+    });
   }
 
   await db.article.delete({
@@ -366,15 +648,23 @@ export async function deleteArticle(formData: FormData) {
   revalidatePath("/admin/articles");
   revalidatePath("/");
   revalidatePath("/search");
+  redirectWithFeedback(redirectTo, {
+    message: `Da xoa article ${article.title}.`,
+    status: "success",
+  });
 }
 
 export async function updateArticleStatus(formData: FormData) {
   const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/articles");
   const id = getString(formData, "id");
   const status = getStatus(getString(formData, "status"));
 
   if (!id) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong tim thay article can cap nhat trang thai.",
+      status: "error",
+    });
   }
 
   const article = await db.article.update({
@@ -405,10 +695,15 @@ export async function updateArticleStatus(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/search");
   revalidatePath("/kb");
+  redirectWithFeedback(redirectTo, {
+    message: `Da cap nhat trang thai article ${article.title} sang ${status}.`,
+    status: "success",
+  });
 }
 
 export async function updateArticle(formData: FormData) {
   const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/articles");
   const id = getString(formData, "id");
   const title = getString(formData, "title");
   const summary = getString(formData, "summary");
@@ -421,7 +716,19 @@ export async function updateArticle(formData: FormData) {
     .filter(Boolean);
 
   if (!id || !title || !summary || !body) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong du thong tin de cap nhat article.",
+      status: "error",
+    });
+  }
+
+  const slug = slugify(title);
+
+  if (!(await ensureUniqueSlug("article", slug, id))) {
+    redirectWithFeedback(redirectTo, {
+      message: "Article voi tieu de nay da ton tai.",
+      status: "error",
+    });
   }
 
   const article = await db.article.update({
@@ -432,7 +739,7 @@ export async function updateArticle(formData: FormData) {
       body,
       categoryId,
       publishedAt: getPublishedAt(status),
-      slug: slugify(title),
+      slug,
       status,
       summary,
       tags: {
@@ -460,10 +767,15 @@ export async function updateArticle(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/search");
   revalidatePath(`/kb/${article.slug}`);
+  redirectWithFeedback(redirectTo, {
+    message: `Da cap nhat article ${article.title}.`,
+    status: "success",
+  });
 }
 
 export async function createFaq(formData: FormData) {
   const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/faqs");
   const question = getString(formData, "question");
   const answer = getString(formData, "answer");
   const categoryId = getOptionalString(formData, "categoryId");
@@ -474,7 +786,19 @@ export async function createFaq(formData: FormData) {
   const status = getStatus(getString(formData, "status"));
 
   if (!question || !answer) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Question va answer deu la bat buoc.",
+      status: "error",
+    });
+  }
+
+  const slug = slugify(question);
+
+  if (!(await ensureUniqueSlug("faq", slug))) {
+    redirectWithFeedback(redirectTo, {
+      message: "FAQ voi cau hoi nay da ton tai.",
+      status: "error",
+    });
   }
 
   const faq = await db.faq.create({
@@ -483,7 +807,7 @@ export async function createFaq(formData: FormData) {
       categoryId,
       publishedAt: getPublishedAt(status),
       question,
-      slug: slugify(question),
+      slug,
       status,
       tags: {
         connect: tagIds.map((id) => ({ id })),
@@ -511,14 +835,34 @@ export async function createFaq(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/faq");
   revalidatePath("/search");
+  redirectWithFeedback(redirectTo, {
+    message: `Da tao FAQ ${question}.`,
+    status: "success",
+  });
 }
 
 export async function deleteFaq(formData: FormData) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/faqs");
   const id = getString(formData, "id");
 
   if (!id) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong tim thay FAQ can xoa.",
+      status: "error",
+    });
+  }
+
+  const faq = await db.faq.findUnique({
+    where: { id },
+    select: { question: true },
+  });
+
+  if (!faq) {
+    redirectWithFeedback(redirectTo, {
+      message: "FAQ khong ton tai.",
+      status: "error",
+    });
   }
 
   await db.faq.delete({
@@ -533,15 +877,23 @@ export async function deleteFaq(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/faq");
   revalidatePath("/search");
+  redirectWithFeedback(redirectTo, {
+    message: `Da xoa FAQ ${faq.question}.`,
+    status: "success",
+  });
 }
 
 export async function updateFaqStatus(formData: FormData) {
   const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/faqs");
   const id = getString(formData, "id");
   const status = getStatus(getString(formData, "status"));
 
   if (!id) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong tim thay FAQ can cap nhat trang thai.",
+      status: "error",
+    });
   }
 
   const faq = await db.faq.update({
@@ -572,10 +924,15 @@ export async function updateFaqStatus(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/faq");
   revalidatePath("/search");
+  redirectWithFeedback(redirectTo, {
+    message: `Da cap nhat trang thai FAQ ${faq.question} sang ${status}.`,
+    status: "success",
+  });
 }
 
 export async function updateFaq(formData: FormData) {
   const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin/faqs");
   const id = getString(formData, "id");
   const question = getString(formData, "question");
   const answer = getString(formData, "answer");
@@ -587,7 +944,19 @@ export async function updateFaq(formData: FormData) {
     .filter(Boolean);
 
   if (!id || !question || !answer) {
-    return;
+    redirectWithFeedback(redirectTo, {
+      message: "Khong du thong tin de cap nhat FAQ.",
+      status: "error",
+    });
+  }
+
+  const slug = slugify(question);
+
+  if (!(await ensureUniqueSlug("faq", slug, id))) {
+    redirectWithFeedback(redirectTo, {
+      message: "FAQ voi cau hoi nay da ton tai.",
+      status: "error",
+    });
   }
 
   const faq = await db.faq.update({
@@ -599,7 +968,7 @@ export async function updateFaq(formData: FormData) {
       categoryId,
       publishedAt: getPublishedAt(status),
       question,
-      slug: slugify(question),
+      slug,
       status,
       tags: {
         set: tagIds.map((tagId) => ({ id: tagId })),
@@ -626,4 +995,89 @@ export async function updateFaq(formData: FormData) {
   revalidatePath("/faq");
   revalidatePath("/search");
   revalidatePath(`/faq/${faq.slug}`);
+  redirectWithFeedback(redirectTo, {
+    message: `Da cap nhat FAQ ${faq.question}.`,
+    status: "success",
+  });
+}
+
+export async function changeOwnPassword(formData: FormData) {
+  const session = await requireRoles([Role.ADMIN, Role.EDITOR, Role.VIEWER]);
+  const redirectTo = getRedirectTo(formData, "/account/password");
+  const currentPassword = getString(formData, "currentPassword");
+  const nextPassword = getString(formData, "nextPassword");
+  const confirmPassword = getString(formData, "confirmPassword");
+
+  if (
+    currentPassword.length < 8 ||
+    nextPassword.length < 8 ||
+    confirmPassword.length < 8
+  ) {
+    redirectWithFeedback(redirectTo, {
+      message: "Tat ca truong mat khau can it nhat 8 ky tu.",
+      status: "error",
+    });
+  }
+
+  if (nextPassword !== confirmPassword) {
+    redirectWithFeedback(redirectTo, {
+      message: "Xac nhan mat khau moi khong khop.",
+      status: "error",
+    });
+  }
+
+  const user = await db.user.findUnique({
+    where: {
+      id: session.user.id,
+    },
+  });
+
+  if (!user) {
+    redirectWithFeedback(redirectTo, {
+      message: "Khong tim thay tai khoan hien tai.",
+      status: "error",
+    });
+  }
+
+  const isCurrentPasswordValid = await verifyPassword(
+    user.passwordHash,
+    currentPassword,
+  );
+
+  if (!isCurrentPasswordValid) {
+    redirectWithFeedback(redirectTo, {
+      message: "Mat khau hien tai khong dung.",
+      status: "error",
+    });
+  }
+
+  if (currentPassword === nextPassword) {
+    redirectWithFeedback(redirectTo, {
+      message: "Mat khau moi phai khac mat khau hien tai.",
+      status: "error",
+    });
+  }
+
+  await db.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      passwordHash: await hashPassword(nextPassword),
+    },
+  });
+
+  await db.session.deleteMany({
+    where: {
+      userId: user.id,
+      id: {
+        not: session.id,
+      },
+    },
+  });
+
+  redirectWithFeedback(redirectTo, {
+    message: "Da cap nhat mat khau thanh cong.",
+    status: "success",
+  });
 }
