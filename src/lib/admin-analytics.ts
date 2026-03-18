@@ -41,31 +41,31 @@ export function getTrendDelta(current: number, previous: number) {
 export async function getSearchTrend(days: number) {
   return db.$queryRaw<SearchTrendRow[]>(Prisma.sql`
     SELECT
-      day::date AS day,
+      series.day::date AS day,
       COALESCE(COUNT(sl.id), 0)::int AS total,
       COALESCE(COUNT(*) FILTER (WHERE sl."resultCount" = 0), 0)::int AS no_result
     FROM generate_series(
       date_trunc('day', NOW()) - (${days - 1} * interval '1 day'),
       date_trunc('day', NOW()),
       interval '1 day'
-    ) AS day
+    ) AS series(day)
     LEFT JOIN "SearchLog" sl
-      ON date_trunc('day', sl."createdAt") = day
-    GROUP BY day
-    ORDER BY day ASC
+      ON date_trunc('day', sl."createdAt") = series.day
+    GROUP BY series.day
+    ORDER BY series.day ASC
   `);
 }
 
 export async function getPublishTrend(days: number) {
   return db.$queryRaw<PublishTrendRow[]>(Prisma.sql`
     SELECT
-      day::date AS day,
+      series.day::date AS day,
       COALESCE(COUNT(published_items.day), 0)::int AS published
     FROM generate_series(
       date_trunc('day', NOW()) - (${days - 1} * interval '1 day'),
       date_trunc('day', NOW()),
       interval '1 day'
-    ) AS day
+    ) AS series(day)
     LEFT JOIN (
       SELECT "publishedAt"::date AS day
       FROM "Article"
@@ -75,8 +75,8 @@ export async function getPublishTrend(days: number) {
       FROM "Faq"
       WHERE "publishedAt" IS NOT NULL
     ) AS published_items
-      ON published_items.day = day::date
-    GROUP BY day
-    ORDER BY day ASC
+      ON published_items.day = series.day::date
+    GROUP BY series.day
+    ORDER BY series.day ASC
   `);
 }
