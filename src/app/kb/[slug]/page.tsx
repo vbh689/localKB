@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { MarkdownContent } from "@/components/content/markdown-content";
 import { getPublishedArticleBySlug } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
@@ -34,9 +35,10 @@ export default async function KnowledgeBaseDetailPage({ params }: Props) {
             {article.title}
           </h1>
           <p className="mt-4 text-lg leading-8 text-muted">{article.summary}</p>
-          <div className="mt-8 whitespace-pre-wrap text-base leading-8 text-foreground">
-            {article.body}
-          </div>
+          <MarkdownContent
+            content={article.body}
+            className="mt-8 text-base text-foreground"
+          />
           {article.tags.length > 0 ? (
             <div className="mt-8 flex flex-wrap gap-2">
               {article.tags.map((tag) => (

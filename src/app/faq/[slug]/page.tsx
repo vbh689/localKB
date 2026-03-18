@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { MarkdownContent } from "@/components/content/markdown-content";
 import { getPublishedFaqBySlug } from "@/lib/content";
 
 export const dynamic = "force-dynamic";
@@ -33,9 +34,10 @@ export default async function FaqDetailPage({ params }: Props) {
           <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">
             {faq.question}
           </h1>
-          <div className="mt-8 whitespace-pre-wrap text-base leading-8 text-foreground">
-            {faq.answer}
-          </div>
+          <MarkdownContent
+            content={faq.answer}
+            className="mt-8 text-base text-foreground"
+          />
           {faq.tags.length > 0 ? (
             <div className="mt-8 flex flex-wrap gap-2">
               {faq.tags.map((tag) => (

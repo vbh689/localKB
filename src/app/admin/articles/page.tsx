@@ -1,4 +1,6 @@
 import { ContentStatus, Role } from "@prisma/client";
+import { MarkdownContent } from "@/components/content/markdown-content";
+import { MarkdownTextarea } from "@/components/editor/markdown-textarea";
 import { BulkSelectionControls } from "@/components/ui/bulk-selection-controls";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
@@ -27,6 +29,16 @@ function getParam(
   return Array.isArray(value) ? value[0] : value;
 }
 
+function getPageSize(value: string | string[] | undefined) {
+  const limit = Number.parseInt(getParam(value) ?? "20", 10);
+
+  if (![20, 50, 100].includes(limit)) {
+    return 20;
+  }
+
+  return limit;
+}
+
 export default async function AdminArticlesPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
   const resolvedSearchParams = await searchParams;
@@ -39,7 +51,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
     1,
     Number.parseInt(getParam(resolvedSearchParams.page) ?? "1", 10) || 1,
   );
-  const pageSize = 10;
+  const pageSize = getPageSize(resolvedSearchParams.limit);
 
   const orderBy =
     sort === "title_asc"
@@ -127,12 +139,11 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
             placeholder="Tóm tắt ngắn"
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           />
-          <textarea
+          <MarkdownTextarea
             name="body"
             required
             rows={8}
             placeholder="Nội dung chi tiết"
-            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           />
           <select
             name="categoryId"
@@ -305,6 +316,10 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                   {article.title}
                 </h2>
                 <p className="text-sm leading-7 text-muted">{article.summary}</p>
+                <MarkdownContent
+                  content={article.body}
+                  className="text-sm text-muted"
+                />
                 <div className="flex flex-wrap gap-2">
                   {article.tags.map((tag) => (
                     <span
@@ -353,18 +368,20 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                               <p className="mt-3 text-sm font-medium">
                                 {revision.snapshotTitle}
                               </p>
-                              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">
-                                {revision.snapshotBody}
-                              </p>
+                              <MarkdownContent
+                                content={revision.snapshotBody}
+                                className="mt-3 text-sm text-muted"
+                              />
                             </div>
                             <div className="rounded-[1rem] border border-line bg-white p-4">
                               <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
                                 Current
                               </p>
                               <p className="mt-3 text-sm font-medium">{article.title}</p>
-                              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">
-                                {article.body}
-                              </p>
+                              <MarkdownContent
+                                content={article.body}
+                                className="mt-3 text-sm text-muted"
+                              />
                             </div>
                           </div>
                           <form action={restoreArticleRevision} className="mt-4">
@@ -410,12 +427,11 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                       defaultValue={article.summary}
                       className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
                     />
-                    <textarea
+                    <MarkdownTextarea
                       name="body"
                       required
                       rows={8}
                       defaultValue={article.body}
-                      className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
                     />
                     <select
                       name="categoryId"

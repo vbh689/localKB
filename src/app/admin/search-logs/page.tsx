@@ -17,6 +17,16 @@ function getParam(
   return Array.isArray(value) ? value[0] : value;
 }
 
+function getPageSize(value: string | string[] | undefined) {
+  const limit = Number.parseInt(getParam(value) ?? "20", 10);
+
+  if (![20, 50, 100].includes(limit)) {
+    return 20;
+  }
+
+  return limit;
+}
+
 export default async function AdminSearchLogsPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
   const resolvedSearchParams = await searchParams;
@@ -28,7 +38,7 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
     1,
     Number.parseInt(getParam(resolvedSearchParams.page) ?? "1", 10) || 1,
   );
-  const pageSize = 20;
+  const pageSize = getPageSize(resolvedSearchParams.limit);
 
   const recentLogsWhere = {
     query: query

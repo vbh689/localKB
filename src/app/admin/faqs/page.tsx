@@ -1,4 +1,6 @@
 import { ContentStatus, Role } from "@prisma/client";
+import { MarkdownContent } from "@/components/content/markdown-content";
+import { MarkdownTextarea } from "@/components/editor/markdown-textarea";
 import { BulkSelectionControls } from "@/components/ui/bulk-selection-controls";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
@@ -27,6 +29,16 @@ function getParam(
   return Array.isArray(value) ? value[0] : value;
 }
 
+function getPageSize(value: string | string[] | undefined) {
+  const limit = Number.parseInt(getParam(value) ?? "20", 10);
+
+  if (![20, 50, 100].includes(limit)) {
+    return 20;
+  }
+
+  return limit;
+}
+
 export default async function AdminFaqsPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
   const resolvedSearchParams = await searchParams;
@@ -39,7 +51,7 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
     1,
     Number.parseInt(getParam(resolvedSearchParams.page) ?? "1", 10) || 1,
   );
-  const pageSize = 10;
+  const pageSize = getPageSize(resolvedSearchParams.limit);
 
   const orderBy =
     sort === "question_asc"
@@ -113,12 +125,11 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
             placeholder="Câu hỏi"
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           />
-          <textarea
+          <MarkdownTextarea
             name="answer"
             required
             rows={8}
             placeholder="Câu trả lời"
-            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           />
           <select
             name="categoryId"
@@ -289,7 +300,10 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
                 <h2 className="text-xl font-semibold tracking-tight">
                   {faq.question}
                 </h2>
-                <p className="text-sm leading-7 text-muted">{faq.answer}</p>
+                <MarkdownContent
+                  content={faq.answer}
+                  className="text-sm text-muted"
+                />
                 <div className="flex flex-wrap gap-2">
                   {faq.tags.map((tag) => (
                     <span
@@ -338,18 +352,20 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
                               <p className="mt-3 text-sm font-medium">
                                 {revision.snapshotTitle}
                               </p>
-                              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">
-                                {revision.snapshotBody}
-                              </p>
+                              <MarkdownContent
+                                content={revision.snapshotBody}
+                                className="mt-3 text-sm text-muted"
+                              />
                             </div>
                             <div className="rounded-[1rem] border border-line bg-white p-4">
                               <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
                                 Current
                               </p>
                               <p className="mt-3 text-sm font-medium">{faq.question}</p>
-                              <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-muted">
-                                {faq.answer}
-                              </p>
+                              <MarkdownContent
+                                content={faq.answer}
+                                className="mt-3 text-sm text-muted"
+                              />
                             </div>
                           </div>
                           <form action={restoreFaqRevision} className="mt-4">
@@ -388,12 +404,11 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
                       defaultValue={faq.question}
                       className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
                     />
-                    <textarea
+                    <MarkdownTextarea
                       name="answer"
                       required
                       rows={8}
                       defaultValue={faq.answer}
-                      className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
                     />
                     <select
                       name="categoryId"
