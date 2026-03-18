@@ -1494,11 +1494,6 @@ export async function rebuildSearchIndex(formData: FormData) {
 
   try {
     await syncAllPublishedContent();
-
-    redirectWithFeedback(redirectTo, {
-      message: "Đã rebuild search index thành công.",
-      status: "success",
-    });
   } catch (error) {
     logError("admin.reindex", "Search index rebuild failed.", error);
 
@@ -1507,4 +1502,9 @@ export async function rebuildSearchIndex(formData: FormData) {
       status: "error",
     });
   }
+
+  redirectWithFeedback(redirectTo, {
+    message: "Đã rebuild search index thành công.",
+    status: "success",
+  });
 }
