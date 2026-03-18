@@ -133,7 +133,11 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
     { label: "FAQs", value: faqs, href: "/admin/faqs" },
     { label: "Categories", value: categories, href: "/admin/categories" },
     { label: "Tags", value: tags, href: "/admin/tags" },
-    { label: "Draft articles", value: drafts, href: "/admin/articles" },
+    {
+      label: "Draft articles",
+      value: drafts,
+      href: `/admin/articles?status=${ContentStatus.DRAFT}`,
+    },
   ];
 
   return (
@@ -163,24 +167,36 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
             Usage overview
           </p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-line bg-white p-4">
+            <Link
+              href={`/admin/articles?status=${ContentStatus.PUBLISHED}`}
+              className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+            >
               <p className="text-sm text-muted">Published content</p>
               <p className="mt-2 text-3xl font-semibold">
                 {publishedArticles + publishedFaqs}
               </p>
-            </div>
-            <div className="rounded-2xl border border-line bg-white p-4">
+            </Link>
+            <Link
+              href="/admin/users"
+              className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+            >
               <p className="text-sm text-muted">Active sessions</p>
               <p className="mt-2 text-3xl font-semibold">{activeSessions}</p>
-            </div>
-            <div className="rounded-2xl border border-line bg-white p-4">
+            </Link>
+            <Link
+              href="/admin/search-logs"
+              className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+            >
               <p className="text-sm text-muted">Searches / {selectedDays} ngày</p>
               <p className="mt-2 text-3xl font-semibold">{currentSearchRange}</p>
-            </div>
-            <div className="rounded-2xl border border-line bg-white p-4">
+            </Link>
+            <Link
+              href="/admin/search-logs?resultFilter=no_result"
+              className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+            >
               <p className="text-sm text-muted">No-result / {selectedDays} ngày</p>
               <p className="mt-2 text-3xl font-semibold">{currentNoResultRange}</p>
-            </div>
+            </Link>
           </div>
 
           <div className="mt-6 rounded-[1.6rem] border border-line bg-white p-4">
@@ -190,13 +206,14 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                 <p className="text-sm text-muted">Chưa có dữ liệu tìm kiếm.</p>
               ) : (
                 topQueries.map((query) => (
-                  <div
+                  <Link
                     key={query.query}
-                    className="flex items-center justify-between gap-3 text-sm"
+                    href={`/admin/search-logs?query=${encodeURIComponent(query.query || "")}`}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-transparent px-3 py-2 text-sm transition hover:border-line hover:bg-background"
                   >
                     <span>{query.query || "(empty)"}</span>
                     <span className="text-muted">{query._count.query} lần</span>
-                  </div>
+                  </Link>
                 ))
               )}
             </div>
@@ -205,39 +222,44 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
 
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="glass-panel rounded-[1.8rem] p-6">
-            <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-              Recent articles
-            </p>
-            <div className="mt-5 grid gap-3">
-              {recentArticles.map((article) => (
-                <div
-                  key={article.id}
-                  className="rounded-2xl border border-line bg-white p-4"
-                >
-                  <p className="font-medium">{article.title}</p>
-                  <p className="mt-1 text-sm text-muted">
-                    {article.status} - {article.updatedAt.toLocaleString("vi-VN")}
-                  </p>
-                </div>
-              ))}
+              <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+                Recent articles
+              </p>
+              <div className="mt-5 grid gap-3">
+                {recentArticles.map((article) => (
+                  <Link
+                    key={article.id}
+                    href={`/admin/articles?q=${encodeURIComponent(article.title)}`}
+                    className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+                  >
+                    <p className="font-medium">{article.title}</p>
+                    <p className="mt-1 text-sm text-muted">
+                      {article.status} - {article.updatedAt.toLocaleString("vi-VN")}
+                    </p>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
 
           <div className="glass-panel rounded-[1.8rem] p-6">
-            <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-              Recent FAQs
-            </p>
-            <div className="mt-5 grid gap-3">
-              {recentFaqs.map((faq) => (
-                <div key={faq.id} className="rounded-2xl border border-line bg-white p-4">
-                  <p className="font-medium">{faq.question}</p>
-                  <p className="mt-1 text-sm text-muted">
-                    {faq.status} - {faq.updatedAt.toLocaleString("vi-VN")}
-                  </p>
-                </div>
-              ))}
+              <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+                Recent FAQs
+              </p>
+              <div className="mt-5 grid gap-3">
+                {recentFaqs.map((faq) => (
+                  <Link
+                    key={faq.id}
+                    href={`/admin/faqs?q=${encodeURIComponent(faq.question)}`}
+                    className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+                  >
+                    <p className="font-medium">{faq.question}</p>
+                    <p className="mt-1 text-sm text-muted">
+                      {faq.status} - {faq.updatedAt.toLocaleString("vi-VN")}
+                    </p>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
         </div>
       </section>
 
@@ -312,7 +334,10 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
               </a>
             </div>
             <div className="mt-5 grid gap-4">
-              <div className="rounded-2xl border border-line bg-white p-4">
+              <Link
+                href="/admin/search-logs"
+                className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+              >
                 <p className="text-sm text-muted">
                   Searches vs {selectedDays} ngày trước
                 </p>
@@ -320,8 +345,11 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                 <p className="mt-1 text-sm text-muted">
                   {getTrendDelta(currentSearchRange, previousSearchRange)}
                 </p>
-              </div>
-              <div className="rounded-2xl border border-line bg-white p-4">
+              </Link>
+              <Link
+                href="/admin/search-logs?resultFilter=no_result"
+                className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+              >
                 <p className="text-sm text-muted">
                   No-result vs {selectedDays} ngày trước
                 </p>
@@ -329,8 +357,11 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                 <p className="mt-1 text-sm text-muted">
                   {getTrendDelta(currentNoResultRange, previousNoResultRange)}
                 </p>
-              </div>
-              <div className="rounded-2xl border border-line bg-white p-4">
+              </Link>
+              <Link
+                href={`/admin/articles?status=${ContentStatus.PUBLISHED}`}
+                className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+              >
                 <p className="text-sm text-muted">
                   Published content / {selectedDays} ngày
                 </p>
@@ -338,7 +369,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                 <p className="mt-1 text-sm text-muted">
                   Tổng article và FAQ được xuất bản trong khoảng đã chọn.
                 </p>
-              </div>
+              </Link>
             </div>
           </div>
 
