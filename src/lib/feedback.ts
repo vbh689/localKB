@@ -19,8 +19,8 @@ export async function getFeedback(
   searchParams: SearchParamInput,
 ): Promise<Feedback | null> {
   const resolved = await searchParams;
-  const status = getValue(resolved.status);
-  const message = getValue(resolved.message);
+  const status = getValue(resolved.feedbackStatus) ?? getValue(resolved.status);
+  const message = getValue(resolved.feedbackMessage) ?? getValue(resolved.message);
 
   if (!status || !message) {
     return null;
@@ -42,8 +42,7 @@ export function redirectWithFeedback(
 ): never {
   const [pathname, currentQuery] = redirectTo.split("?");
   const params = new URLSearchParams(currentQuery ?? "");
-  params.set("status", feedback.status);
-  params.set("message", feedback.message);
+  params.set("feedbackStatus", feedback.status);
+  params.set("feedbackMessage", feedback.message);
   redirect(`${pathname}?${params.toString()}`);
 }
-

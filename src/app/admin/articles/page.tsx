@@ -39,12 +39,26 @@ function getPageSize(value: string | string[] | undefined) {
   return limit;
 }
 
+function getStatusFilter(value: string | string[] | undefined) {
+  const status = getParam(value);
+
+  if (
+    status === ContentStatus.DRAFT ||
+    status === ContentStatus.PUBLISHED ||
+    status === ContentStatus.UNPUBLISHED
+  ) {
+    return status;
+  }
+
+  return "all";
+}
+
 export default async function AdminArticlesPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
   const resolvedSearchParams = await searchParams;
   const feedback = await getFeedback(resolvedSearchParams);
   const query = getParam(resolvedSearchParams.q)?.trim() ?? "";
-  const statusFilter = getParam(resolvedSearchParams.status) ?? "all";
+  const statusFilter = getStatusFilter(resolvedSearchParams.status);
   const categoryFilter = getParam(resolvedSearchParams.categoryId) ?? "all";
   const sort = getParam(resolvedSearchParams.sort) ?? "updated_desc";
   const currentPage = Math.max(
