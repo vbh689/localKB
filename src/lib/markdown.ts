@@ -9,6 +9,7 @@ function escapeHtml(value: string) {
 
 function formatInline(value: string) {
   return escapeHtml(value)
+    .replace(/!\[(.*?)\]\((.+?)\)/g, '<img src="$2" alt="$1" />')
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/(^|[^*])\*(?!\s)(.+?)(?<!\s)\*(?=[^*]|$)/g, "$1<em>$2</em>");
 }

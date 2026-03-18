@@ -9,7 +9,7 @@ export function MarkdownContent({ className, content }: Props) {
   return (
     <div
       className={[
-        "space-y-4 [&_h1]:text-3xl [&_h1]:font-semibold [&_h1]:tracking-tight [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h3]:text-xl [&_h3]:font-semibold [&_p]:leading-8 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_hr]:border-line",
+        "space-y-4 [&_h1]:text-3xl [&_h1]:font-semibold [&_h1]:tracking-tight [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:tracking-tight [&_h3]:text-xl [&_h3]:font-semibold [&_img]:rounded-[1.25rem] [&_img]:border [&_img]:border-line [&_img]:shadow-sm [&_img]:max-w-full [&_p]:leading-8 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 [&_hr]:border-line",
         className,
       ]
         .filter(Boolean)
