@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
-import { extname } from "node:path";
+import path, { extname } from "node:path";
+
+const PUBLIC_UPLOADS_ROOT = path.join(process.cwd(), "public", "uploads");
 
 function sanitizeSegment(value: string) {
   return value.replace(/[^A-Za-z0-9_.-]/g, "");
@@ -33,4 +35,19 @@ export async function buildUploadTarget(file: File) {
     fileName,
     markdownAlt: sanitizedBase || "image",
   };
+}
+
+export function resolveUploadFilePath(segments: string[]) {
+  const sanitizedSegments = segments
+    .map((segment) => sanitizeSegment(segment))
+    .filter(Boolean);
+
+  const candidatePath = path.join(PUBLIC_UPLOADS_ROOT, ...sanitizedSegments);
+  const relativePath = path.relative(PUBLIC_UPLOADS_ROOT, candidatePath);
+
+  if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+    return null;
+  }
+
+  return candidatePath;
 }

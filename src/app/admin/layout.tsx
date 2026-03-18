@@ -10,6 +10,7 @@ const adminLinks = [
   { href: "/admin/categories", label: "Categories" },
   { href: "/admin/tags", label: "Tags" },
   { href: "/admin/users", label: "Users" },
+  { href: "/admin/media", label: "Media" },
   { href: "/admin/search-logs", label: "Search logs" },
 ];
 

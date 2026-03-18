@@ -1,6 +1,7 @@
 "use client";
 
 import { useDeferredValue, useId, useRef, useState } from "react";
+import Link from "next/link";
 import { MarkdownContent } from "@/components/content/markdown-content";
 
 type Props = {
@@ -232,6 +233,13 @@ export function MarkdownTextarea({
           >
             {isUploading ? "Đang tải ảnh..." : "Tải ảnh"}
           </button>
+          <Link
+            href="/admin/media"
+            target="_blank"
+            className="rounded-full border border-line px-3 py-1.5 text-xs font-medium text-accent-strong transition hover:border-accent"
+          >
+            Thư viện media
+          </Link>
         </div>
       </div>
       {tab === "text" ? (
