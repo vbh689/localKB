@@ -91,7 +91,7 @@ export default async function Home() {
           </div>
         </header>
 
-        <section className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">
+        <section className="space-y-6">
           <div className="space-y-6">
             <div className="space-y-4">
               <p className="font-mono text-sm uppercase tracking-[0.32em] text-accent-strong">
@@ -109,50 +109,6 @@ export default async function Home() {
 
             <InstantSearch initialItems={featuredItems} />
           </div>
-
-          <aside className="space-y-5">
-            <section className="glass-panel rounded-[2rem] p-6">
-              <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-                Khả năng cho v1
-              </p>
-              <div className="mt-5 space-y-4">
-                <div className="rounded-[1.5rem] border border-line bg-white/75 p-4">
-                  <h3 className="text-lg font-semibold">Wiki + FAQ trong một hệ thống</h3>
-                  <p className="mt-2 text-sm leading-7 text-muted">
-                    Phân trang đọc nội dung đơn giản, quản trị bằng admin CMS và
-                    role admin/editor/viewer.
-                  </p>
-                </div>
-                <div className="rounded-[1.5rem] border border-line bg-white/75 p-4">
-                  <h3 className="text-lg font-semibold">Instant search ưu tiên title</h3>
-                  <p className="mt-2 text-sm leading-7 text-muted">
-                    Kết quả chia theo loại nội dung, có typo tolerance và prefix
-                    matching để tìm nhanh hơn.
-                  </p>
-                </div>
-                <div className="rounded-[1.5rem] border border-line bg-white/75 p-4">
-                  <h3 className="text-lg font-semibold">Tracking truy vấn no-result</h3>
-                  <p className="mt-2 text-sm leading-7 text-muted">
-                    Ghi log để biết nhân viên đang cần thông tin gì nhưng hệ
-                    thống chưa có sẵn.
-                  </p>
-                </div>
-              </div>
-            </section>
-
-            <section className="rounded-[2rem] border border-dashed border-accent/30 bg-accent-strong px-6 py-6 text-white shadow-[0_20px_45px_rgba(95,58,23,0.24)]">
-              <p className="font-mono text-sm uppercase tracking-[0.22em] text-white/70">
-                Tiếp theo
-              </p>
-              <h3 className="mt-3 text-2xl font-semibold tracking-tight">
-                Bước sau là nối giao diện này vào auth, database và search index.
-              </h3>
-              <p className="mt-3 text-sm leading-7 text-white/82">
-                Mốc tiếp theo hợp lý là tạo Prisma schema, Docker Compose cho
-                PostgreSQL + Meilisearch, và route API đầu tiên cho auth/search.
-              </p>
-            </section>
-          </aside>
         </section>
       </div>
     </main>
