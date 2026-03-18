@@ -138,27 +138,32 @@ export function InstantSearch({ initialItems }: Props) {
 
         <div className="grid gap-3">
           {query.trim().length < 2 ? (
-            initialItems.map((item) => (
-              <button
-                key={`${item.type}-${item.id}`}
-                type="button"
-                onClick={() => openResult(item)}
-                className="rounded-[1.4rem] border border-line bg-background px-4 py-4 text-left transition-transform duration-200 hover:-translate-y-0.5"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-strong">
-                    {item.type === "article" ? "Wiki" : "FAQ"}
-                  </span>
-                  <span className="text-sm text-muted">
-                    {item.category ?? item.tags[0] ?? "Nội bộ"}
-                  </span>
-                </div>
-                <h3 className="mt-3 text-xl font-semibold tracking-tight">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-sm leading-7 text-muted">{item.summary}</p>
-              </button>
-            ))
+            <>
+              <p className="px-1 font-mono text-[11px] uppercase tracking-[0.24em] text-muted">
+                Newest FAQs
+              </p>
+              {initialItems.map((item) => (
+                <button
+                  key={`${item.type}-${item.id}`}
+                  type="button"
+                  onClick={() => openResult(item)}
+                  className="rounded-[1.4rem] border border-line bg-background px-4 py-4 text-left transition-transform duration-200 hover:-translate-y-0.5"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-strong">
+                      {item.type === "article" ? "Wiki" : "FAQ"}
+                    </span>
+                    <span className="text-sm text-muted">
+                      {item.category ?? item.tags[0] ?? "Nội bộ"}
+                    </span>
+                  </div>
+                  <h3 className="mt-3 text-xl font-semibold tracking-tight">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-7 text-muted">{item.summary}</p>
+                </button>
+              ))}
+            </>
           ) : null}
 
           {query.trim().length >= 2 && results.length > 0 ? (
@@ -271,12 +276,14 @@ export function InstantSearch({ initialItems }: Props) {
                 ? `Tìm thấy ${results.length} kết quả gần đúng.`
                 : "Đang gõ để hiện kết quả tức thì."}
           </p>
-          <Link
-            href={query.trim().length >= 2 ? `/search?q=${encodeURIComponent(query.trim())}` : "/search"}
-            className="text-sm font-medium text-accent-strong"
-          >
-            Mở trang search đầy đủ
-          </Link>
+          {query.trim().length > 2 ? (
+            <Link
+              href={`/search?q=${encodeURIComponent(query.trim())}`}
+              className="text-sm font-medium text-accent-strong"
+            >
+              Mở trang search đầy đủ
+            </Link>
+          ) : null}
         </div>
       </div>
     </div>

@@ -58,6 +58,17 @@ export async function getFeaturedArticles() {
   });
 }
 
+export async function getNewestFaqs(limit = 3) {
+  return db.faq.findMany({
+    where: {
+      status: ContentStatus.PUBLISHED,
+    },
+    orderBy: [{ updatedAt: "desc" }],
+    take: limit,
+    include: publishedFaqInclude,
+  });
+}
+
 export async function getPublishedArticleBySlug(slug: string) {
   return db.article.findFirst({
     where: {

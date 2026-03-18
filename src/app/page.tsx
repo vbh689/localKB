@@ -2,16 +2,16 @@ import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { getCurrentSession } from "@/lib/auth/session";
 import { canAccessAdmin } from "@/lib/auth/user";
-import { getFeaturedArticles, getHomepageCounts } from "@/lib/content";
+import { getHomepageCounts, getNewestFaqs } from "@/lib/content";
 import { createExcerpt } from "@/lib/utils";
 import { InstantSearch } from "@/components/search/instant-search";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [counts, featuredArticles, session] = await Promise.all([
+  const [counts, newestFaqs, session] = await Promise.all([
     getHomepageCounts(),
-    getFeaturedArticles(),
+    getNewestFaqs(),
     getCurrentSession(),
   ]);
 
@@ -21,15 +21,15 @@ export default async function Home() {
     { label: "Cập nhật hôm nay", value: String(counts.todayCount) },
   ];
 
-  const featuredItems = featuredArticles.map((item) => ({
+  const featuredItems = newestFaqs.map((item) => ({
     category: item.category?.name ?? null,
-    highlight: item.summary,
+    highlight: item.answer,
     id: item.id,
     slug: item.slug,
-    summary: item.summary || createExcerpt(item.body, 140),
+    summary: createExcerpt(item.answer, 140),
     tags: item.tags.map((tag) => tag.name),
-    title: item.title,
-    type: "article" as const,
+    title: item.question,
+    type: "faq" as const,
   }));
 
   return (
