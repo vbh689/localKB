@@ -9,6 +9,7 @@ import {
   getTrendDelta,
   normalizeRangeDays,
 } from "@/lib/admin-analytics";
+import { checkSystemHealth } from "@/lib/health";
 import { db } from "@/lib/db";
 import { requireRoles } from "@/lib/auth/session";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
@@ -127,6 +128,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
     (sum, item) => sum + item.published,
     0,
   );
+  const health = await checkSystemHealth();
 
   const cards = [
     { label: "Articles", value: articles, href: "/admin/articles" },
@@ -218,6 +220,46 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
               )}
             </div>
           </div>
+        </div>
+
+        <div className="glass-panel rounded-[1.8rem] p-6">
+          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+            System health
+          </p>
+          <div className="mt-5 grid gap-3">
+            <div className="rounded-2xl border border-line bg-white p-4">
+              <p className="text-sm text-muted">App</p>
+              <p className="mt-2 text-2xl font-semibold capitalize">
+                {health.app.status}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-line bg-white p-4">
+              <p className="text-sm text-muted">Database</p>
+              <p className="mt-2 text-2xl font-semibold capitalize">
+                {health.db.status}
+              </p>
+              <p className="mt-1 text-sm text-muted">{health.db.latencyMs} ms</p>
+            </div>
+            <div className="rounded-2xl border border-line bg-white p-4">
+              <p className="text-sm text-muted">Search</p>
+              <p className="mt-2 text-2xl font-semibold capitalize">
+                {health.search.status}
+              </p>
+              <p className="mt-1 text-sm text-muted">{health.search.latencyMs} ms</p>
+            </div>
+            <div className="rounded-2xl border border-line bg-white p-4">
+              <p className="text-sm text-muted">Overall</p>
+              <p className="mt-2 text-2xl font-semibold capitalize">
+                {health.status}
+              </p>
+              <p className="mt-1 text-sm text-muted">
+                {new Date(health.timestamp).toLocaleString("vi-VN")}
+              </p>
+            </div>
+          </div>
+          <p className="mt-4 text-sm text-muted">
+            Xem trực tiếp tại <Link href="/api/health" className="text-accent-strong">/api/health</Link>.
+          </p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">

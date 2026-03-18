@@ -7,6 +7,7 @@ import {
   createUserSession,
 } from "@/lib/auth/session";
 import { serializeUser } from "@/lib/auth/user";
+import { logError } from "@/lib/logger";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -14,63 +15,76 @@ const loginSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const body = await request.json().catch(() => null);
-  const parsed = loginSchema.safeParse(body);
+  try {
+    const body = await request.json().catch(() => null);
+    const parsed = loginSchema.safeParse(body);
 
-  if (!parsed.success) {
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          error: "Invalid login payload.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const email = parsed.data.email.trim().toLowerCase();
+    const user = await db.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          error: "Invalid email or password.",
+        },
+        {
+          status: 401,
+        },
+      );
+    }
+
+    const isPasswordValid = await verifyPassword(
+      user.passwordHash,
+      parsed.data.password,
+    );
+
+    if (!isPasswordValid) {
+      return NextResponse.json(
+        {
+          error: "Invalid email or password.",
+        },
+        {
+          status: 401,
+        },
+      );
+    }
+
+    const session = await createUserSession(user.id);
+    const response = NextResponse.json({
+      user: serializeUser(user),
+    });
+
+    response.headers.set(
+      "Set-Cookie",
+      createSessionCookie(session.token, session.expiresAt),
+    );
+
+    return response;
+  } catch (error) {
+    logError("api.auth.login", "Login request failed.", error);
+
     return NextResponse.json(
       {
-        error: "Invalid login payload.",
+        error: "Login service temporarily unavailable.",
       },
       {
-        status: 400,
+        status: 500,
       },
     );
   }
-
-  const email = parsed.data.email.trim().toLowerCase();
-  const user = await db.user.findUnique({
-    where: {
-      email,
-    },
-  });
-
-  if (!user) {
-    return NextResponse.json(
-      {
-        error: "Invalid email or password.",
-      },
-      {
-        status: 401,
-      },
-    );
-  }
-
-  const isPasswordValid = await verifyPassword(
-    user.passwordHash,
-    parsed.data.password,
-  );
-
-  if (!isPasswordValid) {
-    return NextResponse.json(
-      {
-        error: "Invalid email or password.",
-      },
-      {
-        status: 401,
-      },
-    );
-  }
-
-  const session = await createUserSession(user.id);
-  const response = NextResponse.json({
-    user: serializeUser(user),
-  });
-
-  response.headers.set(
-    "Set-Cookie",
-    createSessionCookie(session.token, session.expiresAt),
-  );
-
-  return response;
 }

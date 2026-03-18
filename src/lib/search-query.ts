@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { createExcerpt } from "@/lib/utils";
 import { ensureSearchIndex } from "@/lib/search-index";
 import { searchClient } from "@/lib/search";
+import { logError } from "@/lib/logger";
 
 export type SearchItem = {
   id: string;
@@ -272,7 +273,11 @@ export async function searchPublishedContent(
         faq: results.filter((item) => item.type === "faq").length,
       },
     };
-  } catch {
+  } catch (error) {
+    logError("search.query", "Meilisearch search failed; falling back to Prisma.", error, {
+      filters,
+      query,
+    });
     payload = await searchPublishedContentFallback(query, limitPerType, filters);
   }
 
