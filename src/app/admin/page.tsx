@@ -7,6 +7,7 @@ import {
   getPublishTrend,
   getSearchTrend,
   getTrendDelta,
+  normalizeRangeDays,
 } from "@/lib/admin-analytics";
 import { db } from "@/lib/db";
 import { requireRoles } from "@/lib/auth/session";
@@ -18,11 +19,18 @@ type Props = {
   searchParams: SearchParamInput;
 };
 
+function getParam(
+  value: string | string[] | undefined,
+) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
 export default async function AdminDashboardPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
-  const feedback = await getFeedback(searchParams);
+  const resolvedSearchParams = await searchParams;
+  const feedback = await getFeedback(resolvedSearchParams);
+  const selectedDays = normalizeRangeDays(getParam(resolvedSearchParams.days));
   const now = new Date();
-  const sevenDaysAgo = new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7);
 
   const [
     articles,
@@ -32,14 +40,13 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
     drafts,
     publishedArticles,
     publishedFaqs,
-    searchCountLast7d,
-    noResultLast7d,
     activeSessions,
     topQueries,
     recentArticles,
     recentFaqs,
-    searchTrend30d,
-    publishTrend30d,
+    searchTrendSelected,
+    searchTrendComparison,
+    publishTrendSelected,
   ] = await Promise.all([
     db.article.count(),
     db.faq.count(),
@@ -58,21 +65,6 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
     db.faq.count({
       where: {
         status: ContentStatus.PUBLISHED,
-      },
-    }),
-    db.searchLog.count({
-      where: {
-        createdAt: {
-          gte: sevenDaysAgo,
-        },
-      },
-    }),
-    db.searchLog.count({
-      where: {
-        createdAt: {
-          gte: sevenDaysAgo,
-        },
-        resultCount: 0,
       },
     }),
     db.session.count({
@@ -114,23 +106,24 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
         status: true,
       },
     }),
-    getSearchTrend(30),
-    getPublishTrend(30),
+    getSearchTrend(selectedDays),
+    getSearchTrend(selectedDays * 2),
+    getPublishTrend(selectedDays),
   ]);
 
-  const currentSearch7d = searchTrend30d
-    .slice(-7)
+  const currentSearchRange = searchTrendComparison
+    .slice(-selectedDays)
     .reduce((sum, item) => sum + item.total, 0);
-  const previousSearch7d = searchTrend30d
-    .slice(-14, -7)
+  const previousSearchRange = searchTrendComparison
+    .slice(-selectedDays * 2, -selectedDays)
     .reduce((sum, item) => sum + item.total, 0);
-  const currentNoResult7d = searchTrend30d
-    .slice(-7)
+  const currentNoResultRange = searchTrendComparison
+    .slice(-selectedDays)
     .reduce((sum, item) => sum + item.no_result, 0);
-  const previousNoResult7d = searchTrend30d
-    .slice(-14, -7)
+  const previousNoResultRange = searchTrendComparison
+    .slice(-selectedDays * 2, -selectedDays)
     .reduce((sum, item) => sum + item.no_result, 0);
-  const currentPublished30d = publishTrend30d.reduce(
+  const currentPublishedRange = publishTrendSelected.reduce(
     (sum, item) => sum + item.published,
     0,
   );
@@ -181,12 +174,12 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
               <p className="mt-2 text-3xl font-semibold">{activeSessions}</p>
             </div>
             <div className="rounded-2xl border border-line bg-white p-4">
-              <p className="text-sm text-muted">Searches / 7 ngay</p>
-              <p className="mt-2 text-3xl font-semibold">{searchCountLast7d}</p>
+              <p className="text-sm text-muted">Searches / {selectedDays} ngay</p>
+              <p className="mt-2 text-3xl font-semibold">{currentSearchRange}</p>
             </div>
             <div className="rounded-2xl border border-line bg-white p-4">
-              <p className="text-sm text-muted">No-result / 7 ngay</p>
-              <p className="mt-2 text-3xl font-semibold">{noResultLast7d}</p>
+              <p className="text-sm text-muted">No-result / {selectedDays} ngay</p>
+              <p className="mt-2 text-3xl font-semibold">{currentNoResultRange}</p>
             </div>
           </div>
 
@@ -249,14 +242,47 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+        <div className="xl:col-span-2">
+          <form className="glass-panel rounded-[1.8rem] p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+                  Trend range
+                </p>
+                <p className="mt-2 text-sm text-muted">
+                  Chon khoang ngay de cap nhat charts, summary va file export.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  name="days"
+                  defaultValue={String(selectedDays)}
+                  className="rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+                >
+                  <option value="7">7 ngay</option>
+                  <option value="14">14 ngay</option>
+                  <option value="30">30 ngay</option>
+                  <option value="90">90 ngay</option>
+                </select>
+                <button
+                  type="submit"
+                  className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+                >
+                  Cap nhat
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
         <TrendChart
-          title="Search trend 30 ngay"
+          title={`Search trend ${selectedDays} ngay`}
           description="Luong tim kiem va so truy van no-result theo tung ngay."
           series={[
             {
               color: "#c46a2f",
               name: "Searches",
-              points: searchTrend30d.map((item) => ({
+              points: searchTrendSelected.map((item) => ({
                 label: formatShortDate(new Date(item.day)),
                 value: item.total,
               })),
@@ -264,7 +290,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
             {
               color: "#d97706",
               name: "No-result",
-              points: searchTrend30d.map((item) => ({
+              points: searchTrendSelected.map((item) => ({
                 label: formatShortDate(new Date(item.day)),
                 value: item.no_result,
               })),
@@ -276,10 +302,10 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
           <div className="glass-panel rounded-[1.8rem] p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-                7-day trend
+                Range summary
               </p>
               <a
-                href="/api/admin/stats/export?days=30"
+                href={`/api/admin/stats/export?days=${selectedDays}`}
                 className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
               >
                 Export CSV
@@ -287,37 +313,43 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
             </div>
             <div className="mt-5 grid gap-4">
               <div className="rounded-2xl border border-line bg-white p-4">
-                <p className="text-sm text-muted">Searches vs 7 ngay truoc</p>
-                <p className="mt-2 text-3xl font-semibold">{currentSearch7d}</p>
+                <p className="text-sm text-muted">
+                  Searches vs {selectedDays} ngay truoc
+                </p>
+                <p className="mt-2 text-3xl font-semibold">{currentSearchRange}</p>
                 <p className="mt-1 text-sm text-muted">
-                  {getTrendDelta(currentSearch7d, previousSearch7d)}
+                  {getTrendDelta(currentSearchRange, previousSearchRange)}
                 </p>
               </div>
               <div className="rounded-2xl border border-line bg-white p-4">
-                <p className="text-sm text-muted">No-result vs 7 ngay truoc</p>
-                <p className="mt-2 text-3xl font-semibold">{currentNoResult7d}</p>
+                <p className="text-sm text-muted">
+                  No-result vs {selectedDays} ngay truoc
+                </p>
+                <p className="mt-2 text-3xl font-semibold">{currentNoResultRange}</p>
                 <p className="mt-1 text-sm text-muted">
-                  {getTrendDelta(currentNoResult7d, previousNoResult7d)}
+                  {getTrendDelta(currentNoResultRange, previousNoResultRange)}
                 </p>
               </div>
               <div className="rounded-2xl border border-line bg-white p-4">
-                <p className="text-sm text-muted">Published content / 30 ngay</p>
-                <p className="mt-2 text-3xl font-semibold">{currentPublished30d}</p>
+                <p className="text-sm text-muted">
+                  Published content / {selectedDays} ngay
+                </p>
+                <p className="mt-2 text-3xl font-semibold">{currentPublishedRange}</p>
                 <p className="mt-1 text-sm text-muted">
-                  Tong article va FAQ duoc publish trong 30 ngay gan day
+                  Tong article va FAQ duoc publish trong khoang da chon
                 </p>
               </div>
             </div>
           </div>
 
           <TrendChart
-            title="Publishing trend 30 ngay"
+            title={`Publishing trend ${selectedDays} ngay`}
             description="So article va FAQ duoc publish theo tung ngay."
             series={[
               {
                 color: "#0f766e",
                 name: "Published",
-                points: publishTrend30d.map((item) => ({
+                points: publishTrendSelected.map((item) => ({
                   label: formatShortDate(new Date(item.day)),
                   value: item.published,
                 })),
