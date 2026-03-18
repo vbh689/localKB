@@ -1,15 +1,29 @@
 import Link from "next/link";
+import { db } from "@/lib/db";
 import { searchPublishedContent } from "@/lib/search-query";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{
+    category?: string;
+    q?: string;
+    tag?: string;
+    type?: string;
+  }>;
 };
 
 export default async function SearchPage({ searchParams }: Props) {
-  const { q = "" } = await searchParams;
-  const payload = await searchPublishedContent(q, 10);
+  const { category = "", q = "", tag = "", type = "" } = await searchParams;
+  const [categories, tags] = await Promise.all([
+    db.category.findMany({ orderBy: [{ name: "asc" }] }),
+    db.tag.findMany({ orderBy: [{ name: "asc" }] }),
+  ]);
+  const payload = await searchPublishedContent(q, 10, {
+    category: category || null,
+    tag: tag || null,
+    type: type === "article" || type === "faq" ? type : null,
+  });
 
   return (
     <main className="section-grid min-h-screen px-6 py-8 md:px-10 xl:px-14">
@@ -27,6 +41,65 @@ export default async function SearchPage({ searchParams }: Props) {
             🔙 Về homepage
           </Link>
         </div>
+
+        <form className="glass-panel rounded-[1.6rem] p-5">
+          <div className="grid gap-3 lg:grid-cols-[0.7fr_0.8fr_0.8fr_1fr_auto]">
+            <select
+              name="type"
+              defaultValue={type}
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+            >
+              <option value="">Tất cả type</option>
+              <option value="article">Wiki</option>
+              <option value="faq">FAQ</option>
+            </select>
+            <select
+              name="category"
+              defaultValue={category}
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+            >
+              <option value="">Tất cả category</option>
+              {categories.map((item) => (
+                <option key={item.id} value={item.name}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+            <select
+              name="tag"
+              defaultValue={tag}
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+            >
+              <option value="">Tất cả tag</option>
+              {tags.map((item) => (
+                <option key={item.id} value={item.name}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              name="q"
+              defaultValue={q}
+              placeholder="Từ khóa tìm kiếm"
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+            />
+            <div className="flex items-center gap-2">
+              <button
+                type="submit"
+                className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+              >
+                Lọc
+              </button>
+              <Link
+                href="/search"
+                className="rounded-full border border-line px-4 py-3 text-sm font-medium text-accent-strong"
+              >
+                Reset
+              </Link>
+            </div>
+          </div>
+        </form>
 
         {payload.results.length === 0 ? (
           <div className="glass-panel rounded-[1.8rem] p-6 text-muted">

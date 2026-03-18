@@ -1,4 +1,4 @@
-import { ContentStatus } from "@prisma/client";
+import { ContentStatus, Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { createExcerpt } from "@/lib/utils";
 import { ensureSearchIndex } from "@/lib/search-index";
@@ -24,6 +24,44 @@ export type SearchPayload = {
   };
 };
 
+export type SearchFilters = {
+  category?: string | null;
+  tag?: string | null;
+  type?: "article" | "faq" | null;
+};
+
+function escapeMeiliFilterValue(value: string) {
+  return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
+}
+
+function buildFallbackWhere(filters: SearchFilters) {
+  const categoryFilter = filters.category?.trim() || null;
+  const tagFilter = filters.tag?.trim() || null;
+
+  return {
+    category: categoryFilter
+      ? {
+          is: {
+            name: {
+              equals: categoryFilter,
+              mode: "insensitive" as const,
+            },
+          },
+        }
+      : undefined,
+    tags: tagFilter
+      ? {
+          some: {
+            name: {
+              equals: tagFilter,
+              mode: "insensitive" as const,
+            },
+          },
+        }
+      : undefined,
+  };
+}
+
 function createEmptyPayload(query: string): SearchPayload {
   return {
     query,
@@ -38,43 +76,91 @@ function createEmptyPayload(query: string): SearchPayload {
 async function searchPublishedContentFallback(
   query: string,
   limitPerType: number,
+  filters: SearchFilters,
 ): Promise<SearchPayload> {
+  const typeFilter = filters.type ?? null;
+  const baseWhere = buildFallbackWhere(filters);
+
+  const articleWhere: Prisma.ArticleWhereInput | null =
+    typeFilter === "faq"
+      ? null
+      : {
+          status: ContentStatus.PUBLISHED,
+          ...baseWhere,
+          ...(query
+            ? {
+                OR: [
+                  { title: { contains: query, mode: "insensitive" as const } },
+                  { summary: { contains: query, mode: "insensitive" as const } },
+                  { body: { contains: query, mode: "insensitive" as const } },
+                  {
+                    category: {
+                      is: {
+                        name: { contains: query, mode: "insensitive" as const },
+                      },
+                    },
+                  },
+                  {
+                    tags: {
+                      some: { name: { contains: query, mode: "insensitive" as const } },
+                    },
+                  },
+                ],
+              }
+            : {}),
+        };
+
+  const faqWhere: Prisma.FaqWhereInput | null =
+    typeFilter === "article"
+      ? null
+      : {
+          status: ContentStatus.PUBLISHED,
+          ...baseWhere,
+          ...(query
+            ? {
+                OR: [
+                  { question: { contains: query, mode: "insensitive" as const } },
+                  { answer: { contains: query, mode: "insensitive" as const } },
+                  {
+                    category: {
+                      is: {
+                        name: { contains: query, mode: "insensitive" as const },
+                      },
+                    },
+                  },
+                  {
+                    tags: {
+                      some: { name: { contains: query, mode: "insensitive" as const } },
+                    },
+                  },
+                ],
+              }
+            : {}),
+        };
+
   const [articles, faqs] = await Promise.all([
-    db.article.findMany({
-      where: {
-        status: ContentStatus.PUBLISHED,
-        OR: [
-          { title: { contains: query, mode: "insensitive" } },
-          { summary: { contains: query, mode: "insensitive" } },
-          { body: { contains: query, mode: "insensitive" } },
-          { category: { is: { name: { contains: query, mode: "insensitive" } } } },
-          { tags: { some: { name: { contains: query, mode: "insensitive" } } } },
-        ],
-      },
-      include: {
-        category: true,
-        tags: true,
-      },
-      orderBy: [{ updatedAt: "desc" }],
-      take: limitPerType,
-    }),
-    db.faq.findMany({
-      where: {
-        status: ContentStatus.PUBLISHED,
-        OR: [
-          { question: { contains: query, mode: "insensitive" } },
-          { answer: { contains: query, mode: "insensitive" } },
-          { category: { is: { name: { contains: query, mode: "insensitive" } } } },
-          { tags: { some: { name: { contains: query, mode: "insensitive" } } } },
-        ],
-      },
-      include: {
-        category: true,
-        tags: true,
-      },
-      orderBy: [{ updatedAt: "desc" }],
-      take: limitPerType,
-    }),
+    articleWhere
+      ? db.article.findMany({
+          where: articleWhere,
+          include: {
+            category: true,
+            tags: true,
+          },
+          orderBy: [{ updatedAt: "desc" }],
+          take: limitPerType,
+        })
+      : Promise.resolve([]),
+    faqWhere
+      ? db.faq.findMany({
+          where: faqWhere,
+          include: {
+            category: true,
+            tags: true,
+          },
+          orderBy: [{ updatedAt: "desc" }],
+          take: limitPerType,
+        })
+      : Promise.resolve([]),
   ]);
 
   const articleResults: SearchItem[] = articles.map((article) => ({
@@ -112,11 +198,18 @@ async function searchPublishedContentFallback(
 export async function searchPublishedContent(
   rawQuery: string,
   limitPerType = 5,
+  filters: SearchFilters = {},
 ): Promise<SearchPayload> {
   const query = rawQuery.trim();
+  const hasFilters =
+    Boolean(filters.type) || Boolean(filters.category?.trim()) || Boolean(filters.tag?.trim());
 
-  if (query.length < 2) {
+  if (query.length < 2 && !hasFilters) {
     return createEmptyPayload(query);
+  }
+
+  if (query.length < 2 && hasFilters) {
+    return searchPublishedContentFallback(query, limitPerType, filters);
   }
 
   let payload: SearchPayload;
@@ -124,24 +217,41 @@ export async function searchPublishedContent(
   try {
     await ensureSearchIndex();
 
-    const result = await searchClient
-      .index<{
-        id: string;
-        recordId: string;
-        type: "article" | "faq";
-        title: string;
-        slug: string;
-        summary: string;
-        highlight: string;
-        category: string | null;
-        tags: string[];
-      }>("knowledge_base")
-      .search(query, {
-        attributesToHighlight: ["title", "summary", "highlight"],
-        hitsPerPage: limitPerType * 2,
-        limit: limitPerType * 2,
-        showMatchesPosition: false,
-      });
+    const filterExpressions: string[] = [];
+
+    if (filters.type) {
+      filterExpressions.push(`type = "${filters.type}"`);
+    }
+
+    if (filters.category?.trim()) {
+      filterExpressions.push(
+        `category = "${escapeMeiliFilterValue(filters.category.trim())}"`,
+      );
+    }
+
+    if (filters.tag?.trim()) {
+      filterExpressions.push(`tags = "${escapeMeiliFilterValue(filters.tag.trim())}"`);
+    }
+
+    const index = searchClient.index<{
+      id: string;
+      recordId: string;
+      type: "article" | "faq";
+      title: string;
+      slug: string;
+      summary: string;
+      highlight: string;
+      category: string | null;
+      tags: string[];
+    }>("knowledge_base");
+
+    const result = await index.search(query, {
+      attributesToHighlight: ["title", "summary", "highlight"],
+      filter: filterExpressions.length > 0 ? filterExpressions.join(" AND ") : undefined,
+      hitsPerPage: limitPerType * 2,
+      limit: limitPerType * 2,
+      showMatchesPosition: false,
+    });
 
     const results: SearchItem[] = result.hits.map((item) => ({
       category: item.category,
@@ -163,7 +273,7 @@ export async function searchPublishedContent(
       },
     };
   } catch {
-    payload = await searchPublishedContentFallback(query, limitPerType);
+    payload = await searchPublishedContentFallback(query, limitPerType, filters);
   }
 
   await db.searchLog.create({
