@@ -20,6 +20,6 @@ export function canAccessAdmin(role: Role) {
   return role === "ADMIN" || role === "EDITOR";
 }
 
-export function isActiveUser(status: UserStatus) {
-  return status === "ACTIVE";
+export function isActiveUser(status: UserStatus | null | undefined | string) {
+  return status !== "INACTIVE";
 }
