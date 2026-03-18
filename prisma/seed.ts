@@ -1,4 +1,6 @@
 import "dotenv/config";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { ContentStatus, PrismaClient, Role } from "@prisma/client";
 import { hashPassword } from "../src/lib/auth/password";
@@ -14,6 +16,137 @@ const adapter = new PrismaPg({
 const prisma = new PrismaClient({
   adapter,
 });
+
+const BASE_FAQ_PATH = path.join(process.cwd(), "prisma/data/base-faq.md");
+
+type ParsedFaqSeed = {
+  answer: string;
+  categoryName: string;
+  question: string;
+};
+
+function stripMarkdown(value: string) {
+  return value
+    .replace(/\\-/g, "-")
+    .replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/\*(.+?)\*/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function finalizeFaqSeed(
+  collection: ParsedFaqSeed[],
+  currentCategory: string | null,
+  currentQuestion: string | null,
+  answerParts: string[],
+) {
+  if (!currentCategory || !currentQuestion) {
+    return;
+  }
+
+  const normalizedAnswerParts = answerParts
+    .map((part) => stripMarkdown(part))
+    .filter(Boolean);
+
+  collection.push({
+    answer:
+      normalizedAnswerParts.length > 0
+        ? normalizedAnswerParts.length === 1
+          ? normalizedAnswerParts[0]
+          : normalizedAnswerParts.map((part) => `- ${part}`).join("\n")
+        : `Hướng dẫn cho mục "${currentQuestion}" đang được cập nhật.`,
+    categoryName: currentCategory,
+    question: currentQuestion,
+  });
+}
+
+async function parseBaseFaqSeeds() {
+  const raw = await readFile(BASE_FAQ_PATH, "utf8");
+  const lines = raw.split(/\r?\n/);
+  const parsedFaqs: ParsedFaqSeed[] = [];
+  let currentCategory: string | null = null;
+  let currentQuestion: string | null = null;
+  let currentAnswerParts: string[] = [];
+
+  const flushCurrent = () => {
+    finalizeFaqSeed(
+      parsedFaqs,
+      currentCategory,
+      currentQuestion,
+      currentAnswerParts,
+    );
+    currentQuestion = null;
+    currentAnswerParts = [];
+  };
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+
+    if (!line) {
+      continue;
+    }
+
+    const categoryMatch = /^\*\*Nhóm\s+\d+:\s*(.+?)\*\*$/i.exec(line);
+
+    if (categoryMatch) {
+      flushCurrent();
+      currentCategory = stripMarkdown(categoryMatch[1]);
+      continue;
+    }
+
+    const numberedItemMatch = /^\d+\.\s*(.*)$/.exec(line);
+
+    if (numberedItemMatch) {
+      const content = numberedItemMatch[1]?.trim() ?? "";
+
+      if (!content) {
+        flushCurrent();
+        continue;
+      }
+
+      flushCurrent();
+
+      const boldWithParenMatch = /^\*\*(.+?)\*\*\s*\((.+)\)\.?$/.exec(content);
+      const boldWithColonMatch = /^\*\*(.+?)\*\*:\s*(.+)$/.exec(content);
+      const boldOnlyMatch = /^\*\*(.+?)\*\*\.?$/.exec(content);
+
+      if (boldWithParenMatch) {
+        currentQuestion = stripMarkdown(boldWithParenMatch[1]).replace(/:$/, "");
+        currentAnswerParts = [boldWithParenMatch[2]];
+        continue;
+      }
+
+      if (boldWithColonMatch) {
+        currentQuestion = stripMarkdown(boldWithColonMatch[1]).replace(/:$/, "");
+        currentAnswerParts = [boldWithColonMatch[2]];
+        continue;
+      }
+
+      if (boldOnlyMatch) {
+        currentQuestion = stripMarkdown(boldOnlyMatch[1]).replace(/:$/, "");
+        currentAnswerParts = [];
+        continue;
+      }
+
+      currentQuestion = stripMarkdown(content).replace(/:$/, "");
+      currentAnswerParts = [];
+      continue;
+    }
+
+    const bulletMatch = /^\*\s+(.*)$/.exec(line);
+
+    if (bulletMatch && currentQuestion) {
+      const bulletContent = stripMarkdown(bulletMatch[1]);
+
+      if (bulletContent) {
+        currentAnswerParts.push(bulletContent);
+      }
+    }
+  }
+
+  flushCurrent();
+  return parsedFaqs;
+}
 
 async function main() {
   const email = (process.env.SEED_ADMIN_EMAIL ?? "admin@localkb.internal")
@@ -38,8 +171,16 @@ async function main() {
     },
   });
 
+  const parsedFaqSeeds = await parseBaseFaqSeeds();
+  const categoryNames = [
+    "HR",
+    "IT Support",
+    "Engineering",
+    ...parsedFaqSeeds.map((item) => item.categoryName),
+  ];
+
   const categories = await Promise.all(
-    ["HR", "IT Support", "Engineering"].map((name) =>
+    [...new Set(categoryNames)].map((name) =>
       prisma.category.upsert({
         where: {
           slug: slugify(name),
@@ -140,6 +281,12 @@ async function main() {
       question: "Quy trình xin nghỉ phép diễn ra như thế nào?",
       tagSlugs: ["policy"],
     },
+    ...parsedFaqSeeds.map((faq) => ({
+      answer: faq.answer,
+      categorySlug: slugify(faq.categoryName),
+      question: faq.question,
+      tagSlugs: [] as string[],
+    })),
   ];
 
   for (const faq of faqSeeds) {
