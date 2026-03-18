@@ -112,6 +112,12 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
               Loc
             </button>
             <a
+              href={`/api/admin/search-logs/export?q=${encodeURIComponent(query)}&resultFilter=${encodeURIComponent(resultFilter)}&sort=${encodeURIComponent(sort)}`}
+              className="rounded-full border border-line px-4 py-3 text-sm font-medium text-accent-strong"
+            >
+              Export CSV
+            </a>
+            <a
               href="/admin/search-logs"
               className="rounded-full border border-line px-4 py-3 text-sm font-medium text-accent-strong"
             >

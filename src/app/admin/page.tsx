@@ -1,7 +1,13 @@
-import { ContentStatus, Prisma, Role } from "@prisma/client";
+import { ContentStatus, Role } from "@prisma/client";
 import Link from "next/link";
 import { TrendChart } from "@/components/admin/trend-chart";
 import { FormNotice } from "@/components/ui/form-notice";
+import {
+  formatShortDate,
+  getPublishTrend,
+  getSearchTrend,
+  getTrendDelta,
+} from "@/lib/admin-analytics";
 import { db } from "@/lib/db";
 import { requireRoles } from "@/lib/auth/session";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
@@ -11,76 +17,6 @@ export const dynamic = "force-dynamic";
 type Props = {
   searchParams: SearchParamInput;
 };
-
-type SearchTrendRow = {
-  day: Date;
-  no_result: number;
-  total: number;
-};
-
-type PublishTrendRow = {
-  day: Date;
-  published: number;
-};
-
-function formatShortDate(date: Date) {
-  return date.toLocaleDateString("vi-VN", {
-    day: "2-digit",
-    month: "2-digit",
-  });
-}
-
-function getTrendDelta(current: number, previous: number) {
-  if (previous === 0) {
-    return current === 0 ? "0%" : "+100%";
-  }
-
-  const delta = Math.round(((current - previous) / previous) * 100);
-  return `${delta > 0 ? "+" : ""}${delta}%`;
-}
-
-async function getSearchTrend(days: number) {
-  return db.$queryRaw<SearchTrendRow[]>(Prisma.sql`
-    SELECT
-      day::date AS day,
-      COALESCE(COUNT(sl.id), 0)::int AS total,
-      COALESCE(COUNT(*) FILTER (WHERE sl."resultCount" = 0), 0)::int AS no_result
-    FROM generate_series(
-      date_trunc('day', NOW()) - (${days - 1} * interval '1 day'),
-      date_trunc('day', NOW()),
-      interval '1 day'
-    ) AS day
-    LEFT JOIN "SearchLog" sl
-      ON date_trunc('day', sl."createdAt") = day
-    GROUP BY day
-    ORDER BY day ASC
-  `);
-}
-
-async function getPublishTrend(days: number) {
-  return db.$queryRaw<PublishTrendRow[]>(Prisma.sql`
-    SELECT
-      day::date AS day,
-      COALESCE(COUNT(published_items.day), 0)::int AS published
-    FROM generate_series(
-      date_trunc('day', NOW()) - (${days - 1} * interval '1 day'),
-      date_trunc('day', NOW()),
-      interval '1 day'
-    ) AS day
-    LEFT JOIN (
-      SELECT "publishedAt"::date AS day
-      FROM "Article"
-      WHERE "publishedAt" IS NOT NULL
-      UNION ALL
-      SELECT "publishedAt"::date AS day
-      FROM "Faq"
-      WHERE "publishedAt" IS NOT NULL
-    ) AS published_items
-      ON published_items.day = day::date
-    GROUP BY day
-    ORDER BY day ASC
-  `);
-}
 
 export default async function AdminDashboardPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
@@ -338,9 +274,17 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
 
         <div className="grid gap-6">
           <div className="glass-panel rounded-[1.8rem] p-6">
-            <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-              7-day trend
-            </p>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+                7-day trend
+              </p>
+              <a
+                href="/api/admin/stats/export?days=30"
+                className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
+              >
+                Export CSV
+              </a>
+            </div>
             <div className="mt-5 grid gap-4">
               <div className="rounded-2xl border border-line bg-white p-4">
                 <p className="text-sm text-muted">Searches vs 7 ngay truoc</p>
