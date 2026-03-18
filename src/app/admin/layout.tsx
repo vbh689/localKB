@@ -38,16 +38,16 @@ export default async function AdminLayout({
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <Link
-                href="/account/password"
-                className="inline-flex items-center justify-center rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-accent-strong transition hover:border-accent"
-              >
-                Đổi mật khẩu
-              </Link>
-              <Link
                 href="/"
                 className="inline-flex items-center justify-center rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-accent-strong transition hover:border-accent"
               >
                 Về homepage
+              </Link>
+              <Link
+                href="/account/password"
+                className="inline-flex items-center justify-center rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-accent-strong transition hover:border-accent"
+              >
+                Đổi mật khẩu
               </Link>
               <LogoutButton />
             </div>
