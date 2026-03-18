@@ -1,16 +1,16 @@
 # LocalKB
 
-LocalKB la ung dung wiki / knowledge base / FAQ noi bo cho cong ty, xay dung bang `Next.js`, `Prisma`, `PostgreSQL` va `Meilisearch`.
+LocalKB là ứng dụng wiki / knowledge base / FAQ nội bộ cho công ty, xây dựng bằng `Next.js`, `Prisma`, `PostgreSQL` và `Meilisearch`.
 
-## Tinh nang hien co
+## Tính năng hiện có
 
-- Dang nhap noi bo bang `email/password` va session `HttpOnly cookie`
-- Homepage co `instant search`
-- Trang public cho `wiki`, `FAQ` va `search`
+- Đăng nhập nội bộ bằng `email/password` và session `HttpOnly cookie`
+- Homepage có `instant search`
+- Trang public cho `wiki`, `FAQ` và `search`
 - Admin CMS cho `articles`, `FAQs`, `categories`, `tags`, `users`
-- Publish / unpublish va dong bo noi dung `published` sang `Meilisearch`
-- Search logs va dashboard usage trong admin
-- Revision history, compare preview va restore revision cho article / FAQ
+- Xuất bản / ẩn bài và đồng bộ nội dung `published` sang `Meilisearch`
+- Search logs và dashboard usage trong admin
+- Revision history, compare preview và khôi phục revision cho article / FAQ
 
 ## Stack
 
@@ -22,33 +22,33 @@ LocalKB la ung dung wiki / knowledge base / FAQ noi bo cho cong ty, xay dung ban
 - `Meilisearch`
 - `Docker Compose`
 
-## Yeu cau
+## Yêu cầu
 
 - `Node.js 22+`
 - `npm`
-- `Docker` va `Docker Compose`
+- `Docker` và `Docker Compose`
 
-## Cai dat nhanh
+## Cài đặt nhanh
 
-1. Cai dependencies
+1. Cài dependencies
 
 ```bash
 npm install
 ```
 
-2. Tao file env
+2. Tạo file env
 
 ```bash
 cp .env.example .env
 ```
 
-3. Chay ha tang local
+3. Chạy hạ tầng local
 
 ```bash
 docker compose up -d
 ```
 
-4. Tao Prisma Client, day schema va seed du lieu
+4. Tạo Prisma Client, đẩy schema và seed dữ liệu
 
 ```bash
 npm run db:generate
@@ -56,27 +56,27 @@ npm run db:push
 npm run db:seed
 ```
 
-5. Chay app
+5. Chạy app
 
 ```bash
 npm run dev
 ```
 
-App mac dinh chay tai [http://localhost:3000](http://localhost:3000).
+App mặc định chạy tại [http://localhost:3000](http://localhost:3000).
 
-## Tai khoan mac dinh sau khi seed
+## Tài khoản mặc định sau khi seed
 
 - Email: `admin@localkb.internal`
 - Password: `ChangeMe123!`
 
-Gia tri nay duoc doc tu `.env`:
+Giá trị này được đọc từ `.env`:
 
 - `SEED_ADMIN_EMAIL`
 - `SEED_ADMIN_PASSWORD`
 
-## Bien moi truong
+## Biến môi trường
 
-Mau bien moi truong nam trong [.env.example](/Users/dzith/Developer/localKB/.env.example).
+Mẫu biến môi trường nằm trong [.env.example](/Users/dzith/Developer/localKB/.env.example).
 
 ```env
 DATABASE_URL="postgresql://localkb:localkb@localhost:5432/localkb?schema=public"
@@ -102,15 +102,15 @@ npm run db:seed
 npm run db:studio
 ```
 
-## Route chinh
+## Route chính
 
-- `/` homepage va instant search
-- `/login` dang nhap
-- `/search?q=` trang ket qua tim kiem
+- `/` homepage và instant search
+- `/login` đăng nhập
+- `/search?q=` trang kết quả tìm kiếm
 - `/kb/[slug]` trang article
-- `/faq` danh sach FAQ
-- `/faq/[slug]` chi tiet FAQ
-- `/admin` dashboard quan tri
+- `/faq` danh sách FAQ
+- `/faq/[slug]` chi tiết FAQ
+- `/admin` dashboard quản trị
 - `/admin/articles`
 - `/admin/faqs`
 - `/admin/categories`
@@ -128,27 +128,27 @@ npm run db:studio
 
 ## Docker services
 
-`docker-compose.yml` khoi tao:
+`docker-compose.yml` khởi tạo:
 
-- `postgres` tai `localhost:5432`
-- `meilisearch` tai `localhost:7700`
+- `postgres` tại `localhost:5432`
+- `meilisearch` tại `localhost:7700`
 
-## Kiem tra nhanh
+## Kiểm tra nhanh
 
 ```bash
 npm run lint
 npm run build
 ```
 
-Neu can reset du lieu mau:
+Nếu cần reset dữ liệu mẫu:
 
 ```bash
 npm run db:seed
 ```
 
-## Ghi chu
+## Ghi chú
 
-- Chi noi dung `PUBLISHED` moi xuat hien tren public app va search.
-- `Article revision` hien tai restore `title` va `body`; `summary/category/tags/status` duoc giu nguyen.
-- `FAQ revision` restore `question` va `answer`.
-- Ke hoach trien khai ban dau duoc luu tai [IMPLEMENTATION_PLAN.md](/Users/dzith/Developer/localKB/IMPLEMENTATION_PLAN.md).
+- Chỉ nội dung `PUBLISHED` mới xuất hiện trên public app và search.
+- `Article revision` hiện tại khôi phục `title` và `body`; `summary/category/tags/status` được giữ nguyên.
+- `FAQ revision` restore `question` và `answer`.
+- Kế hoạch triển khai ban đầu được lưu tại [IMPLEMENTATION_PLAN.md](/Users/dzith/Developer/localKB/IMPLEMENTATION_PLAN.md).
