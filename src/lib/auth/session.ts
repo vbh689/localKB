@@ -6,6 +6,7 @@ import { Role } from "@prisma/client";
 import type { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { getConfig } from "@/lib/config";
+import { isActiveUser } from "@/lib/auth/user";
 
 const SESSION_MAX_AGE = 60 * 60 * 24 * 7;
 
@@ -73,6 +74,11 @@ export async function getSessionFromRequest(request: NextRequest) {
     return null;
   }
 
+  if (!isActiveUser(session.user.status)) {
+    await deleteSessionByToken(token);
+    return null;
+  }
+
   await db.session.update({
     where: {
       id: session.id,
@@ -102,7 +108,7 @@ export async function getCurrentSession() {
     return null;
   }
 
-  return db.session.findFirst({
+  const session = await db.session.findFirst({
     where: {
       token,
       expiresAt: {
@@ -113,6 +119,17 @@ export async function getCurrentSession() {
       user: true,
     },
   });
+
+  if (!session) {
+    return null;
+  }
+
+  if (!isActiveUser(session.user.status)) {
+    await deleteSessionByToken(token);
+    return null;
+  }
+
+  return session;
 }
 
 export async function requireUserSession() {

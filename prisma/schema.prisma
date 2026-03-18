@@ -13,6 +13,11 @@ enum Role {
   VIEWER
 }
 
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
 enum ContentStatus {
   DRAFT
   PUBLISHED
@@ -34,12 +39,15 @@ model User {
   email        String      @unique
   passwordHash String
   role         Role        @default(VIEWER)
+  status       UserStatus  @default(ACTIVE)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   articles     Article[]
   sessions     Session[]
   revisions    Revision[]
   searchLogs   SearchLog[]
+
+  @@index([status])
 }
 
 model Session {

@@ -1,9 +1,10 @@
-import type { Role } from "@prisma/client";
+import type { Role, UserStatus } from "@prisma/client";
 
 export type AuthUser = {
   id: string;
   email: string;
   role: Role;
+  status: UserStatus;
 };
 
 export function serializeUser(user: AuthUser) {
@@ -11,9 +12,14 @@ export function serializeUser(user: AuthUser) {
     email: user.email,
     id: user.id,
     role: user.role,
+    status: user.status,
   };
 }
 
 export function canAccessAdmin(role: Role) {
   return role === "ADMIN" || role === "EDITOR";
+}
+
+export function isActiveUser(status: UserStatus) {
+  return status === "ACTIVE";
 }

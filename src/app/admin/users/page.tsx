@@ -1,9 +1,7 @@
-import { Role } from "@prisma/client";
-import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
+import { Role, UserStatus } from "@prisma/client";
 import { FormNotice } from "@/components/ui/form-notice";
 import {
   createUser,
-  deleteUser,
   updateUser,
 } from "@/app/admin/actions";
 import { requireRoles } from "@/lib/auth/session";
@@ -22,7 +20,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
 
   const [users, sessionCounts] = await Promise.all([
     db.user.findMany({
-      orderBy: [{ createdAt: "asc" }],
+      orderBy: [{ status: "asc" }, { createdAt: "asc" }],
     }),
     db.session.groupBy({
       by: ["userId"],
@@ -69,6 +67,14 @@ export default async function AdminUsersPage({ searchParams }: Props) {
             <option value={Role.EDITOR}>EDITOR</option>
             <option value={Role.VIEWER}>VIEWER</option>
           </select>
+          <select
+            name="status"
+            defaultValue={UserStatus.ACTIVE}
+            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+          >
+            <option value={UserStatus.ACTIVE}>Active</option>
+            <option value={UserStatus.INACTIVE}>Inactive</option>
+          </select>
           <button
             type="submit"
             className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
@@ -87,6 +93,15 @@ export default async function AdminUsersPage({ searchParams }: Props) {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
+                    <span
+                      className={`rounded-full px-3 py-1 font-mono text-[11px] uppercase tracking-[0.22em] ${
+                        user.status === UserStatus.ACTIVE
+                          ? "border border-green-200 bg-green-50 text-green-700"
+                          : "border border-slate-200 bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      {user.status === UserStatus.ACTIVE ? "Active" : "Inactive"}
+                    </span>
                     <span className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-strong">
                       {user.role}
                     </span>
@@ -135,6 +150,14 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                         <option value={Role.EDITOR}>EDITOR</option>
                         <option value={Role.VIEWER}>VIEWER</option>
                       </select>
+                      <select
+                        name="status"
+                        defaultValue={user.status}
+                        className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                      >
+                        <option value={UserStatus.ACTIVE}>Active</option>
+                        <option value={UserStatus.INACTIVE}>Inactive</option>
+                      </select>
                       <button
                         type="submit"
                         className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
@@ -143,18 +166,6 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                       </button>
                     </form>
                   </details>
-
-                  <form action={deleteUser}>
-                    <input type="hidden" name="redirectTo" value="/admin/users" />
-                    <input type="hidden" name="id" value={user.id} />
-                    <ConfirmSubmitButton
-                      confirmMessage="Bạn có chắc muốn xóa user này không?"
-                      disabled={isCurrentUser}
-                      className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      Xóa
-                    </ConfirmSubmitButton>
-                  </form>
                 </div>
               </div>
             </article>

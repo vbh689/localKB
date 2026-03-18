@@ -6,7 +6,7 @@ import {
   createSessionCookie,
   createUserSession,
 } from "@/lib/auth/session";
-import { serializeUser } from "@/lib/auth/user";
+import { isActiveUser, serializeUser } from "@/lib/auth/user";
 import { logError } from "@/lib/logger";
 
 const loginSchema = z.object({
@@ -60,6 +60,17 @@ export async function POST(request: Request) {
         },
         {
           status: 401,
+        },
+      );
+    }
+
+    if (!isActiveUser(user.status)) {
+      return NextResponse.json(
+        {
+          error: "Tài khoản này hiện không hoạt động. Vui lòng liên hệ admin.",
+        },
+        {
+          status: 403,
         },
       );
     }

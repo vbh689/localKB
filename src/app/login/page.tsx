@@ -31,8 +31,8 @@ export default async function LoginPage() {
           <div className="grid gap-3 sm:grid-cols-3">
             {[
               "Tài khoản được cấp bởi admin",
+              "Không có đăng ký bên ngoài",
               "Session HttpOnly cookie",
-              "Sẵn sàng nối auth vào admin CMS",
             ].map((item) => (
               <div
                 key={item}

@@ -1,6 +1,6 @@
 "use server";
 
-import { ContentStatus, RevisionEntityType, Role } from "@prisma/client";
+import { ContentStatus, RevisionEntityType, Role, UserStatus } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirectWithFeedback } from "@/lib/feedback";
 import { db } from "@/lib/db";
@@ -105,6 +105,10 @@ function getRole(value: string) {
     : value === Role.EDITOR
       ? Role.EDITOR
       : Role.VIEWER;
+}
+
+function getUserStatus(value: string) {
+  return value === UserStatus.INACTIVE ? UserStatus.INACTIVE : UserStatus.ACTIVE;
 }
 
 async function ensureAnotherAdminExists(excludedUserId: string) {
@@ -266,6 +270,7 @@ export async function createUser(formData: FormData) {
   const email = getString(formData, "email").toLowerCase();
   const password = getString(formData, "password");
   const role = getRole(getString(formData, "role"));
+  const status = getUserStatus(getString(formData, "status"));
 
   if (!email) {
     redirectWithFeedback(redirectTo, {
@@ -298,6 +303,7 @@ export async function createUser(formData: FormData) {
       email,
       passwordHash: await hashPassword(password),
       role,
+      status,
     },
   });
 
@@ -315,6 +321,7 @@ export async function updateUser(formData: FormData) {
   const email = getString(formData, "email").toLowerCase();
   const password = getString(formData, "password");
   const role = getRole(getString(formData, "role"));
+  const status = getUserStatus(getString(formData, "status"));
 
   if (!id || !email) {
     redirectWithFeedback(redirectTo, {
@@ -326,6 +333,13 @@ export async function updateUser(formData: FormData) {
   if (session.user.id === id && role !== Role.ADMIN) {
     redirectWithFeedback(redirectTo, {
       message: "Bạn không thể tự hạ quyền chính mình khỏi ADMIN.",
+      status: "error",
+    });
+  }
+
+  if (session.user.id === id && status !== UserStatus.ACTIVE) {
+    redirectWithFeedback(redirectTo, {
+      message: "Bạn không thể tự chuyển tài khoản đang đăng nhập sang Inactive.",
       status: "error",
     });
   }
@@ -391,67 +405,21 @@ export async function updateUser(formData: FormData) {
           ? await hashPassword(password)
           : undefined,
       role,
+      status,
     },
   });
+
+  if (status === UserStatus.INACTIVE) {
+    await db.session.deleteMany({
+      where: {
+        userId: id,
+      },
+    });
+  }
 
   revalidatePath("/admin/users");
   redirectWithFeedback(redirectTo, {
     message: `Đã cập nhật user ${email}.`,
-    status: "success",
-  });
-}
-
-export async function deleteUser(formData: FormData) {
-  const session = await requireRoles([Role.ADMIN]);
-  const redirectTo = getRedirectTo(formData, "/admin/users");
-  const id = getString(formData, "id");
-
-  if (!id || id === session.user.id) {
-    redirectWithFeedback(redirectTo, {
-      message: "Bạn không thể xóa tài khoản đang đăng nhập.",
-      status: "error",
-    });
-  }
-
-  const currentUser = await db.user.findUnique({
-    where: {
-      id,
-    },
-  });
-
-  if (!currentUser) {
-    redirectWithFeedback(redirectTo, {
-      message: "Không tìm thấy user cần xóa.",
-      status: "error",
-    });
-  }
-
-  if (currentUser.role === Role.ADMIN) {
-    const hasAnotherAdmin = await ensureAnotherAdminExists(id);
-
-    if (!hasAnotherAdmin) {
-      redirectWithFeedback(redirectTo, {
-        message: "Không thể xóa admin cuối cùng.",
-        status: "error",
-      });
-    }
-  }
-
-  await db.session.deleteMany({
-    where: {
-      userId: id,
-    },
-  });
-
-  await db.user.delete({
-    where: {
-      id,
-    },
-  });
-
-  revalidatePath("/admin/users");
-  redirectWithFeedback(redirectTo, {
-    message: `Đã xóa user ${currentUser.email}.`,
     status: "success",
   });
 }
