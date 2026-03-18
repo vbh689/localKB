@@ -40,7 +40,7 @@ export function LoginForm() {
         | null;
 
       setState({
-        error: result?.error ?? "Dang nhap that bai. Vui long thu lai.",
+        error: result?.error ?? "Đăng nhập thất bại. Vui lòng thử lại.",
         pending: false,
       });
       return;
@@ -62,14 +62,14 @@ export function LoginForm() {
     >
       <div className="space-y-2">
         <p className="font-mono text-sm uppercase tracking-[0.24em] text-accent-strong">
-          Dang nhap noi bo
+          Đăng nhập nội bộ
         </p>
         <h1 className="text-3xl font-semibold tracking-tight">
-          Truy cap LocalKB
+          Truy cập LocalKB
         </h1>
         <p className="max-w-lg text-sm leading-7 text-muted">
-          Su dung tai khoan duoc admin cap de vao wiki, FAQ va cac quy trinh noi
-          bo cua cong ty.
+          Sử dụng tài khoản được admin cấp để vào wiki, FAQ và các quy trình nội
+          bộ của công ty.
         </p>
       </div>
 
@@ -86,14 +86,14 @@ export function LoginForm() {
         </label>
 
         <label className="block space-y-2">
-          <span className="text-sm font-medium">Mat khau</span>
+          <span className="text-sm font-medium">Mật khẩu</span>
           <input
             required
             minLength={8}
             type="password"
             name="password"
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none transition focus:border-accent"
-            placeholder="Nhap mat khau"
+            placeholder="Nhập mật khẩu"
           />
         </label>
       </div>
@@ -109,9 +109,8 @@ export function LoginForm() {
         disabled={state.pending}
         className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-accent px-5 py-3 font-medium text-white transition hover:bg-accent-strong disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {state.pending ? "Dang dang nhap..." : "Dang nhap"}
+        {state.pending ? "Đang đăng nhập..." : "Đăng nhập"}
       </button>
     </form>
   );
 }
-

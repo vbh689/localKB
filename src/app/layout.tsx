@@ -16,7 +16,7 @@ const ibmPlexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "LocalKB",
   description:
-    "Wiki, knowledge base va FAQ noi bo voi instant search cho doanh nghiep.",
+    "Wiki, knowledge base và FAQ nội bộ với instant search cho doanh nghiệp.",
 };
 
 const accentBackground = {

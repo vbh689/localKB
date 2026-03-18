@@ -28,14 +28,14 @@ export function BulkSelectionControls({ formId }: Props) {
         onClick={() => setCheckedState(formId, true)}
         className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
       >
-        Chon tat ca
+        Chọn tất cả
       </button>
       <button
         type="button"
         onClick={() => setCheckedState(formId, false)}
         className="rounded-full border border-line px-4 py-2 text-sm font-medium text-muted"
       >
-        Bo chon
+        Bỏ chọn
       </button>
     </div>
   );

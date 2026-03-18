@@ -16,9 +16,9 @@ export default async function Home() {
   ]);
 
   const quickStats = [
-    { label: "Bai viet", value: String(counts.articleCount) },
+    { label: "Bài viết", value: String(counts.articleCount) },
     { label: "FAQ", value: String(counts.faqCount) },
-    { label: "Cap nhat hom nay", value: String(counts.todayCount) },
+    { label: "Cập nhật hôm nay", value: String(counts.todayCount) },
   ];
 
   const featuredItems = featuredArticles.map((item) => ({
@@ -41,7 +41,7 @@ export default async function Home() {
               LocalKB
             </div>
             <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-              Knowledge hub noi bo cho wiki, SOP va FAQ
+              Knowledge hub nội bộ cho wiki, SOP và FAQ
             </h1>
           </div>
           <div className="grid grid-cols-3 gap-3 md:min-w-[360px]">
@@ -76,7 +76,7 @@ export default async function Home() {
                   href="/account/password"
                   className="inline-flex items-center justify-center rounded-full border border-line bg-white px-5 py-3 text-sm font-medium transition hover:border-accent hover:text-accent-strong"
                 >
-                  Doi mat khau
+                  Đổi mật khẩu
                 </Link>
                 <LogoutButton />
               </>
@@ -85,7 +85,7 @@ export default async function Home() {
                 href="/login"
                 className="inline-flex items-center justify-center rounded-full border border-line bg-white px-5 py-3 text-sm font-medium transition hover:border-accent hover:text-accent-strong"
               >
-                Dang nhap
+                Đăng nhập
               </Link>
             )}
           </div>
@@ -95,15 +95,15 @@ export default async function Home() {
           <div className="space-y-6">
             <div className="space-y-4">
               <p className="font-mono text-sm uppercase tracking-[0.32em] text-accent-strong">
-                Tim thong tin ngay tai homepage
+                Tìm thông tin ngay tại homepage
               </p>
               <h2 className="max-w-3xl text-5xl font-semibold leading-tight tracking-tight md:text-6xl">
-                Tim nhanh tai lieu, cau tra loi va quy trinh ngay khi bat dau go.
+                Tìm nhanh tài liệu, câu trả lời và quy trình ngay khi bắt đầu gõ.
               </h2>
               <p className="max-w-2xl text-lg leading-8 text-muted">
-                Giao dien ban dau uu tien mot o tim kiem trung tam, ket qua hien
-                ra tuc thi, phan loai ro giua Wiki va FAQ de nhan vien tra cuu
-                noi dung noi bo ma khong phai dao qua nhieu menu.
+                Giao diện ban đầu ưu tiên một ô tìm kiếm trung tâm, kết quả hiện
+                ra tức thì, phân loại rõ giữa Wiki và FAQ để nhân viên tra cứu
+                nội dung nội bộ mà không phải đảo qua nhiều menu.
               </p>
             </div>
 
@@ -113,28 +113,28 @@ export default async function Home() {
           <aside className="space-y-5">
             <section className="glass-panel rounded-[2rem] p-6">
               <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-                Kha nang cho v1
+                Khả năng cho v1
               </p>
               <div className="mt-5 space-y-4">
                 <div className="rounded-[1.5rem] border border-line bg-white/75 p-4">
-                  <h3 className="text-lg font-semibold">Wiki + FAQ trong mot he thong</h3>
+                  <h3 className="text-lg font-semibold">Wiki + FAQ trong một hệ thống</h3>
                   <p className="mt-2 text-sm leading-7 text-muted">
-                    Phan trang doc noi dung don gian, quan tri bang admin CMS va
+                    Phân trang đọc nội dung đơn giản, quản trị bằng admin CMS và
                     role admin/editor/viewer.
                   </p>
                 </div>
                 <div className="rounded-[1.5rem] border border-line bg-white/75 p-4">
-                  <h3 className="text-lg font-semibold">Instant search uu tien title</h3>
+                  <h3 className="text-lg font-semibold">Instant search ưu tiên title</h3>
                   <p className="mt-2 text-sm leading-7 text-muted">
-                    Ket qua chia theo loai noi dung, co typo tolerance va prefix
-                    matching de tim nhanh hon.
+                    Kết quả chia theo loại nội dung, có typo tolerance và prefix
+                    matching để tìm nhanh hơn.
                   </p>
                 </div>
                 <div className="rounded-[1.5rem] border border-line bg-white/75 p-4">
-                  <h3 className="text-lg font-semibold">Tracking truy van no-result</h3>
+                  <h3 className="text-lg font-semibold">Tracking truy vấn no-result</h3>
                   <p className="mt-2 text-sm leading-7 text-muted">
-                    Ghi log de biet nhan vien dang can thong tin gi nhung he
-                    thong chua co san.
+                    Ghi log để biết nhân viên đang cần thông tin gì nhưng hệ
+                    thống chưa có sẵn.
                   </p>
                 </div>
               </div>
@@ -142,14 +142,14 @@ export default async function Home() {
 
             <section className="rounded-[2rem] border border-dashed border-accent/30 bg-accent-strong px-6 py-6 text-white shadow-[0_20px_45px_rgba(95,58,23,0.24)]">
               <p className="font-mono text-sm uppercase tracking-[0.22em] text-white/70">
-                Tiep theo
+                Tiếp theo
               </p>
               <h3 className="mt-3 text-2xl font-semibold tracking-tight">
-                Buoc sau la noi giao dien nay vao auth, database va search index.
+                Bước sau là nối giao diện này vào auth, database và search index.
               </h3>
               <p className="mt-3 text-sm leading-7 text-white/82">
-                Moc tiep theo hop ly la tao Prisma schema, Docker Compose cho
-                PostgreSQL + Meilisearch, va route API dau tien cho auth/search.
+                Mốc tiếp theo hợp lý là tạo Prisma schema, Docker Compose cho
+                PostgreSQL + Meilisearch, và route API đầu tiên cho auth/search.
               </p>
             </section>
           </aside>

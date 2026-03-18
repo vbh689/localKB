@@ -20,7 +20,7 @@ export default async function KnowledgeBaseDetailPage({ params }: Props) {
     <main className="section-grid min-h-screen px-6 py-8 md:px-10 xl:px-14">
       <div className="mx-auto flex max-w-4xl flex-col gap-8">
         <Link href="/" className="text-sm font-medium text-accent-strong">
-          Ve homepage
+          Về homepage
         </Link>
         <article className="glass-panel rounded-[2rem] p-6 md:p-8">
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
@@ -28,7 +28,7 @@ export default async function KnowledgeBaseDetailPage({ params }: Props) {
               Wiki
             </span>
             {article.category ? <span>{article.category.name}</span> : null}
-            <span>Cap nhat: {article.updatedAt.toLocaleDateString("vi-VN")}</span>
+            <span>Cập nhật: {article.updatedAt.toLocaleDateString("vi-VN")}</span>
           </div>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">
             {article.title}
@@ -54,4 +54,3 @@ export default async function KnowledgeBaseDetailPage({ params }: Props) {
     </main>
   );
 }
-

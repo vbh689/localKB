@@ -4,7 +4,7 @@ import { LogoutButton } from "@/components/auth/logout-button";
 import { requireRoles } from "@/lib/auth/session";
 
 const adminLinks = [
-  { href: "/admin", label: "Tong quan" },
+  { href: "/admin", label: "Tổng quan" },
   { href: "/admin/articles", label: "Articles" },
   { href: "/admin/faqs", label: "FAQs" },
   { href: "/admin/categories", label: "Categories" },
@@ -30,10 +30,10 @@ export default async function AdminLayout({
                 Admin CMS
               </p>
               <h1 className="text-3xl font-semibold tracking-tight">
-                Quan tri noi dung LocalKB
+                Quản trị nội dung LocalKB
               </h1>
               <p className="text-sm leading-7 text-muted">
-                Dang nhap voi {session.user.email} - role {session.user.role}
+                Đăng nhập với {session.user.email} - role {session.user.role}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
@@ -41,13 +41,13 @@ export default async function AdminLayout({
                 href="/account/password"
                 className="inline-flex items-center justify-center rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-accent-strong transition hover:border-accent"
               >
-                Doi mat khau
+                Đổi mật khẩu
               </Link>
               <Link
                 href="/"
                 className="inline-flex items-center justify-center rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-accent-strong transition hover:border-accent"
               >
-                Ve homepage
+                Về homepage
               </Link>
               <LogoutButton />
             </div>

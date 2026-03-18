@@ -124,9 +124,9 @@ export function InstantSearch({ initialItems }: Props) {
             Search
           </span>
           <input
-            aria-label="Tim kiem noi dung"
+            aria-label="Tìm kiếm nội dung"
             className="w-full bg-transparent text-base outline-none placeholder:text-muted/70"
-            placeholder="Vi du: onboarding, VPN, quy trinh nghi phep..."
+            placeholder="Ví dụ: onboarding, VPN, quy trình nghỉ phép..."
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={handleKeyDown}
@@ -150,7 +150,7 @@ export function InstantSearch({ initialItems }: Props) {
                     {item.type === "article" ? "Wiki" : "FAQ"}
                   </span>
                   <span className="text-sm text-muted">
-                    {item.category ?? item.tags[0] ?? "Noi bo"}
+                    {item.category ?? item.tags[0] ?? "Nội bộ"}
                   </span>
                 </div>
                 <h3 className="mt-3 text-xl font-semibold tracking-tight">
@@ -191,7 +191,7 @@ export function InstantSearch({ initialItems }: Props) {
                             Wiki
                           </span>
                           <span className="text-sm text-muted">
-                            {item.category ?? "Noi bo"}
+                            {item.category ?? "Nội bộ"}
                           </span>
                         </div>
                         <h3 className="mt-3 text-xl font-semibold tracking-tight">
@@ -234,7 +234,7 @@ export function InstantSearch({ initialItems }: Props) {
                             FAQ
                           </span>
                           <span className="text-sm text-muted">
-                            {item.category ?? "Noi bo"}
+                            {item.category ?? "Nội bộ"}
                           </span>
                         </div>
                         <h3 className="mt-3 text-xl font-semibold tracking-tight">
@@ -254,10 +254,10 @@ export function InstantSearch({ initialItems }: Props) {
           {searched && !isLoading && results.length === 0 ? (
             <div className="rounded-[1.4rem] border border-dashed border-line bg-background px-4 py-5">
               <p className="text-base font-medium">
-                Khong tim thay ket qua phu hop.
+                Không tìm thấy kết quả phù hợp.
               </p>
               <p className="mt-2 text-sm leading-7 text-muted">
-                Thu tu khoa khac, viet ngan hon, hoac mo trang search day du.
+                Thử từ khóa khác, viết ngắn hơn, hoặc mở trang search đầy đủ.
               </p>
             </div>
           ) : null}
@@ -266,16 +266,16 @@ export function InstantSearch({ initialItems }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3">
           <p className="text-sm text-muted">
             {query.trim().length < 2
-              ? "Nhap toi thieu 2 ky tu de bat dau instant search."
+              ? "Nhập tối thiểu 2 ký tự để bắt đầu instant search."
               : searched
-                ? `Tim thay ${results.length} ket qua gan dung.`
-                : "Dang go de hien ket qua tuc thi."}
+                ? `Tìm thấy ${results.length} kết quả gần đúng.`
+                : "Đang gõ để hiện kết quả tức thì."}
           </p>
           <Link
             href={query.trim().length >= 2 ? `/search?q=${encodeURIComponent(query.trim())}` : "/search"}
             className="text-sm font-medium text-accent-strong"
           >
-            Mo trang search day du
+            Mở trang search đầy đủ
           </Link>
         </div>
       </div>

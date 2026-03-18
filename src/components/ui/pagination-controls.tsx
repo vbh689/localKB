@@ -58,7 +58,7 @@ export function PaginationControls({
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.6rem] border border-line bg-white px-4 py-4">
       <p className="text-sm text-muted">
-        Trang {currentPage} / {totalPages} - {totalItems} muc
+        Trang {currentPage} / {totalPages} - {totalItems} mục
       </p>
       <div className="flex flex-wrap items-center gap-2">
         <a
@@ -66,7 +66,7 @@ export function PaginationControls({
           aria-disabled={currentPage <= 1}
           className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong aria-disabled:pointer-events-none aria-disabled:opacity-50"
         >
-          Trang truoc
+          Trang trước
         </a>
         <a
           href={buildPageHref(basePath, searchParams, currentPage + 1)}

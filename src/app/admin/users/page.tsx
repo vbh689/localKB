@@ -41,7 +41,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
       <form action={createUser} className="glass-panel rounded-[1.8rem] p-6">
         <input type="hidden" name="redirectTo" value="/admin/users" />
         <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-          Tao user noi bo
+          Tạo user nội bộ
         </p>
         <div className="mt-5 space-y-4">
           <FormNotice feedback={feedback} />
@@ -57,7 +57,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
             name="password"
             required
             minLength={8}
-            placeholder="Mat khau tam thoi"
+            placeholder="Mật khẩu tạm thời"
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           />
           <select
@@ -73,7 +73,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
             type="submit"
             className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
           >
-            Tao user
+            Tạo user
           </button>
         </div>
       </form>
@@ -91,20 +91,20 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                       {user.role}
                     </span>
                     <span>{sessionCountMap.get(user.id) ?? 0} active sessions</span>
-                    {isCurrentUser ? <span>Ban dang dung tai khoan nay</span> : null}
+                    {isCurrentUser ? <span>Bạn đang dùng tài khoản này</span> : null}
                   </div>
                   <h2 className="text-xl font-semibold tracking-tight">
                     {user.email}
                   </h2>
                   <p className="text-sm text-muted">
-                    Tao luc {user.createdAt.toLocaleString("vi-VN")}
+                    Tạo lúc {user.createdAt.toLocaleString("vi-VN")}
                   </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
                   <details>
                     <summary className="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong">
-                      Sua
+                      Sửa
                     </summary>
                     <form
                       action={updateUser}
@@ -123,7 +123,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                         type="password"
                         name="password"
                         minLength={8}
-                        placeholder="De trong neu khong doi mat khau"
+                        placeholder="Để trống nếu không đổi mật khẩu"
                         className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
                       />
                       <select
@@ -139,7 +139,7 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                         type="submit"
                         className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
                       >
-                        Cap nhat user
+                        Cập nhật user
                       </button>
                     </form>
                   </details>
@@ -148,11 +148,11 @@ export default async function AdminUsersPage({ searchParams }: Props) {
                     <input type="hidden" name="redirectTo" value="/admin/users" />
                     <input type="hidden" name="id" value={user.id} />
                     <ConfirmSubmitButton
-                      confirmMessage="Ban co chac muon xoa user nay khong?"
+                      confirmMessage="Bạn có chắc muốn xóa user này không?"
                       disabled={isCurrentUser}
                       className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      Xoa
+                      Xóa
                     </ConfirmSubmitButton>
                   </form>
                 </div>

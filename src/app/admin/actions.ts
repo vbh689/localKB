@@ -149,14 +149,14 @@ async function restoreArticleFromRevision(
   });
 
   if (!revision) {
-    return { error: "Khong tim thay revision article can khoi phuc." };
+    return { error: "Không tìm thấy revision article cần khôi phục." };
   }
 
   const slug = slugify(revision.snapshotTitle);
 
   if (!(await ensureUniqueSlug("article", slug, articleId))) {
     return {
-      error: "Khong the restore vi tieu de snapshot dang trung voi mot article khac.",
+      error: "Không thể khôi phục vì tiêu đề snapshot đang trùng với một article khác.",
     };
   }
 
@@ -219,14 +219,14 @@ async function restoreFaqFromRevision(
   });
 
   if (!revision) {
-    return { error: "Khong tim thay revision FAQ can khoi phuc." };
+    return { error: "Không tìm thấy revision FAQ cần khôi phục." };
   }
 
   const slug = slugify(revision.snapshotTitle);
 
   if (!(await ensureUniqueSlug("faq", slug, faqId))) {
     return {
-      error: "Khong the restore vi cau hoi snapshot dang trung voi mot FAQ khac.",
+      error: "Không thể khôi phục vì câu hỏi snapshot đang trùng với một FAQ khác.",
     };
   }
 
@@ -267,14 +267,14 @@ export async function createUser(formData: FormData) {
 
   if (!email) {
     redirectWithFeedback(redirectTo, {
-      message: "Email la bat buoc.",
+      message: "Email là bắt buộc.",
       status: "error",
     });
   }
 
   if (password.length < 8) {
     redirectWithFeedback(redirectTo, {
-      message: "Mat khau moi phai co it nhat 8 ky tu.",
+      message: "Mật khẩu mới phải có ít nhất 8 ký tự.",
       status: "error",
     });
   }
@@ -286,7 +286,7 @@ export async function createUser(formData: FormData) {
 
   if (existing) {
     redirectWithFeedback(redirectTo, {
-      message: "Email nay da ton tai trong he thong.",
+      message: "Email này đã tồn tại trong hệ thống.",
       status: "error",
     });
   }
@@ -301,7 +301,7 @@ export async function createUser(formData: FormData) {
 
   revalidatePath("/admin/users");
   redirectWithFeedback(redirectTo, {
-    message: `Da tao user ${email}.`,
+    message: `Đã tạo user ${email}.`,
     status: "success",
   });
 }
@@ -316,14 +316,14 @@ export async function updateUser(formData: FormData) {
 
   if (!id || !email) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong du thong tin de cap nhat user.",
+      message: "Không đủ thông tin để cập nhật user.",
       status: "error",
     });
   }
 
   if (session.user.id === id && role !== Role.ADMIN) {
     redirectWithFeedback(redirectTo, {
-      message: "Ban khong the tu ha quyen chinh minh khoi ADMIN.",
+      message: "Bạn không thể tự hạ quyền chính mình khỏi ADMIN.",
       status: "error",
     });
   }
@@ -336,14 +336,14 @@ export async function updateUser(formData: FormData) {
 
   if (!currentUser) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong tim thay user can cap nhat.",
+      message: "Không tìm thấy user cần cập nhật.",
       status: "error",
     });
   }
 
   if (password.length > 0 && password.length < 8) {
     redirectWithFeedback(redirectTo, {
-      message: "Mat khau moi phai co it nhat 8 ky tu.",
+      message: "Mật khẩu mới phải có ít nhất 8 ký tự.",
       status: "error",
     });
   }
@@ -362,7 +362,7 @@ export async function updateUser(formData: FormData) {
 
   if (emailOwner) {
     redirectWithFeedback(redirectTo, {
-      message: "Email nay dang thuoc ve mot user khac.",
+      message: "Email này đang thuộc về một user khác.",
       status: "error",
     });
   }
@@ -372,7 +372,7 @@ export async function updateUser(formData: FormData) {
 
     if (!hasAnotherAdmin) {
       redirectWithFeedback(redirectTo, {
-        message: "Khong the ha quyen admin cuoi cung.",
+        message: "Không thể hạ quyền admin cuối cùng.",
         status: "error",
       });
     }
@@ -394,7 +394,7 @@ export async function updateUser(formData: FormData) {
 
   revalidatePath("/admin/users");
   redirectWithFeedback(redirectTo, {
-    message: `Da cap nhat user ${email}.`,
+    message: `Đã cập nhật user ${email}.`,
     status: "success",
   });
 }
@@ -406,7 +406,7 @@ export async function deleteUser(formData: FormData) {
 
   if (!id || id === session.user.id) {
     redirectWithFeedback(redirectTo, {
-      message: "Ban khong the xoa tai khoan dang dang nhap.",
+      message: "Bạn không thể xóa tài khoản đang đăng nhập.",
       status: "error",
     });
   }
@@ -419,7 +419,7 @@ export async function deleteUser(formData: FormData) {
 
   if (!currentUser) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong tim thay user can xoa.",
+      message: "Không tìm thấy user cần xóa.",
       status: "error",
     });
   }
@@ -429,7 +429,7 @@ export async function deleteUser(formData: FormData) {
 
     if (!hasAnotherAdmin) {
       redirectWithFeedback(redirectTo, {
-        message: "Khong the xoa admin cuoi cung.",
+        message: "Không thể xóa admin cuối cùng.",
         status: "error",
       });
     }
@@ -449,7 +449,7 @@ export async function deleteUser(formData: FormData) {
 
   revalidatePath("/admin/users");
   redirectWithFeedback(redirectTo, {
-    message: `Da xoa user ${currentUser.email}.`,
+    message: `Đã xóa user ${currentUser.email}.`,
     status: "success",
   });
 }
@@ -461,7 +461,7 @@ export async function createCategory(formData: FormData) {
 
   if (!name) {
     redirectWithFeedback(redirectTo, {
-      message: "Ten category la bat buoc.",
+      message: "Tên category là bắt buộc.",
       status: "error",
     });
   }
@@ -470,7 +470,7 @@ export async function createCategory(formData: FormData) {
 
   if (!(await ensureUniqueSlug("category", slug))) {
     redirectWithFeedback(redirectTo, {
-      message: "Category nay da ton tai.",
+      message: "Category này đã tồn tại.",
       status: "error",
     });
   }
@@ -486,7 +486,7 @@ export async function createCategory(formData: FormData) {
   revalidatePath("/admin/articles");
   revalidatePath("/admin/faqs");
   redirectWithFeedback(redirectTo, {
-    message: `Da tao category ${name}.`,
+    message: `Đã tạo category ${name}.`,
     status: "success",
   });
 }
@@ -499,7 +499,7 @@ export async function updateCategory(formData: FormData) {
 
   if (!id || !name) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong du thong tin de cap nhat category.",
+      message: "Không đủ thông tin để cập nhật category.",
       status: "error",
     });
   }
@@ -508,7 +508,7 @@ export async function updateCategory(formData: FormData) {
 
   if (!(await ensureUniqueSlug("category", slug, id))) {
     redirectWithFeedback(redirectTo, {
-      message: "Category voi ten nay da ton tai.",
+      message: "Category với tên này đã tồn tại.",
       status: "error",
     });
   }
@@ -528,7 +528,7 @@ export async function updateCategory(formData: FormData) {
   revalidatePath("/admin/faqs");
   revalidatePath("/");
   redirectWithFeedback(redirectTo, {
-    message: `Da cap nhat category ${name}.`,
+    message: `Đã cập nhật category ${name}.`,
     status: "success",
   });
 }
@@ -540,7 +540,7 @@ export async function deleteCategory(formData: FormData) {
 
   if (!id) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong tim thay category can xoa.",
+      message: "Không tìm thấy category cần xóa.",
       status: "error",
     });
   }
@@ -552,7 +552,7 @@ export async function deleteCategory(formData: FormData) {
 
   if (!category) {
     redirectWithFeedback(redirectTo, {
-      message: "Category khong ton tai.",
+      message: "Category không tồn tại.",
       status: "error",
     });
   }
@@ -567,7 +567,7 @@ export async function deleteCategory(formData: FormData) {
   revalidatePath("/admin/articles");
   revalidatePath("/admin/faqs");
   redirectWithFeedback(redirectTo, {
-    message: `Da xoa category ${category.name}.`,
+    message: `Đã xóa category ${category.name}.`,
     status: "success",
   });
 }
@@ -579,7 +579,7 @@ export async function createTag(formData: FormData) {
 
   if (!name) {
     redirectWithFeedback(redirectTo, {
-      message: "Ten tag la bat buoc.",
+      message: "Tên tag là bắt buộc.",
       status: "error",
     });
   }
@@ -588,7 +588,7 @@ export async function createTag(formData: FormData) {
 
   if (!(await ensureUniqueSlug("tag", slug))) {
     redirectWithFeedback(redirectTo, {
-      message: "Tag nay da ton tai.",
+      message: "Tag này đã tồn tại.",
       status: "error",
     });
   }
@@ -604,7 +604,7 @@ export async function createTag(formData: FormData) {
   revalidatePath("/admin/articles");
   revalidatePath("/admin/faqs");
   redirectWithFeedback(redirectTo, {
-    message: `Da tao tag ${name}.`,
+    message: `Đã tạo tag ${name}.`,
     status: "success",
   });
 }
@@ -617,7 +617,7 @@ export async function updateTag(formData: FormData) {
 
   if (!id || !name) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong du thong tin de cap nhat tag.",
+      message: "Không đủ thông tin để cập nhật tag.",
       status: "error",
     });
   }
@@ -626,7 +626,7 @@ export async function updateTag(formData: FormData) {
 
   if (!(await ensureUniqueSlug("tag", slug, id))) {
     redirectWithFeedback(redirectTo, {
-      message: "Tag voi ten nay da ton tai.",
+      message: "Tag với tên này đã tồn tại.",
       status: "error",
     });
   }
@@ -646,7 +646,7 @@ export async function updateTag(formData: FormData) {
   revalidatePath("/admin/faqs");
   revalidatePath("/");
   redirectWithFeedback(redirectTo, {
-    message: `Da cap nhat tag ${name}.`,
+    message: `Đã cập nhật tag ${name}.`,
     status: "success",
   });
 }
@@ -658,7 +658,7 @@ export async function deleteTag(formData: FormData) {
 
   if (!id) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong tim thay tag can xoa.",
+      message: "Không tìm thấy tag cần xóa.",
       status: "error",
     });
   }
@@ -670,7 +670,7 @@ export async function deleteTag(formData: FormData) {
 
   if (!tag) {
     redirectWithFeedback(redirectTo, {
-      message: "Tag khong ton tai.",
+      message: "Tag không tồn tại.",
       status: "error",
     });
   }
@@ -685,7 +685,7 @@ export async function deleteTag(formData: FormData) {
   revalidatePath("/admin/articles");
   revalidatePath("/admin/faqs");
   redirectWithFeedback(redirectTo, {
-    message: `Da xoa tag ${tag.name}.`,
+    message: `Đã xóa tag ${tag.name}.`,
     status: "success",
   });
 }
@@ -705,7 +705,7 @@ export async function createArticle(formData: FormData) {
 
   if (!title || !summary || !body) {
     redirectWithFeedback(redirectTo, {
-      message: "Title, summary va body deu la bat buoc.",
+      message: "Title, summary và body đều là bắt buộc.",
       status: "error",
     });
   }
@@ -714,7 +714,7 @@ export async function createArticle(formData: FormData) {
 
   if (!(await ensureUniqueSlug("article", slug))) {
     redirectWithFeedback(redirectTo, {
-      message: "Article voi tieu de nay da ton tai.",
+      message: "Article với tiêu đề này đã tồn tại.",
       status: "error",
     });
   }
@@ -755,7 +755,7 @@ export async function createArticle(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/search");
   redirectWithFeedback(redirectTo, {
-    message: `Da tao article ${title}.`,
+    message: `Đã tạo article ${title}.`,
     status: "success",
   });
 }
@@ -767,7 +767,7 @@ export async function deleteArticle(formData: FormData) {
 
   if (!id) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong tim thay article can xoa.",
+      message: "Không tìm thấy article cần xóa.",
       status: "error",
     });
   }
@@ -779,7 +779,7 @@ export async function deleteArticle(formData: FormData) {
 
   if (!article) {
     redirectWithFeedback(redirectTo, {
-      message: "Article khong ton tai.",
+      message: "Article không tồn tại.",
       status: "error",
     });
   }
@@ -796,7 +796,7 @@ export async function deleteArticle(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/search");
   redirectWithFeedback(redirectTo, {
-    message: `Da xoa article ${article.title}.`,
+    message: `Đã xóa article ${article.title}.`,
     status: "success",
   });
 }
@@ -809,7 +809,7 @@ export async function updateArticleStatus(formData: FormData) {
 
   if (!id) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong tim thay article can cap nhat trang thai.",
+      message: "Không tìm thấy article cần cập nhật trạng thái.",
       status: "error",
     });
   }
@@ -843,7 +843,7 @@ export async function updateArticleStatus(formData: FormData) {
   revalidatePath("/search");
   revalidatePath("/kb");
   redirectWithFeedback(redirectTo, {
-    message: `Da cap nhat trang thai article ${article.title} sang ${status}.`,
+    message: `Đã cập nhật trạng thái article ${article.title} sang ${status}.`,
     status: "success",
   });
 }
@@ -864,7 +864,7 @@ export async function updateArticle(formData: FormData) {
 
   if (!id || !title || !summary || !body) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong du thong tin de cap nhat article.",
+      message: "Không đủ thông tin để cập nhật article.",
       status: "error",
     });
   }
@@ -873,7 +873,7 @@ export async function updateArticle(formData: FormData) {
 
   if (!(await ensureUniqueSlug("article", slug, id))) {
     redirectWithFeedback(redirectTo, {
-      message: "Article voi tieu de nay da ton tai.",
+      message: "Article với tiêu đề này đã tồn tại.",
       status: "error",
     });
   }
@@ -915,7 +915,7 @@ export async function updateArticle(formData: FormData) {
   revalidatePath("/search");
   revalidatePath(`/kb/${article.slug}`);
   redirectWithFeedback(redirectTo, {
-    message: `Da cap nhat article ${article.title}.`,
+    message: `Đã cập nhật article ${article.title}.`,
     status: "success",
   });
 }
@@ -929,7 +929,7 @@ export async function restoreArticleRevision(formData: FormData) {
 
   if (!articleId || !revisionId) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong du thong tin de restore article revision.",
+      message: "Không đủ thông tin để khôi phục article revision.",
       status: "error",
     });
   }
@@ -957,7 +957,7 @@ export async function restoreArticleRevision(formData: FormData) {
   revalidatePath(`/kb/${currentSlug}`);
   revalidatePath(`/kb/${result.article.slug}`);
   redirectWithFeedback(redirectTo, {
-    message: `Da restore article ${result.article.title} tu revision cu.`,
+    message: `Đã khôi phục article ${result.article.title} từ revision cũ.`,
     status: "success",
   });
 }
@@ -970,7 +970,7 @@ export async function bulkUpdateArticles(formData: FormData) {
 
   if (ids.length === 0) {
     redirectWithFeedback(redirectTo, {
-      message: "Hay chon it nhat mot article de thao tac.",
+      message: "Hãy chọn ít nhất một article để thao tác.",
       status: "error",
     });
   }
@@ -991,7 +991,7 @@ export async function bulkUpdateArticles(formData: FormData) {
 
   if (articles.length === 0) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong tim thay article nao hop le de thao tac.",
+      message: "Không tìm thấy article nào hợp lệ để thao tác.",
       status: "error",
     });
   }
@@ -1013,14 +1013,14 @@ export async function bulkUpdateArticles(formData: FormData) {
     revalidatePath("/");
     revalidatePath("/search");
     redirectWithFeedback(redirectTo, {
-      message: `Da xoa ${articles.length} article.`,
+      message: `Đã xóa ${articles.length} article.`,
       status: "success",
     });
   }
 
   if (operation !== "publish" && operation !== "unpublish") {
     redirectWithFeedback(redirectTo, {
-      message: "Bulk action article khong hop le.",
+      message: "Bulk action article không hợp lệ.",
       status: "error",
     });
   }
@@ -1059,7 +1059,7 @@ export async function bulkUpdateArticles(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/search");
   redirectWithFeedback(redirectTo, {
-    message: `Da ${operation === "publish" ? "publish" : "unpublish"} ${articles.length} article.`,
+    message: `Đã ${operation === "publish" ? "xuất bản" : "ẩn"} ${articles.length} article.`,
     status: "success",
   });
 }
@@ -1078,7 +1078,7 @@ export async function createFaq(formData: FormData) {
 
   if (!question || !answer) {
     redirectWithFeedback(redirectTo, {
-      message: "Question va answer deu la bat buoc.",
+      message: "Question và answer đều là bắt buộc.",
       status: "error",
     });
   }
@@ -1087,7 +1087,7 @@ export async function createFaq(formData: FormData) {
 
   if (!(await ensureUniqueSlug("faq", slug))) {
     redirectWithFeedback(redirectTo, {
-      message: "FAQ voi cau hoi nay da ton tai.",
+      message: "FAQ với câu hỏi này đã tồn tại.",
       status: "error",
     });
   }
@@ -1127,7 +1127,7 @@ export async function createFaq(formData: FormData) {
   revalidatePath("/faq");
   revalidatePath("/search");
   redirectWithFeedback(redirectTo, {
-    message: `Da tao FAQ ${question}.`,
+    message: `Đã tạo FAQ ${question}.`,
     status: "success",
   });
 }
@@ -1139,7 +1139,7 @@ export async function deleteFaq(formData: FormData) {
 
   if (!id) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong tim thay FAQ can xoa.",
+      message: "Không tìm thấy FAQ cần xóa.",
       status: "error",
     });
   }
@@ -1151,7 +1151,7 @@ export async function deleteFaq(formData: FormData) {
 
   if (!faq) {
     redirectWithFeedback(redirectTo, {
-      message: "FAQ khong ton tai.",
+      message: "FAQ không tồn tại.",
       status: "error",
     });
   }
@@ -1169,7 +1169,7 @@ export async function deleteFaq(formData: FormData) {
   revalidatePath("/faq");
   revalidatePath("/search");
   redirectWithFeedback(redirectTo, {
-    message: `Da xoa FAQ ${faq.question}.`,
+    message: `Đã xóa FAQ ${faq.question}.`,
     status: "success",
   });
 }
@@ -1182,7 +1182,7 @@ export async function updateFaqStatus(formData: FormData) {
 
   if (!id) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong tim thay FAQ can cap nhat trang thai.",
+      message: "Không tìm thấy FAQ cần cập nhật trạng thái.",
       status: "error",
     });
   }
@@ -1216,7 +1216,7 @@ export async function updateFaqStatus(formData: FormData) {
   revalidatePath("/faq");
   revalidatePath("/search");
   redirectWithFeedback(redirectTo, {
-    message: `Da cap nhat trang thai FAQ ${faq.question} sang ${status}.`,
+    message: `Đã cập nhật trạng thái FAQ ${faq.question} sang ${status}.`,
     status: "success",
   });
 }
@@ -1236,7 +1236,7 @@ export async function updateFaq(formData: FormData) {
 
   if (!id || !question || !answer) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong du thong tin de cap nhat FAQ.",
+      message: "Không đủ thông tin để cập nhật FAQ.",
       status: "error",
     });
   }
@@ -1245,7 +1245,7 @@ export async function updateFaq(formData: FormData) {
 
   if (!(await ensureUniqueSlug("faq", slug, id))) {
     redirectWithFeedback(redirectTo, {
-      message: "FAQ voi cau hoi nay da ton tai.",
+      message: "FAQ với câu hỏi này đã tồn tại.",
       status: "error",
     });
   }
@@ -1287,7 +1287,7 @@ export async function updateFaq(formData: FormData) {
   revalidatePath("/search");
   revalidatePath(`/faq/${faq.slug}`);
   redirectWithFeedback(redirectTo, {
-    message: `Da cap nhat FAQ ${faq.question}.`,
+    message: `Đã cập nhật FAQ ${faq.question}.`,
     status: "success",
   });
 }
@@ -1301,7 +1301,7 @@ export async function restoreFaqRevision(formData: FormData) {
 
   if (!faqId || !revisionId) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong du thong tin de restore FAQ revision.",
+      message: "Không đủ thông tin để khôi phục FAQ revision.",
       status: "error",
     });
   }
@@ -1330,7 +1330,7 @@ export async function restoreFaqRevision(formData: FormData) {
   revalidatePath(`/faq/${currentSlug}`);
   revalidatePath(`/faq/${result.faq.slug}`);
   redirectWithFeedback(redirectTo, {
-    message: `Da restore FAQ ${result.faq.question} tu revision cu.`,
+    message: `Đã khôi phục FAQ ${result.faq.question} từ revision cũ.`,
     status: "success",
   });
 }
@@ -1343,7 +1343,7 @@ export async function bulkUpdateFaqs(formData: FormData) {
 
   if (ids.length === 0) {
     redirectWithFeedback(redirectTo, {
-      message: "Hay chon it nhat mot FAQ de thao tac.",
+      message: "Hãy chọn ít nhất một FAQ để thao tác.",
       status: "error",
     });
   }
@@ -1364,7 +1364,7 @@ export async function bulkUpdateFaqs(formData: FormData) {
 
   if (faqs.length === 0) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong tim thay FAQ nao hop le de thao tac.",
+      message: "Không tìm thấy FAQ nào hợp lệ để thao tác.",
       status: "error",
     });
   }
@@ -1385,14 +1385,14 @@ export async function bulkUpdateFaqs(formData: FormData) {
     revalidatePath("/faq");
     revalidatePath("/search");
     redirectWithFeedback(redirectTo, {
-      message: `Da xoa ${faqs.length} FAQ.`,
+      message: `Đã xóa ${faqs.length} FAQ.`,
       status: "success",
     });
   }
 
   if (operation !== "publish" && operation !== "unpublish") {
     redirectWithFeedback(redirectTo, {
-      message: "Bulk action FAQ khong hop le.",
+      message: "Bulk action FAQ không hợp lệ.",
       status: "error",
     });
   }
@@ -1432,7 +1432,7 @@ export async function bulkUpdateFaqs(formData: FormData) {
   revalidatePath("/faq");
   revalidatePath("/search");
   redirectWithFeedback(redirectTo, {
-    message: `Da ${operation === "publish" ? "publish" : "unpublish"} ${faqs.length} FAQ.`,
+    message: `Đã ${operation === "publish" ? "xuất bản" : "ẩn"} ${faqs.length} FAQ.`,
     status: "success",
   });
 }
@@ -1450,14 +1450,14 @@ export async function changeOwnPassword(formData: FormData) {
     confirmPassword.length < 8
   ) {
     redirectWithFeedback(redirectTo, {
-      message: "Tat ca truong mat khau can it nhat 8 ky tu.",
+      message: "Tất cả trường mật khẩu cần ít nhất 8 ký tự.",
       status: "error",
     });
   }
 
   if (nextPassword !== confirmPassword) {
     redirectWithFeedback(redirectTo, {
-      message: "Xac nhan mat khau moi khong khop.",
+      message: "Xác nhận mật khẩu mới không khớp.",
       status: "error",
     });
   }
@@ -1470,7 +1470,7 @@ export async function changeOwnPassword(formData: FormData) {
 
   if (!user) {
     redirectWithFeedback(redirectTo, {
-      message: "Khong tim thay tai khoan hien tai.",
+      message: "Không tìm thấy tài khoản hiện tại.",
       status: "error",
     });
   }
@@ -1482,14 +1482,14 @@ export async function changeOwnPassword(formData: FormData) {
 
   if (!isCurrentPasswordValid) {
     redirectWithFeedback(redirectTo, {
-      message: "Mat khau hien tai khong dung.",
+      message: "Mật khẩu hiện tại không đúng.",
       status: "error",
     });
   }
 
   if (currentPassword === nextPassword) {
     redirectWithFeedback(redirectTo, {
-      message: "Mat khau moi phai khac mat khau hien tai.",
+      message: "Mật khẩu mới phải khác mật khẩu hiện tại.",
       status: "error",
     });
   }
@@ -1513,7 +1513,7 @@ export async function changeOwnPassword(formData: FormData) {
   });
 
   redirectWithFeedback(redirectTo, {
-    message: "Da cap nhat mat khau thanh cong.",
+    message: "Đã cập nhật mật khẩu thành công.",
     status: "success",
   });
 }

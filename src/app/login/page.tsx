@@ -20,19 +20,19 @@ export default async function LoginPage() {
           </div>
           <div className="space-y-4">
             <h1 className="max-w-xl text-5xl font-semibold leading-tight tracking-tight md:text-6xl">
-              Dang nhap de tim tai lieu noi bo trong mot diem vao duy nhat.
+              Đăng nhập để tìm tài liệu nội bộ trong một điểm vào duy nhất.
             </h1>
             <p className="max-w-xl text-lg leading-8 text-muted">
-              Sau khi dang nhap, nguoi dung co the tra cuu wiki, FAQ va cac quy
-              trinh van hanh bang instant search ngay tai homepage.
+              Sau khi đăng nhập, người dùng có thể tra cứu wiki, FAQ và các quy
+              trình vận hành bằng instant search ngay tại homepage.
             </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
             {[
-              "Tai khoan duoc cap boi admin",
+              "Tài khoản được cấp bởi admin",
               "Session HttpOnly cookie",
-              "San sang noi auth vao admin CMS",
+              "Sẵn sàng nối auth vào admin CMS",
             ].map((item) => (
               <div
                 key={item}
@@ -47,7 +47,7 @@ export default async function LoginPage() {
             href="/"
             className="inline-flex items-center gap-2 text-sm font-medium text-accent-strong"
           >
-            Ve homepage
+            Về homepage
           </Link>
         </section>
 

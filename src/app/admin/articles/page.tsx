@@ -109,7 +109,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
       <form action={createArticle} className="glass-panel rounded-[1.8rem] p-6">
         <input type="hidden" name="redirectTo" value="/admin/articles" />
         <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-          Tao article
+          Tạo article
         </p>
         <div className="mt-5 space-y-4">
           <FormNotice feedback={feedback} />
@@ -117,21 +117,21 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
             type="text"
             name="title"
             required
-            placeholder="Tieu de bai viet"
+            placeholder="Tiêu đề bài viết"
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           />
           <textarea
             name="summary"
             required
             rows={3}
-            placeholder="Tom tat ngan"
+            placeholder="Tóm tắt ngắn"
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           />
           <textarea
             name="body"
             required
             rows={8}
-            placeholder="Noi dung chi tiet"
+            placeholder="Nội dung chi tiết"
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           />
           <select
@@ -139,7 +139,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
             defaultValue=""
           >
-            <option value="">Khong co category</option>
+            <option value="">Không có category</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -153,10 +153,10 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
           >
             <option value={ContentStatus.DRAFT}>Draft</option>
             <option value={ContentStatus.PUBLISHED}>Published</option>
-            <option value={ContentStatus.UNPUBLISHED}>Unpublished</option>
+            <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
           </select>
           <div className="rounded-2xl border border-line bg-white p-4">
-            <p className="text-sm font-medium">Gan tags</p>
+            <p className="text-sm font-medium">Gắn tags</p>
             <div className="mt-3 flex flex-wrap gap-3">
               {tags.map((tag) => (
                 <label key={tag.id} className="flex items-center gap-2 text-sm text-muted">
@@ -170,7 +170,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
             type="submit"
             className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
           >
-            Tao article
+            Tạo article
           </button>
         </div>
       </form>
@@ -182,7 +182,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
               type="text"
               name="q"
               defaultValue={query}
-              placeholder="Tim theo title, summary, body"
+              placeholder="Tìm theo title, summary, body"
               className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
             />
             <select
@@ -190,17 +190,17 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
               defaultValue={statusFilter}
               className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
             >
-              <option value="all">Tat ca status</option>
+              <option value="all">Tất cả status</option>
               <option value={ContentStatus.DRAFT}>Draft</option>
               <option value={ContentStatus.PUBLISHED}>Published</option>
-              <option value={ContentStatus.UNPUBLISHED}>Unpublished</option>
+              <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
             </select>
             <select
               name="categoryId"
               defaultValue={categoryFilter}
               className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
             >
-              <option value="all">Tat ca category</option>
+              <option value="all">Tất cả category</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name}
@@ -212,16 +212,16 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
               defaultValue={sort}
               className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
             >
-              <option value="updated_desc">Moi cap nhat</option>
-              <option value="title_asc">Tieu de A-Z</option>
-              <option value="published_desc">Moi publish</option>
+              <option value="updated_desc">Mới cập nhật</option>
+              <option value="title_asc">Tiêu đề A-Z</option>
+              <option value="published_desc">Mới xuất bản</option>
             </select>
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="submit"
                 className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
               >
-                Loc
+                Lọc
               </button>
               <a
                 href="/admin/articles"
@@ -232,7 +232,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
             </div>
           </div>
           <p className="mt-3 text-sm text-muted">
-            Dang hien thi {articles.length} / {articleCount} article.
+            Đang hiển thị {articles.length} / {articleCount} article.
           </p>
         </form>
 
@@ -246,7 +246,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
             <div>
               <p className="text-sm font-medium">Bulk actions</p>
               <p className="text-sm text-muted">
-                Chon nhieu article ben duoi roi publish, unpublish hoac xoa.
+                Chọn nhiều article bên dưới rồi xuất bản, ẩn hoặc xóa.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -257,25 +257,25 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                 value="publish"
                 className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
               >
-                Publish selected
+                Xuất bản đã chọn
               </button>
               <ConfirmSubmitButton
                 type="submit"
                 name="operation"
                 value="unpublish"
-                confirmMessage="Ban co chac muon unpublish cac article da chon khong?"
+                confirmMessage="Bạn có chắc muốn ẩn các article đã chọn không?"
                 className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
               >
-                Unpublish selected
+                Ẩn đã chọn
               </ConfirmSubmitButton>
               <ConfirmSubmitButton
                 type="submit"
                 name="operation"
                 value="delete"
-                confirmMessage="Ban co chac muon xoa cac article da chon khong?"
+                confirmMessage="Bạn có chắc muốn xóa các article đã chọn không?"
                 className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
               >
-                Delete selected
+                Xóa đã chọn
               </ConfirmSubmitButton>
             </div>
           </div>
@@ -293,7 +293,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                       value={article.id}
                       form="article-bulk-form"
                     />
-                    Chon
+                    Chọn
                   </label>
                   <span className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-strong">
                     {article.status}
@@ -321,7 +321,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                   </summary>
                   <div className="mt-4 grid gap-3">
                     {article.revisions.length === 0 ? (
-                      <p className="text-sm text-muted">Chua co revision nao.</p>
+                      <p className="text-sm text-muted">Chưa có revision nào.</p>
                     ) : (
                       article.revisions.map((revision) => (
                         <div
@@ -331,11 +331,11 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                           {revision.snapshotTitle !== article.title ||
                           revision.snapshotBody !== article.body ? (
                             <div className="mb-3 inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-amber-700">
-                              Co thay doi so voi ban hien tai
+                              Có thay đổi so với bản hiện tại
                             </div>
                           ) : (
                             <div className="mb-3 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-emerald-700">
-                              Giong ban hien tai
+                              Giống bản hiện tại
                             </div>
                           )}
                           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -373,10 +373,10 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                             <input type="hidden" name="revisionId" value={revision.id} />
                             <input type="hidden" name="currentSlug" value={article.slug} />
                             <ConfirmSubmitButton
-                              confirmMessage="Ban co chac muon restore revision nay khong?"
+                              confirmMessage="Bạn có chắc muốn khôi phục revision này không?"
                               className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
                             >
-                              Restore revision
+                              Khôi phục revision
                             </ConfirmSubmitButton>
                           </form>
                         </div>
@@ -388,7 +388,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
               <div className="flex flex-wrap items-center gap-2">
                 <details>
                   <summary className="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong">
-                    Sua
+                    Sửa
                   </summary>
                   <form
                     action={updateArticle}
@@ -422,7 +422,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                       className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
                       defaultValue={article.categoryId ?? ""}
                     >
-                      <option value="">Khong co category</option>
+                      <option value="">Không có category</option>
                       {categories.map((category) => (
                         <option key={category.id} value={category.id}>
                           {category.name}
@@ -436,10 +436,10 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                     >
                       <option value={ContentStatus.DRAFT}>Draft</option>
                       <option value={ContentStatus.PUBLISHED}>Published</option>
-                      <option value={ContentStatus.UNPUBLISHED}>Unpublished</option>
+                      <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
                     </select>
                     <div className="rounded-2xl border border-line bg-background p-4">
-                      <p className="text-sm font-medium">Gan tags</p>
+                      <p className="text-sm font-medium">Gắn tags</p>
                       <div className="mt-3 flex flex-wrap gap-3">
                         {tags.map((tag) => (
                           <label
@@ -463,7 +463,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                       type="submit"
                       className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
                     >
-                      Cap nhat article
+                      Cập nhật article
                     </button>
                   </form>
                 </details>
@@ -482,24 +482,24 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                   <ConfirmSubmitButton
                     confirmMessage={
                       article.status === ContentStatus.PUBLISHED
-                        ? "Ban co chac muon unpublish article nay khong?"
-                        : "Ban co chac muon publish article nay khong?"
+                        ? "Bạn có chắc muốn ẩn article này không?"
+                        : "Bạn có chắc muốn xuất bản article này không?"
                     }
                     className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
                   >
                     {article.status === ContentStatus.PUBLISHED
-                      ? "Unpublish"
-                      : "Publish"}
+                      ? "Ẩn"
+                      : "Xuất bản"}
                   </ConfirmSubmitButton>
                 </form>
                 <form action={deleteArticle}>
                   <input type="hidden" name="redirectTo" value="/admin/articles" />
                   <input type="hidden" name="id" value={article.id} />
                   <ConfirmSubmitButton
-                    confirmMessage="Ban co chac muon xoa article nay khong?"
+                    confirmMessage="Bạn có chắc muốn xóa article này không?"
                     className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
                   >
-                    Xoa
+                    Xóa
                   </ConfirmSubmitButton>
                 </form>
               </div>

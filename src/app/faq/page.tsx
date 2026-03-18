@@ -15,11 +15,11 @@ export default async function FaqIndexPage() {
               FAQ
             </p>
             <h1 className="mt-2 text-4xl font-semibold tracking-tight">
-              Cau hoi thuong gap
+              Câu hỏi thường gặp
             </h1>
           </div>
           <Link href="/" className="text-sm font-medium text-accent-strong">
-            Ve homepage
+            Về homepage
           </Link>
         </div>
         <div className="grid gap-4">
@@ -45,4 +45,3 @@ export default async function FaqIndexPage() {
     </main>
   );
 }
-

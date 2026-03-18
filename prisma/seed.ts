@@ -71,21 +71,21 @@ async function main() {
   const articleSeeds = [
     {
       body:
-        "Ngay dau tien: nhan laptop, kich hoat email cong ty, dang nhap Slack, Jira va LocalKB.\n\nTuan dau tien: hoan thanh training bat buoc, gap mentor, doc handbook phong ban.\n\n30 ngay dau: lam quen quy trinh review code, hop team va muc tieu thu viec.",
+        "Ngày đầu tiên: nhận laptop, kích hoạt email công ty, đăng nhập Slack, Jira và LocalKB.\n\nTuần đầu tiên: hoàn thành training bắt buộc, gặp mentor, đọc handbook phòng ban.\n\n30 ngày đầu: làm quen quy trình review code, họp team và mục tiêu thử việc.",
       categorySlug: "hr",
       summary:
-        "Checklist tai khoan, email, tool va 30 ngay dau tien cho nhan su moi.",
+        "Checklist tài khoản, email, tool và 30 ngày đầu tiên cho nhân sự mới.",
       tagSlugs: ["onboarding", "policy"],
-      title: "Quy trinh onboarding nhan su moi",
+      title: "Quy trình onboarding nhân sự mới",
     },
     {
       body:
-        "Repository service dung tien to svc-, frontend dung web-, package noi bo dung pkg-.\n\nNhanh gon, de tim kiem va phu hop convention DevOps noi bo.",
+        "Repository service dùng tiền tố svc-, frontend dùng web-, package nội bộ dùng pkg-.\n\nNhanh gọn, dễ tìm kiếm và phù hợp convention DevOps nội bộ.",
       categorySlug: "engineering",
       summary:
-        "Convention dat ten cho service, frontend app va package noi bo.",
+        "Convention đặt tên cho service, frontend app và package nội bộ.",
       tagSlugs: ["repository", "policy"],
-      title: "Quy chuan dat ten du an va repository",
+      title: "Quy chuẩn đặt tên dự án và repository",
     },
   ];
 
@@ -128,16 +128,16 @@ async function main() {
   const faqSeeds = [
     {
       answer:
-        "Gui ticket cho IT Support trong vong 24h truoc khi can truy cap. Sau khi duoc phe duyet, dang nhap bang email cong ty va bat buoc bat 2FA.",
+        "Gửi ticket cho IT Support trong vòng 24h trước khi cần truy cập. Sau khi được phê duyệt, đăng nhập bằng email công ty và bắt buộc bật 2FA.",
       categorySlug: "it-support",
-      question: "Xin quyen truy cap VPN nhu the nao?",
+      question: "Xin quyền truy cập VPN như thế nào?",
       tagSlugs: ["vpn", "access"],
     },
     {
       answer:
-        "Nop request tren portal HR truoc toi thieu 3 ngay lam viec. Quan ly truc tiep se duyet tren he thong va dong bo ve payroll.",
+        "Nộp request trên portal HR trước tối thiểu 3 ngày làm việc. Quản lý trực tiếp sẽ duyệt trên hệ thống và đồng bộ về payroll.",
       categorySlug: "hr",
-      question: "Quy trinh xin nghi phep dien ra nhu the nao?",
+      question: "Quy trình xin nghỉ phép diễn ra như thế nào?",
       tagSlugs: ["policy"],
     },
   ];

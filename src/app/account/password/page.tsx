@@ -21,11 +21,11 @@ export default async function AccountPasswordPage({ searchParams }: Props) {
             Account security
           </p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight">
-            Doi mat khau
+            Đổi mật khẩu
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-            Tai khoan hien tai: {session.user.email}. Mat khau moi can it nhat 8
-            ky tu.
+            Tài khoản hiện tại: {session.user.email}. Mật khẩu mới cần ít nhất 8
+            ký tự.
           </p>
         </section>
 
@@ -34,7 +34,7 @@ export default async function AccountPasswordPage({ searchParams }: Props) {
           <div className="space-y-4">
             <FormNotice feedback={feedback} />
             <label className="block space-y-2">
-              <span className="text-sm font-medium">Mat khau hien tai</span>
+              <span className="text-sm font-medium">Mật khẩu hiện tại</span>
               <input
                 type="password"
                 name="currentPassword"
@@ -44,7 +44,7 @@ export default async function AccountPasswordPage({ searchParams }: Props) {
               />
             </label>
             <label className="block space-y-2">
-              <span className="text-sm font-medium">Mat khau moi</span>
+              <span className="text-sm font-medium">Mật khẩu mới</span>
               <input
                 type="password"
                 name="nextPassword"
@@ -54,7 +54,7 @@ export default async function AccountPasswordPage({ searchParams }: Props) {
               />
             </label>
             <label className="block space-y-2">
-              <span className="text-sm font-medium">Xac nhan mat khau moi</span>
+              <span className="text-sm font-medium">Xác nhận mật khẩu mới</span>
               <input
                 type="password"
                 name="confirmPassword"
@@ -68,7 +68,7 @@ export default async function AccountPasswordPage({ searchParams }: Props) {
             type="submit"
             className="mt-6 rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
           >
-            Cap nhat mat khau
+            Cập nhật mật khẩu
           </button>
         </form>
       </div>

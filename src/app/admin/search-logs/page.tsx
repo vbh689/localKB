@@ -85,7 +85,7 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
             type="text"
             name="q"
             defaultValue={query}
-            placeholder="Tim theo query"
+            placeholder="Tìm theo query"
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           />
           <select
@@ -93,23 +93,23 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
             defaultValue={resultFilter}
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           >
-            <option value="all">Tat ca ket qua</option>
-            <option value="no-result">Chi no-result</option>
+            <option value="all">Tất cả kết quả</option>
+            <option value="no-result">Chỉ no-result</option>
           </select>
           <select
             name="sort"
             defaultValue={sort}
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           >
-            <option value="latest">Moi nhat</option>
-            <option value="results_desc">Nhieu ket qua nhat</option>
+            <option value="latest">Mới nhất</option>
+            <option value="results_desc">Nhiều kết quả nhất</option>
           </select>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="submit"
               className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
             >
-              Loc
+              Lọc
             </button>
             <a
               href={`/api/admin/search-logs/export?q=${encodeURIComponent(query)}&resultFilter=${encodeURIComponent(resultFilter)}&sort=${encodeURIComponent(sort)}`}
@@ -130,7 +130,7 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
         </p>
         <div className="mt-5 grid gap-3">
           {noResultLogs.length === 0 ? (
-            <p className="text-sm text-muted">Chua co truy van no-result.</p>
+            <p className="text-sm text-muted">Chưa có truy vấn no-result.</p>
           ) : (
             noResultLogs.map((item) => (
               <div
@@ -139,7 +139,7 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
               >
                 <p className="text-base font-medium">{item.query}</p>
                 <p className="mt-1 text-sm text-muted">
-                  {item._count.query} lan khong co ket qua
+                  {item._count.query} lần không có kết quả
                 </p>
               </div>
             ))
@@ -152,7 +152,7 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
           Recent search logs
         </p>
         <p className="mt-2 text-sm text-muted">
-          Dang hien thi {recentLogs.length} / {recentLogCount} logs.
+          Đang hiển thị {recentLogs.length} / {recentLogCount} logs.
         </p>
         <div className="mt-5 grid gap-3">
           {recentLogs.map((log) => (
@@ -163,7 +163,7 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-base font-medium">{log.query || "(empty)"}</p>
                 <span className="rounded-full border border-line px-3 py-1 text-xs text-muted">
-                  {log.resultCount} ket qua
+                  {log.resultCount} kết quả
                 </span>
               </div>
               <p className="mt-2 text-sm text-muted">

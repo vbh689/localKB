@@ -36,7 +36,7 @@ export default async function AdminCategoriesPage({ searchParams }: Props) {
       <form action={createCategory} className="glass-panel rounded-[1.8rem] p-6">
         <input type="hidden" name="redirectTo" value="/admin/categories" />
         <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-          Tao category
+          Tạo category
         </p>
         <div className="mt-5 space-y-3">
           <FormNotice feedback={feedback} />
@@ -44,14 +44,14 @@ export default async function AdminCategoriesPage({ searchParams }: Props) {
             type="text"
             name="name"
             required
-            placeholder="Vi du: Finance"
+            placeholder="Ví dụ: Finance"
             className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
           />
           <button
             type="submit"
             className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
           >
-            Tao category
+            Tạo category
           </button>
         </div>
       </form>
@@ -72,7 +72,7 @@ export default async function AdminCategoriesPage({ searchParams }: Props) {
                 <div className="flex flex-wrap items-center gap-2">
                   <details>
                     <summary className="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong">
-                      Sua
+                      Sửa
                     </summary>
                     <form
                       action={updateCategory}
@@ -91,7 +91,7 @@ export default async function AdminCategoriesPage({ searchParams }: Props) {
                         type="submit"
                         className="rounded-full bg-accent px-4 py-2 text-sm font-medium text-white"
                       >
-                        Luu
+                        Lưu
                       </button>
                     </form>
                   </details>
@@ -99,10 +99,10 @@ export default async function AdminCategoriesPage({ searchParams }: Props) {
                     <input type="hidden" name="redirectTo" value="/admin/categories" />
                     <input type="hidden" name="id" value={category.id} />
                     <ConfirmSubmitButton
-                      confirmMessage="Ban co chac muon xoa category nay khong?"
+                      confirmMessage="Bạn có chắc muốn xóa category này không?"
                       className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
                     >
-                      Xoa
+                      Xóa
                     </ConfirmSubmitButton>
                   </form>
                 </div>

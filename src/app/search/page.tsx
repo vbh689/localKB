@@ -20,17 +20,17 @@ export default async function SearchPage({ searchParams }: Props) {
               Search
             </p>
             <h1 className="mt-2 text-4xl font-semibold tracking-tight">
-              Ket qua cho &quot;{payload.query || "tat ca"}&quot;
+              Kết quả cho &quot;{payload.query || "tất cả"}&quot;
             </h1>
           </div>
           <Link href="/" className="text-sm font-medium text-accent-strong">
-            Ve homepage
+            Về homepage
           </Link>
         </div>
 
         {payload.results.length === 0 ? (
           <div className="glass-panel rounded-[1.8rem] p-6 text-muted">
-            Khong tim thay noi dung phu hop. Thu tu khoa khac hoac bo bot ky tu.
+            Không tìm thấy nội dung phù hợp. Thử từ khóa khác hoặc bỏ bớt ký tự.
           </div>
         ) : (
           <div className="grid gap-4">
@@ -66,4 +66,3 @@ export default async function SearchPage({ searchParams }: Props) {
     </main>
   );
 }
-

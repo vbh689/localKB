@@ -174,11 +174,11 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
               <p className="mt-2 text-3xl font-semibold">{activeSessions}</p>
             </div>
             <div className="rounded-2xl border border-line bg-white p-4">
-              <p className="text-sm text-muted">Searches / {selectedDays} ngay</p>
+              <p className="text-sm text-muted">Searches / {selectedDays} ngày</p>
               <p className="mt-2 text-3xl font-semibold">{currentSearchRange}</p>
             </div>
             <div className="rounded-2xl border border-line bg-white p-4">
-              <p className="text-sm text-muted">No-result / {selectedDays} ngay</p>
+              <p className="text-sm text-muted">No-result / {selectedDays} ngày</p>
               <p className="mt-2 text-3xl font-semibold">{currentNoResultRange}</p>
             </div>
           </div>
@@ -187,7 +187,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
             <p className="text-sm font-medium">Top queries</p>
             <div className="mt-3 grid gap-2">
               {topQueries.length === 0 ? (
-                <p className="text-sm text-muted">Chua co du lieu tim kiem.</p>
+                <p className="text-sm text-muted">Chưa có dữ liệu tìm kiếm.</p>
               ) : (
                 topQueries.map((query) => (
                   <div
@@ -195,7 +195,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                     className="flex items-center justify-between gap-3 text-sm"
                   >
                     <span>{query.query || "(empty)"}</span>
-                    <span className="text-muted">{query._count.query} lan</span>
+                    <span className="text-muted">{query._count.query} lần</span>
                   </div>
                 ))
               )}
@@ -225,7 +225,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
 
           <div className="glass-panel rounded-[1.8rem] p-6">
             <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-              Recent faqs
+              Recent FAQs
             </p>
             <div className="mt-5 grid gap-3">
               {recentFaqs.map((faq) => (
@@ -250,7 +250,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                   Trend range
                 </p>
                 <p className="mt-2 text-sm text-muted">
-                  Chon khoang ngay de cap nhat charts, summary va file export.
+                  Chọn khoảng ngày để cập nhật biểu đồ, phần tóm tắt và file export.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -259,16 +259,16 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                   defaultValue={String(selectedDays)}
                   className="rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
                 >
-                  <option value="7">7 ngay</option>
-                  <option value="14">14 ngay</option>
-                  <option value="30">30 ngay</option>
-                  <option value="90">90 ngay</option>
+                  <option value="7">7 ngày</option>
+                  <option value="14">14 ngày</option>
+                  <option value="30">30 ngày</option>
+                  <option value="90">90 ngày</option>
                 </select>
                 <button
                   type="submit"
                   className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
                 >
-                  Cap nhat
+                  Cập nhật
                 </button>
               </div>
             </div>
@@ -276,8 +276,8 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
         </div>
 
         <TrendChart
-          title={`Search trend ${selectedDays} ngay`}
-          description="Luong tim kiem va so truy van no-result theo tung ngay."
+          title={`Search trend ${selectedDays} ngày`}
+          description="Lượng tìm kiếm và số truy vấn không có kết quả theo từng ngày."
           series={[
             {
               color: "#c46a2f",
@@ -314,7 +314,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
             <div className="mt-5 grid gap-4">
               <div className="rounded-2xl border border-line bg-white p-4">
                 <p className="text-sm text-muted">
-                  Searches vs {selectedDays} ngay truoc
+                  Searches vs {selectedDays} ngày trước
                 </p>
                 <p className="mt-2 text-3xl font-semibold">{currentSearchRange}</p>
                 <p className="mt-1 text-sm text-muted">
@@ -323,7 +323,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
               </div>
               <div className="rounded-2xl border border-line bg-white p-4">
                 <p className="text-sm text-muted">
-                  No-result vs {selectedDays} ngay truoc
+                  No-result vs {selectedDays} ngày trước
                 </p>
                 <p className="mt-2 text-3xl font-semibold">{currentNoResultRange}</p>
                 <p className="mt-1 text-sm text-muted">
@@ -332,19 +332,19 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
               </div>
               <div className="rounded-2xl border border-line bg-white p-4">
                 <p className="text-sm text-muted">
-                  Published content / {selectedDays} ngay
+                  Published content / {selectedDays} ngày
                 </p>
                 <p className="mt-2 text-3xl font-semibold">{currentPublishedRange}</p>
                 <p className="mt-1 text-sm text-muted">
-                  Tong article va FAQ duoc publish trong khoang da chon
+                  Tổng article và FAQ được xuất bản trong khoảng đã chọn.
                 </p>
               </div>
             </div>
           </div>
 
           <TrendChart
-            title={`Publishing trend ${selectedDays} ngay`}
-            description="So article va FAQ duoc publish theo tung ngay."
+            title={`Publishing trend ${selectedDays} ngày`}
+            description="Số article và FAQ được xuất bản theo từng ngày."
             series={[
               {
                 color: "#0f766e",
