@@ -8,9 +8,11 @@ import { requireRoles } from "@/lib/auth/session";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import {
   removeDocument,
+  syncAllPublishedContent,
   syncArticleDocument,
   syncFaqDocument,
 } from "@/lib/search-index";
+import { logError } from "@/lib/logger";
 import { slugify } from "@/lib/utils";
 
 function getString(formData: FormData, key: string) {
@@ -1516,4 +1518,25 @@ export async function changeOwnPassword(formData: FormData) {
     message: "Đã cập nhật mật khẩu thành công.",
     status: "success",
   });
+}
+
+export async function rebuildSearchIndex(formData: FormData) {
+  await requireRoles([Role.ADMIN, Role.EDITOR]);
+  const redirectTo = getRedirectTo(formData, "/admin");
+
+  try {
+    await syncAllPublishedContent();
+
+    redirectWithFeedback(redirectTo, {
+      message: "Đã rebuild search index thành công.",
+      status: "success",
+    });
+  } catch (error) {
+    logError("admin.reindex", "Search index rebuild failed.", error);
+
+    redirectWithFeedback(redirectTo, {
+      message: "Rebuild search index thất bại. Vui lòng thử lại.",
+      status: "error",
+    });
+  }
 }

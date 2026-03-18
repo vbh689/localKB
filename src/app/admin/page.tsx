@@ -1,6 +1,7 @@
 import { ContentStatus, Role } from "@prisma/client";
 import Link from "next/link";
 import { TrendChart } from "@/components/admin/trend-chart";
+import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
 import {
   formatShortDate,
@@ -13,6 +14,7 @@ import { checkSystemHealth } from "@/lib/health";
 import { db } from "@/lib/db";
 import { requireRoles } from "@/lib/auth/session";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
+import { rebuildSearchIndex } from "@/app/admin/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -260,6 +262,24 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
           <p className="mt-4 text-sm text-muted">
             Xem trực tiếp tại <Link href="/api/health" className="text-accent-strong">/api/health</Link>.
           </p>
+        </div>
+
+        <div className="rounded-[1.8rem] border border-line bg-white p-5 shadow-[0_12px_40px_rgba(23,27,32,0.06)]">
+          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+            Search index
+          </p>
+          <p className="mt-3 text-sm leading-7 text-muted">
+            Rebuild toàn bộ published content sang Meilisearch khi cần đồng bộ lại dữ liệu.
+          </p>
+          <form action={rebuildSearchIndex} className="mt-5">
+            <input type="hidden" name="redirectTo" value="/admin" />
+            <ConfirmSubmitButton
+              confirmMessage="Rebuild toàn bộ search index ngay bây giờ?"
+              className="inline-flex w-full items-center justify-center rounded-full bg-accent px-5 py-3 text-sm font-medium text-white transition hover:bg-accent-strong"
+            >
+              Rebuild search index
+            </ConfirmSubmitButton>
+          </form>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
