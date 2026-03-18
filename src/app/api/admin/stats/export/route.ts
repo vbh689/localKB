@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Role } from "generated/prisma/client";
 import { NextResponse, type NextRequest } from "next/server";
 import {
   getPublishTrend,

@@ -1,6 +1,11 @@
 "use server";
 
-import { ContentStatus, RevisionEntityType, Role, UserStatus } from "@prisma/client";
+import {
+  ContentStatus,
+  RevisionEntityType,
+  Role,
+  UserStatus,
+} from "generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirectWithFeedback } from "@/lib/feedback";
 import { db } from "@/lib/db";

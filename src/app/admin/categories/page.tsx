@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Role } from "generated/prisma/client";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
 import {

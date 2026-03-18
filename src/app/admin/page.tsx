@@ -1,4 +1,4 @@
-import { ContentStatus, Role } from "@prisma/client";
+import { ContentStatus, Role } from "generated/prisma/client";
 import Link from "next/link";
 import { TrendChart } from "@/components/admin/trend-chart";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";

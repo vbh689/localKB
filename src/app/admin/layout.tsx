@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Role } from "@prisma/client";
+import { Role } from "generated/prisma/client";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { requireRoles } from "@/lib/auth/session";
 

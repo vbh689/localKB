@@ -1,4 +1,4 @@
-import { ContentStatus, type Prisma } from "@prisma/client";
+import { ContentStatus, type Prisma } from "generated/prisma/client";
 import { db } from "@/lib/db";
 import { searchClient } from "@/lib/search";
 import { createExcerpt } from "@/lib/utils";

@@ -1,4 +1,4 @@
-import { Role, UserStatus } from "@prisma/client";
+import { Role, UserStatus } from "generated/prisma/client";
 import { FormNotice } from "@/components/ui/form-notice";
 import {
   createUser,

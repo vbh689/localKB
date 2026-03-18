@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Role } from "@prisma/client";
+import { Role } from "generated/prisma/client";
 import { MediaItemActions } from "@/components/media/media-item-actions";
 import { MediaUploadPanel } from "@/components/media/media-upload-panel";
 import { requireRoles } from "@/lib/auth/session";

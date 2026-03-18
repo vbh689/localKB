@@ -2,7 +2,12 @@ import "dotenv/config";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { ContentStatus, PrismaClient, Role, UserStatus } from "@prisma/client";
+import {
+  ContentStatus,
+  PrismaClient,
+  Role,
+  UserStatus,
+} from "../generated/prisma/client";
 import { hashPassword } from "../src/lib/auth/password";
 import { syncAllPublishedContent } from "../src/lib/search-index";
 import { slugify } from "../src/lib/utils";

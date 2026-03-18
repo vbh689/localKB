@@ -1,4 +1,4 @@
-import { Role } from "@prisma/client";
+import { Role } from "generated/prisma/client";
 import { FormNotice } from "@/components/ui/form-notice";
 import { PaginationControls } from "@/components/ui/pagination-controls";
 import { requireRoles } from "@/lib/auth/session";

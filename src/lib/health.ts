@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "generated/prisma/client";
 import { db } from "@/lib/db";
 import { searchClient } from "@/lib/search";
 
@@ -76,4 +76,3 @@ export async function checkSystemHealth(): Promise<HealthCheckReport> {
     timestamp: new Date().toISOString(),
   };
 }
-

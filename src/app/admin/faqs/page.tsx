@@ -1,4 +1,4 @@
-import { ContentStatus, Role } from "@prisma/client";
+import { ContentStatus, Role } from "generated/prisma/client";
 import { MarkdownContent } from "@/components/content/markdown-content";
 import { MarkdownTextarea } from "@/components/editor/markdown-textarea";
 import { BulkSelectionControls } from "@/components/ui/bulk-selection-controls";

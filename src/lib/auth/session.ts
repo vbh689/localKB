@@ -2,7 +2,7 @@ import { randomBytes } from "node:crypto";
 import { serialize } from "cookie";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { Role } from "@prisma/client";
+import { Role } from "generated/prisma/client";
 import type { NextRequest } from "next/server";
 import { db } from "@/lib/db";
 import { getConfig } from "@/lib/config";

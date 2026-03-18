@@ -1,6 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { Role } from "@prisma/client";
+import { Role } from "generated/prisma/client";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { logError } from "@/lib/logger";
