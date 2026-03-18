@@ -126,7 +126,7 @@ export function InstantSearch({ initialItems }: Props) {
           <input
             aria-label="Tìm kiếm nội dung"
             className="w-full bg-transparent text-base outline-none placeholder:text-muted/70"
-            placeholder="Ví dụ: onboarding, VPN, quy trình nghỉ phép..."
+            placeholder="Ví dụ: lỗi mạng, cài lại, key ..."
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={handleKeyDown}

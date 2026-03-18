@@ -41,7 +41,7 @@ export default async function Home() {
               LocalKB
             </div>
             <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-              Knowledge hub nội bộ cho wiki, SOP và FAQ
+              Knowledge Hub
             </h1>
           </div>
           <div className="grid grid-cols-3 gap-3 md:min-w-[360px]">
@@ -95,15 +95,13 @@ export default async function Home() {
           <div className="space-y-6">
             <div className="space-y-4">
               <p className="font-mono text-sm uppercase tracking-[0.32em] text-accent-strong">
-                Tìm thông tin ngay tại homepage
+                Knowledge Base tổng hợp
               </p>
               <h2 className="max-w-3xl text-5xl font-semibold leading-tight tracking-tight md:text-6xl">
-                Tìm nhanh tài liệu, câu trả lời và quy trình ngay khi bắt đầu gõ.
+                Knowledge Base tổng hợp
               </h2>
               <p className="max-w-2xl text-lg leading-8 text-muted">
-                Giao diện ban đầu ưu tiên một ô tìm kiếm trung tâm, kết quả hiện
-                ra tức thì, phân loại rõ giữa Wiki và FAQ để nhân viên tra cứu
-                nội dung nội bộ mà không phải đảo qua nhiều menu.
+                Tham khảo các Câu hỏi thường gặp (FAQ) và các bài viết hướng dẫn tại đây
               </p>
             </div>
 
