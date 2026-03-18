@@ -21,7 +21,7 @@ export default async function KnowledgeBaseDetailPage({ params }: Props) {
     <main className="section-grid min-h-screen px-6 py-8 md:px-10 xl:px-14">
       <div className="mx-auto flex max-w-4xl flex-col gap-8">
         <Link href="/" className="text-sm font-medium text-accent-strong">
-          Về homepage
+          🔙 Về homepage
         </Link>
         <article className="glass-panel rounded-[2rem] p-6 md:p-8">
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted">

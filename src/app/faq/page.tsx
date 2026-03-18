@@ -19,7 +19,7 @@ export default async function FaqIndexPage() {
             </h1>
           </div>
           <Link href="/" className="text-sm font-medium text-accent-strong">
-            Về homepage
+            🔙 Về homepage
           </Link>
         </div>
         <div className="grid gap-4">

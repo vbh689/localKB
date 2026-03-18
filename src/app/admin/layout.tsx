@@ -41,7 +41,7 @@ export default async function AdminLayout({
                 href="/"
                 className="inline-flex items-center justify-center rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-accent-strong transition hover:border-accent"
               >
-                Về homepage
+                🔙 Về homepage
               </Link>
               <Link
                 href="/account/password"

@@ -47,7 +47,7 @@ export default async function LoginPage() {
             href="/"
             className="inline-flex items-center gap-2 text-sm font-medium text-accent-strong"
           >
-            Về homepage
+            🔙 Về homepage
           </Link>
         </section>
 

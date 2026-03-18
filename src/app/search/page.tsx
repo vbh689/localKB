@@ -24,7 +24,7 @@ export default async function SearchPage({ searchParams }: Props) {
             </h1>
           </div>
           <Link href="/" className="text-sm font-medium text-accent-strong">
-            Về homepage
+            🔙 Về homepage
           </Link>
         </div>
 
