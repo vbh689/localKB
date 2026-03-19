@@ -47,18 +47,18 @@ export async function getHomepageCounts() {
   };
 }
 
-export async function getFeaturedArticles() {
+export async function getFeaturedArticles(limit = 5) {
   return db.article.findMany({
     where: {
       status: ContentStatus.PUBLISHED,
     },
     orderBy: [{ updatedAt: "desc" }],
-    take: 3,
+    take: limit,
     include: publishedArticleInclude,
   });
 }
 
-export async function getNewestFaqs(limit = 3) {
+export async function getNewestFaqs(limit = 5) {
   return db.faq.findMany({
     where: {
       status: ContentStatus.PUBLISHED,

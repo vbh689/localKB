@@ -224,64 +224,6 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
           </div>
         </div>
 
-        <div className="glass-panel rounded-[1.8rem] p-6">
-          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-            System health
-          </p>
-          <div className="mt-5 grid gap-3">
-            <div className="rounded-2xl border border-line bg-white p-4">
-              <p className="text-sm text-muted">App</p>
-              <p className="mt-2 text-2xl font-semibold capitalize">
-                {health.app.status}
-              </p>
-            </div>
-            <div className="rounded-2xl border border-line bg-white p-4">
-              <p className="text-sm text-muted">Database</p>
-              <p className="mt-2 text-2xl font-semibold capitalize">
-                {health.db.status}
-              </p>
-              <p className="mt-1 text-sm text-muted">{health.db.latencyMs} ms</p>
-            </div>
-            <div className="rounded-2xl border border-line bg-white p-4">
-              <p className="text-sm text-muted">Search</p>
-              <p className="mt-2 text-2xl font-semibold capitalize">
-                {health.search.status}
-              </p>
-              <p className="mt-1 text-sm text-muted">{health.search.latencyMs} ms</p>
-            </div>
-            <div className="rounded-2xl border border-line bg-white p-4">
-              <p className="text-sm text-muted">Overall</p>
-              <p className="mt-2 text-2xl font-semibold capitalize">
-                {health.status}
-              </p>
-              <p className="mt-1 text-sm text-muted">
-                {new Date(health.timestamp).toLocaleString("vi-VN")}
-              </p>
-            </div>
-          </div>
-          <p className="mt-4 text-sm text-muted">
-            Xem trực tiếp tại <Link href="/api/health" className="text-accent-strong">/api/health</Link>.
-          </p>
-        </div>
-
-        <div className="rounded-[1.8rem] border border-line bg-white p-5 shadow-[0_12px_40px_rgba(23,27,32,0.06)]">
-          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-            Search index
-          </p>
-          <p className="mt-3 text-sm leading-7 text-muted">
-            Rebuild toàn bộ published content sang Meilisearch khi cần đồng bộ lại dữ liệu.
-          </p>
-          <form action={rebuildSearchIndex} className="mt-5">
-            <input type="hidden" name="redirectTo" value="/admin" />
-            <ConfirmSubmitButton
-              confirmMessage="Rebuild toàn bộ search index ngay bây giờ?"
-              className="inline-flex w-full items-center justify-center rounded-full bg-accent px-5 py-3 text-sm font-medium text-white transition hover:bg-accent-strong"
-            >
-              Rebuild search index
-            </ConfirmSubmitButton>
-          </form>
-        </div>
-
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="glass-panel rounded-[1.8rem] p-6">
               <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
@@ -322,6 +264,64 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                 ))}
               </div>
             </div>
+        </div>
+
+        <div className="rounded-[1.8rem] border border-line bg-white p-5 shadow-[0_12px_40px_rgba(23,27,32,0.06)]">
+          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+            Search index
+          </p>
+          <p className="mt-3 text-sm leading-7 text-muted">
+            Dùng mục này khi ô tìm kiếm chưa hiện đúng bài viết hoặc FAQ mới nhất. Hệ thống sẽ cập nhật lại dữ liệu tìm kiếm để mọi người tra cứu ra kết quả đầy đủ và chính xác hơn.
+          </p>
+          <form action={rebuildSearchIndex} className="mt-5">
+            <input type="hidden" name="redirectTo" value="/admin" />
+            <ConfirmSubmitButton
+              confirmMessage="Rebuild toàn bộ search index ngay bây giờ?"
+              className="inline-flex w-full items-center justify-center rounded-full bg-accent px-5 py-3 text-sm font-medium text-white transition hover:bg-accent-strong"
+            >
+              Rebuild search index
+            </ConfirmSubmitButton>
+          </form>
+        </div>
+
+        <div className="glass-panel rounded-[1.8rem] p-6">
+          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+            System health
+          </p>
+          <div className="mt-5 grid gap-3">
+            <div className="rounded-2xl border border-line bg-white p-4">
+              <p className="text-sm text-muted">App</p>
+              <p className="mt-2 text-2xl font-semibold capitalize">
+                {health.app.status}
+              </p>
+            </div>
+            <div className="rounded-2xl border border-line bg-white p-4">
+              <p className="text-sm text-muted">Database</p>
+              <p className="mt-2 text-2xl font-semibold capitalize">
+                {health.db.status}
+              </p>
+              <p className="mt-1 text-sm text-muted">{health.db.latencyMs} ms</p>
+            </div>
+            <div className="rounded-2xl border border-line bg-white p-4">
+              <p className="text-sm text-muted">Search</p>
+              <p className="mt-2 text-2xl font-semibold capitalize">
+                {health.search.status}
+              </p>
+              <p className="mt-1 text-sm text-muted">{health.search.latencyMs} ms</p>
+            </div>
+            <div className="rounded-2xl border border-line bg-white p-4">
+              <p className="text-sm text-muted">Overall</p>
+              <p className="mt-2 text-2xl font-semibold capitalize">
+                {health.status}
+              </p>
+              <p className="mt-1 text-sm text-muted">
+                {new Date(health.timestamp).toLocaleString("vi-VN")}
+              </p>
+            </div>
+          </div>
+          <p className="mt-4 text-sm text-muted">
+            Xem trực tiếp tại <Link href="/api/health" className="text-accent-strong">/api/health</Link>.
+          </p>
         </div>
       </section>
 

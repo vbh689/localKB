@@ -2,15 +2,16 @@ import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { getCurrentSession } from "@/lib/auth/session";
 import { canAccessAdmin } from "@/lib/auth/user";
-import { getHomepageCounts, getNewestFaqs } from "@/lib/content";
+import { getFeaturedArticles, getHomepageCounts, getNewestFaqs } from "@/lib/content";
 import { createExcerpt } from "@/lib/utils";
 import { InstantSearch } from "@/components/search/instant-search";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const [counts, newestFaqs, session] = await Promise.all([
+  const [counts, newestArticles, newestFaqs, session] = await Promise.all([
     getHomepageCounts(),
+    getFeaturedArticles(5),
     getNewestFaqs(),
     getCurrentSession(),
   ]);
@@ -106,6 +107,79 @@ export default async function Home() {
             </div>
 
             <InstantSearch initialItems={featuredItems} />
+          </div>
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-2">
+          <div className="glass-panel rounded-[2rem] p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+                  Latest articles
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+                  Bài viết mới nhất
+                </h2>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-4">
+              {newestArticles.map((article) => (
+                <Link
+                  key={article.id}
+                  href={`/kb/${article.slug}`}
+                  className="rounded-[1.6rem] border border-line bg-white/90 p-5 transition hover:-translate-y-0.5 hover:border-accent/30"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-xl font-semibold tracking-tight">
+                      {article.title}
+                    </h3>
+                    <span className="text-sm text-muted">
+                      {article.category?.name ?? "Wiki"}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-7 text-muted">
+                    {createExcerpt(article.summary || article.body, 180)}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="glass-panel rounded-[2rem] p-6">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+                  Latest FAQs
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+                  FAQ mới nhất
+                </h2>
+              </div>
+              <Link href="/faq" className="text-sm font-medium text-accent-strong">
+                Xem tất cả
+              </Link>
+            </div>
+            <div className="mt-5 grid gap-4">
+              {newestFaqs.map((faq) => (
+                <Link
+                  key={faq.id}
+                  href={`/faq/${faq.slug}`}
+                  className="rounded-[1.6rem] border border-line bg-white/90 p-5 transition hover:-translate-y-0.5 hover:border-accent/30"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <h3 className="text-xl font-semibold tracking-tight">
+                      {faq.question}
+                    </h3>
+                    <span className="text-sm text-muted">
+                      {faq.category?.name ?? "FAQ"}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-7 text-muted">
+                    {createExcerpt(faq.answer, 180)}
+                  </p>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
       </div>

@@ -8,8 +8,8 @@ export function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-export function createExcerpt(value: string, maxLength = 160) {
-  const normalized = value.replace(/\s+/g, " ").trim();
+export function createExcerpt(value: string | null | undefined, maxLength = 160) {
+  const normalized = (value ?? "").replace(/\s+/g, " ").trim();
 
   if (normalized.length <= maxLength) {
     return normalized;
@@ -17,4 +17,3 @@ export function createExcerpt(value: string, maxLength = 160) {
 
   return `${normalized.slice(0, maxLength - 1).trimEnd()}...`;
 }
-
