@@ -76,7 +76,7 @@ Giá trị này được đọc từ `.env`:
 
 ## Biến môi trường
 
-Mẫu biến môi trường nằm trong [.env.example](/Users/dzith/Developer/localKB/.env.example).
+Mẫu biến môi trường nằm trong [.env.example](./.env.example).
 
 ```env
 DATABASE_URL="postgresql://localkb:localkb@localhost:5432/localkb?schema=public"
@@ -151,4 +151,4 @@ npm run db:seed
 - Chỉ nội dung `PUBLISHED` mới xuất hiện trên public app và search.
 - `Article revision` hiện tại khôi phục `title` và `body`; `summary/category/tags/status` được giữ nguyên.
 - `FAQ revision` restore `question` và `answer`.
-- Kế hoạch triển khai ban đầu được lưu tại [IMPLEMENTATION_PLAN.md](/Users/dzith/Developer/localKB/IMPLEMENTATION_PLAN.md).
+- Kế hoạch triển khai ban đầu được lưu tại [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md).
