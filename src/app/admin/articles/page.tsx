@@ -131,78 +131,13 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
   ]);
 
   return (
-    <section className="grid gap-6 xl:grid-cols-[0.85fr_1.15fr]">
-      <form action={createArticle} className="glass-panel rounded-[1.8rem] p-6">
-        <input type="hidden" name="redirectTo" value="/admin/articles" />
-        <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-          Tạo article
-        </p>
-        <div className="mt-5 space-y-4">
-          <FormNotice feedback={feedback} />
-          <input
-            type="text"
-            name="title"
-            required
-            placeholder="Tiêu đề bài viết"
-            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-          />
-          <textarea
-            name="summary"
-            required
-            rows={3}
-            placeholder="Tóm tắt ngắn"
-            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-          />
-          <MarkdownTextarea
-            name="body"
-            required
-            rows={8}
-            placeholder="Nội dung chi tiết"
-          />
-          <select
-            name="categoryId"
-            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            defaultValue=""
-          >
-            <option value="">Không có category</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          <select
-            name="status"
-            className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            defaultValue={ContentStatus.DRAFT}
-          >
-            <option value={ContentStatus.DRAFT}>Draft</option>
-            <option value={ContentStatus.PUBLISHED}>Published</option>
-            <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
-          </select>
-          <div className="rounded-2xl border border-line bg-white p-4">
-            <p className="text-sm font-medium">Gắn tags</p>
-            <div className="mt-3 flex flex-wrap gap-3">
-              {tags.map((tag) => (
-                <label key={tag.id} className="flex items-center gap-2 text-sm text-muted">
-                  <input type="checkbox" name="tagIds" value={tag.id} />
-                  {tag.name}
-                </label>
-              ))}
-            </div>
-          </div>
-          <button
-            type="submit"
-            className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
-          >
-            Tạo article
-          </button>
-        </div>
-      </form>
-
-      <div className="grid gap-4">
+    <section className="grid gap-6 xl:grid-cols-4">
+      <div className="grid gap-4 xl:col-span-1 xl:auto-rows-max">
         <form className="glass-panel rounded-[1.6rem] p-5">
-          <div className="grid gap-3 lg:grid-cols-[1.2fr_0.7fr_0.8fr_0.8fr_auto]">
+          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+            Filter
+          </p>
+          <div className="mt-4 grid gap-3">
             <input
               type="text"
               name="q"
@@ -267,7 +202,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
           className="glass-panel rounded-[1.6rem] p-5"
         >
           <input type="hidden" name="redirectTo" value="/admin/articles" />
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-col gap-3">
             <div>
               <p className="text-sm font-medium">Bulk actions</p>
               <p className="text-sm text-muted">
@@ -305,245 +240,330 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
             </div>
           </div>
         </form>
+      </div>
 
-        {articles.map((article) => (
-          <article key={article.id} className="glass-panel rounded-[1.6rem] p-5">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
-                  <label className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1 text-xs font-medium text-accent-strong">
-                    <input
-                      type="checkbox"
-                      name="ids"
-                      value={article.id}
-                      form="article-bulk-form"
-                    />
-                    Chọn
+      <div className="grid gap-6 xl:col-span-3">
+        <form action={createArticle} className="glass-panel rounded-[1.8rem] p-6">
+          <input type="hidden" name="redirectTo" value="/admin/articles" />
+          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+            Tạo article
+          </p>
+          <div className="mt-5 space-y-4">
+            <FormNotice feedback={feedback} />
+            <input
+              type="text"
+              name="title"
+              required
+              placeholder="Tiêu đề bài viết"
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+            />
+            <textarea
+              name="summary"
+              required
+              rows={3}
+              placeholder="Tóm tắt ngắn"
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+            />
+            <MarkdownTextarea
+              name="body"
+              required
+              rows={8}
+              placeholder="Nội dung chi tiết"
+            />
+            <select
+              name="categoryId"
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+              defaultValue=""
+            >
+              <option value="">Không có category</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            <select
+              name="status"
+              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+              defaultValue={ContentStatus.DRAFT}
+            >
+              <option value={ContentStatus.DRAFT}>Draft</option>
+              <option value={ContentStatus.PUBLISHED}>Published</option>
+              <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
+            </select>
+            <div className="rounded-2xl border border-line bg-white p-4">
+              <p className="text-sm font-medium">Gắn tags</p>
+              <div className="mt-3 flex flex-wrap gap-3">
+                {tags.map((tag) => (
+                  <label key={tag.id} className="flex items-center gap-2 text-sm text-muted">
+                    <input type="checkbox" name="tagIds" value={tag.id} />
+                    {tag.name}
                   </label>
-                  <span className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-strong">
-                    {article.status}
-                  </span>
-                  {article.category ? <span>{article.category.name}</span> : null}
-                  <span>{article.author.email}</span>
-                </div>
-                <h2 className="text-xl font-semibold tracking-tight">
-                  {article.title}
-                </h2>
-                <p className="text-sm leading-7 text-muted">{article.summary}</p>
-                <MarkdownContent
-                  content={article.body}
-                  className="text-sm text-muted"
-                />
-                <div className="flex flex-wrap gap-2">
-                  {article.tags.map((tag) => (
-                    <span
-                      key={tag.id}
-                      className="rounded-full border border-line bg-white px-3 py-1 text-xs text-muted"
-                    >
-                      #{tag.name}
-                    </span>
-                  ))}
-                </div>
-                <details className="rounded-[1.25rem] border border-line bg-white/70 p-4">
-                  <summary className="cursor-pointer text-sm font-medium text-accent-strong">
-                    Revision history ({article.revisions.length})
-                  </summary>
-                  <div className="mt-4 grid gap-3">
-                    {article.revisions.length === 0 ? (
-                      <p className="text-sm text-muted">Chưa có revision nào.</p>
-                    ) : (
-                      article.revisions.map((revision) => (
-                        <div
-                          key={revision.id}
-                          className="rounded-[1.1rem] border border-line bg-background p-4"
-                        >
-                          {revision.snapshotTitle !== article.title ||
-                          revision.snapshotBody !== article.body ? (
-                            <div className="mb-3 inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-amber-700">
-                              Có thay đổi so với bản hiện tại
-                            </div>
-                          ) : (
-                            <div className="mb-3 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-emerald-700">
-                              Giống bản hiện tại
-                            </div>
-                          )}
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <p className="text-sm font-medium">{revision.snapshotTitle}</p>
-                            <p className="text-xs text-muted">
-                              {revision.createdBy.email} -{" "}
-                              {revision.createdAt.toLocaleString("vi-VN")}
-                            </p>
-                          </div>
-                          <div className="mt-4 grid gap-3 xl:grid-cols-2">
-                            <div className="rounded-[1rem] border border-line bg-white p-4">
-                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
-                                Snapshot
-                              </p>
-                              <p className="mt-3 text-sm font-medium">
-                                {revision.snapshotTitle}
-                              </p>
-                              <MarkdownContent
-                                content={revision.snapshotBody}
-                                className="mt-3 text-sm text-muted"
-                              />
-                            </div>
-                            <div className="rounded-[1rem] border border-line bg-white p-4">
-                              <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
-                                Current
-                              </p>
-                              <p className="mt-3 text-sm font-medium">{article.title}</p>
-                              <MarkdownContent
-                                content={article.body}
-                                className="mt-3 text-sm text-muted"
-                              />
-                            </div>
-                          </div>
-                          <form action={restoreArticleRevision} className="mt-4">
-                            <input type="hidden" name="redirectTo" value="/admin/articles" />
-                            <input type="hidden" name="articleId" value={article.id} />
-                            <input type="hidden" name="revisionId" value={revision.id} />
-                            <input type="hidden" name="currentSlug" value={article.slug} />
-                            <ConfirmSubmitButton
-                              confirmMessage="Bạn có chắc muốn khôi phục revision này không?"
-                              className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
-                            >
-                              Khôi phục revision
-                            </ConfirmSubmitButton>
-                          </form>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </details>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <details>
-                  <summary className="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong">
-                    Sửa
-                  </summary>
-                  <form
-                    action={updateArticle}
-                    className="mt-4 grid gap-3 rounded-[1.4rem] border border-line bg-white p-4"
-                  >
-                    <input type="hidden" name="redirectTo" value="/admin/articles" />
-                    <input type="hidden" name="id" value={article.id} />
-                    <input
-                      type="text"
-                      name="title"
-                      required
-                      defaultValue={article.title}
-                      className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-                    />
-                    <textarea
-                      name="summary"
-                      required
-                      rows={3}
-                      defaultValue={article.summary}
-                      className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-                    />
-                    <MarkdownTextarea
-                      name="body"
-                      required
-                      rows={8}
-                      defaultValue={article.body}
-                    />
-                    <select
-                      name="categoryId"
-                      className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-                      defaultValue={article.categoryId ?? ""}
-                    >
-                      <option value="">Không có category</option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                    <select
-                      name="status"
-                      className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-                      defaultValue={article.status}
-                    >
-                      <option value={ContentStatus.DRAFT}>Draft</option>
-                      <option value={ContentStatus.PUBLISHED}>Published</option>
-                      <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
-                    </select>
-                    <div className="rounded-2xl border border-line bg-background p-4">
-                      <p className="text-sm font-medium">Gắn tags</p>
-                      <div className="mt-3 flex flex-wrap gap-3">
-                        {tags.map((tag) => (
-                          <label
-                            key={`${article.id}-${tag.id}`}
-                            className="flex items-center gap-2 text-sm text-muted"
-                          >
-                            <input
-                              type="checkbox"
-                              name="tagIds"
-                              value={tag.id}
-                              defaultChecked={article.tags.some(
-                                (articleTag) => articleTag.id === tag.id,
-                              )}
-                            />
-                            {tag.name}
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                    <button
-                      type="submit"
-                      className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
-                    >
-                      Cập nhật article
-                    </button>
-                  </form>
-                </details>
-                <form action={updateArticleStatus}>
-                  <input type="hidden" name="redirectTo" value="/admin/articles" />
-                  <input type="hidden" name="id" value={article.id} />
-                  <input
-                    type="hidden"
-                    name="status"
-                    value={
-                      article.status === ContentStatus.PUBLISHED
-                        ? ContentStatus.UNPUBLISHED
-                        : ContentStatus.PUBLISHED
-                    }
-                  />
-                  <ConfirmSubmitButton
-                    confirmMessage={
-                      article.status === ContentStatus.PUBLISHED
-                        ? "Bạn có chắc muốn ẩn article này không?"
-                        : "Bạn có chắc muốn xuất bản article này không?"
-                    }
-                    className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
-                  >
-                    {article.status === ContentStatus.PUBLISHED
-                      ? "Ẩn"
-                      : "Xuất bản"}
-                  </ConfirmSubmitButton>
-                </form>
-                <form action={deleteArticle}>
-                  <input type="hidden" name="redirectTo" value="/admin/articles" />
-                  <input type="hidden" name="id" value={article.id} />
-                  <ConfirmSubmitButton
-                    confirmMessage="Bạn có chắc muốn xóa article này không?"
-                    className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
-                  >
-                    Xóa
-                  </ConfirmSubmitButton>
-                </form>
+                ))}
               </div>
             </div>
-          </article>
-        ))}
+            <button
+              type="submit"
+              className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+            >
+              Tạo article
+            </button>
+          </div>
+        </form>
 
-        <PaginationControls
-          basePath="/admin/articles"
-          currentPage={currentPage}
-          pageSize={pageSize}
-          searchParams={resolvedSearchParams}
-          totalItems={articleCount}
-        />
+        <div className="glass-panel rounded-[1.8rem] p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+                Published articles
+              </p>
+              <p className="mt-2 text-sm text-muted">
+                Danh sách article hiện có để chỉnh sửa, xuất bản hoặc khôi phục revision.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4">
+            {articles.map((article) => (
+              <article key={article.id} className="rounded-[1.6rem] border border-line bg-white/75 p-5">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
+                      <label className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1 text-xs font-medium text-accent-strong">
+                        <input
+                          type="checkbox"
+                          name="ids"
+                          value={article.id}
+                          form="article-bulk-form"
+                        />
+                        Chọn
+                      </label>
+                      <span className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-strong">
+                        {article.status}
+                      </span>
+                      {article.category ? <span>{article.category.name}</span> : null}
+                      <span>{article.author.email}</span>
+                    </div>
+                    <h2 className="text-xl font-semibold tracking-tight">
+                      {article.title}
+                    </h2>
+                    <p className="text-sm leading-7 text-muted">{article.summary}</p>
+                    <MarkdownContent
+                      content={article.body}
+                      className="text-sm text-muted"
+                    />
+                    <div className="flex flex-wrap gap-2">
+                      {article.tags.map((tag) => (
+                        <span
+                          key={tag.id}
+                          className="rounded-full border border-line bg-white px-3 py-1 text-xs text-muted"
+                        >
+                          #{tag.name}
+                        </span>
+                      ))}
+                    </div>
+                    <details className="rounded-[1.25rem] border border-line bg-white/70 p-4">
+                      <summary className="cursor-pointer text-sm font-medium text-accent-strong">
+                        Revision history ({article.revisions.length})
+                      </summary>
+                      <div className="mt-4 grid gap-3">
+                        {article.revisions.length === 0 ? (
+                          <p className="text-sm text-muted">Chưa có revision nào.</p>
+                        ) : (
+                          article.revisions.map((revision) => (
+                            <div
+                              key={revision.id}
+                              className="rounded-[1.1rem] border border-line bg-background p-4"
+                            >
+                              {revision.snapshotTitle !== article.title ||
+                              revision.snapshotBody !== article.body ? (
+                                <div className="mb-3 inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-amber-700">
+                                  Có thay đổi so với bản hiện tại
+                                </div>
+                              ) : (
+                                <div className="mb-3 inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-emerald-700">
+                                  Giống bản hiện tại
+                                </div>
+                              )}
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <p className="text-sm font-medium">{revision.snapshotTitle}</p>
+                                <p className="text-xs text-muted">
+                                  {revision.createdBy.email} -{" "}
+                                  {revision.createdAt.toLocaleString("vi-VN")}
+                                </p>
+                              </div>
+                              <div className="mt-4 grid gap-3 xl:grid-cols-2">
+                                <div className="rounded-[1rem] border border-line bg-white p-4">
+                                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
+                                    Snapshot
+                                  </p>
+                                  <p className="mt-3 text-sm font-medium">
+                                    {revision.snapshotTitle}
+                                  </p>
+                                  <MarkdownContent
+                                    content={revision.snapshotBody}
+                                    className="mt-3 text-sm text-muted"
+                                  />
+                                </div>
+                                <div className="rounded-[1rem] border border-line bg-white p-4">
+                                  <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted">
+                                    Current
+                                  </p>
+                                  <p className="mt-3 text-sm font-medium">{article.title}</p>
+                                  <MarkdownContent
+                                    content={article.body}
+                                    className="mt-3 text-sm text-muted"
+                                  />
+                                </div>
+                              </div>
+                              <form action={restoreArticleRevision} className="mt-4">
+                                <input type="hidden" name="redirectTo" value="/admin/articles" />
+                                <input type="hidden" name="articleId" value={article.id} />
+                                <input type="hidden" name="revisionId" value={revision.id} />
+                                <input type="hidden" name="currentSlug" value={article.slug} />
+                                <ConfirmSubmitButton
+                                  confirmMessage="Bạn có chắc muốn khôi phục revision này không?"
+                                  className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
+                                >
+                                  Khôi phục revision
+                                </ConfirmSubmitButton>
+                              </form>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </details>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <details>
+                      <summary className="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong">
+                        Sửa
+                      </summary>
+                      <form
+                        action={updateArticle}
+                        className="mt-4 grid gap-3 rounded-[1.4rem] border border-line bg-white p-4"
+                      >
+                        <input type="hidden" name="redirectTo" value="/admin/articles" />
+                        <input type="hidden" name="id" value={article.id} />
+                        <input
+                          type="text"
+                          name="title"
+                          required
+                          defaultValue={article.title}
+                          className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                        />
+                        <textarea
+                          name="summary"
+                          required
+                          rows={3}
+                          defaultValue={article.summary}
+                          className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                        />
+                        <MarkdownTextarea
+                          name="body"
+                          required
+                          rows={8}
+                          defaultValue={article.body}
+                        />
+                        <select
+                          name="categoryId"
+                          className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                          defaultValue={article.categoryId ?? ""}
+                        >
+                          <option value="">Không có category</option>
+                          {categories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                        <select
+                          name="status"
+                          className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                          defaultValue={article.status}
+                        >
+                          <option value={ContentStatus.DRAFT}>Draft</option>
+                          <option value={ContentStatus.PUBLISHED}>Published</option>
+                          <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
+                        </select>
+                        <div className="rounded-2xl border border-line bg-background p-4">
+                          <p className="text-sm font-medium">Gắn tags</p>
+                          <div className="mt-3 flex flex-wrap gap-3">
+                            {tags.map((tag) => (
+                              <label
+                                key={`${article.id}-${tag.id}`}
+                                className="flex items-center gap-2 text-sm text-muted"
+                              >
+                                <input
+                                  type="checkbox"
+                                  name="tagIds"
+                                  value={tag.id}
+                                  defaultChecked={article.tags.some(
+                                    (articleTag) => articleTag.id === tag.id,
+                                  )}
+                                />
+                                {tag.name}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                        <button
+                          type="submit"
+                          className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+                        >
+                          Cập nhật article
+                        </button>
+                      </form>
+                    </details>
+                    <form action={updateArticleStatus}>
+                      <input type="hidden" name="redirectTo" value="/admin/articles" />
+                      <input type="hidden" name="id" value={article.id} />
+                      <input
+                        type="hidden"
+                        name="status"
+                        value={
+                          article.status === ContentStatus.PUBLISHED
+                            ? ContentStatus.UNPUBLISHED
+                            : ContentStatus.PUBLISHED
+                        }
+                      />
+                      <ConfirmSubmitButton
+                        confirmMessage={
+                          article.status === ContentStatus.PUBLISHED
+                            ? "Bạn có chắc muốn ẩn article này không?"
+                            : "Bạn có chắc muốn xuất bản article này không?"
+                        }
+                        className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
+                      >
+                        {article.status === ContentStatus.PUBLISHED
+                          ? "Ẩn"
+                          : "Xuất bản"}
+                      </ConfirmSubmitButton>
+                    </form>
+                    <form action={deleteArticle}>
+                      <input type="hidden" name="redirectTo" value="/admin/articles" />
+                      <input type="hidden" name="id" value={article.id} />
+                      <ConfirmSubmitButton
+                        confirmMessage="Bạn có chắc muốn xóa article này không?"
+                        className="rounded-full border border-red-200 px-4 py-2 text-sm font-medium text-red-700"
+                      >
+                        Xóa
+                      </ConfirmSubmitButton>
+                    </form>
+                  </div>
+                </div>
+              </article>
+            ))}
+
+            <PaginationControls
+              basePath="/admin/articles"
+              currentPage={currentPage}
+              pageSize={pageSize}
+              searchParams={resolvedSearchParams}
+              totalItems={articleCount}
+            />
+          </div>
+        </div>
       </div>
     </section>
   );
