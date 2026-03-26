@@ -8,7 +8,7 @@ const configSchema = z.object({
   MEILISEARCH_MASTER_KEY: z
     .string()
     .default("localkb-master-key"),
-  MEILISEARCH_URL: z.url().default("http://localhost:7700"),
+  MEILISEARCH_URL: z.url().default("http://localhost:7702"),
   SESSION_COOKIE_NAME: z.string().default("localkb_session"),
 });
 

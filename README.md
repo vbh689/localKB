@@ -80,7 +80,7 @@ Mẫu biến môi trường nằm trong [.env.example](/Users/dzith/Developer/lo
 
 ```env
 DATABASE_URL="postgresql://localkb:localkb@localhost:5432/localkb?schema=public"
-MEILISEARCH_URL="http://localhost:7700"
+MEILISEARCH_URL="http://localhost:7702"
 MEILISEARCH_MASTER_KEY="localkb-master-key"
 APP_URL="http://localhost:3000"
 SESSION_COOKIE_NAME="localkb_session"
@@ -131,7 +131,7 @@ npm run db:studio
 `docker-compose.yml` khởi tạo:
 
 - `postgres` tại `localhost:5432`
-- `meilisearch` tại `localhost:7700`
+- `meilisearch` tại `localhost:7702`
 
 ## Kiểm tra nhanh
 

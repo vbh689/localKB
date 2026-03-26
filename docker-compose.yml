@@ -25,7 +25,7 @@ services:
       MEILI_MASTER_KEY: localkb-master-key
       MEILI_ENV: production
     ports:
-      - "7700:7700"
+      - "7702:7700"
     volumes:
       - meili_data:/meili_data
     healthcheck:
@@ -37,4 +37,3 @@ services:
 volumes:
   postgres_data:
   meili_data:
-
