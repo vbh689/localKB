@@ -75,7 +75,7 @@ a {
   --baseTextContrast: var(--foreground);
   --baseText: var(--foreground);
   --baseTextEmphasis: var(--accent-strong);
-  --basePageBg: #201814;
+  --basePageBg: var(--surface-strong);
   color: var(--foreground);
 }
 
