@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@mdxeditor/editor/style.css";
 
 :root {
   --background: #fffdf8;
@@ -57,4 +58,74 @@ a {
     linear-gradient(rgba(128, 100, 61, 0.08) 1px, transparent 1px),
     linear-gradient(90deg, rgba(128, 100, 61, 0.08) 1px, transparent 1px);
   background-size: 28px 28px;
+}
+
+.localkb-editor {
+  --accentBase: var(--accent);
+  --accentBgSubtle: rgba(138, 90, 34, 0.08);
+  --accentBg: rgba(138, 90, 34, 0.12);
+  --accentBgHover: rgba(138, 90, 34, 0.18);
+  --accentBgActive: rgba(138, 90, 34, 0.22);
+  --accentLine: rgba(138, 90, 34, 0.28);
+  --baseBg: transparent;
+  --baseBgSubtle: rgba(255, 253, 248, 0.72);
+  --baseBgHover: rgba(255, 253, 248, 0.92);
+  --baseBorder: var(--line);
+  --baseLine: var(--line);
+  --baseTextContrast: var(--foreground);
+  --baseText: var(--foreground);
+  --baseTextEmphasis: var(--accent-strong);
+  --basePageBg: var(--surface-strong);
+  color: var(--foreground);
+}
+
+.localkb-editor > div[contenteditable="true"],
+.localkb-editor__content {
+  min-height: 20rem;
+}
+
+.localkb-editor__toolbar {
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.localkb-editor__content {
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  min-height: 20rem;
+  padding: 1rem 1rem 1.25rem;
+}
+
+.localkb-editor .cm-editor {
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  min-height: 20rem;
+}
+
+.localkb-editor__content blockquote {
+  border-left: 4px solid rgba(138, 90, 34, 0.28);
+  color: var(--muted);
+  font-style: italic;
+  margin: 1rem 0;
+  padding-left: 1rem;
+}
+
+.localkb-editor__content pre {
+  background: #201814;
+  border-radius: 1rem;
+  color: white;
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+.localkb-editor__content table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.localkb-editor__content th,
+.localkb-editor__content td {
+  border: 1px solid var(--line);
+  padding: 0.6rem 0.75rem;
 }
