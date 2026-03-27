@@ -12,17 +12,17 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="section-grid min-h-screen px-6 py-8 md:px-10 xl:px-14">
-      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+    <main className="section-grid min-h-screen px-6 py-8 text-foreground md:px-10 xl:px-14">
+      <div className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
         <section className="space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent/15 bg-accent/8 px-3 py-1 font-mono text-xs uppercase tracking-[0.28em] text-accent-strong">
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/15 bg-accent/8 px-4 py-1.5 font-mono text-sm uppercase tracking-[0.18em] text-accent-strong">
             LocalKB Access
           </div>
           <div className="space-y-4">
-            <h1 className="max-w-xl text-5xl font-semibold leading-tight tracking-tight md:text-6xl">
+            <h1 className="max-w-2xl text-4xl font-semibold leading-[1.05] tracking-tight md:text-[4.25rem]">
               Đăng nhập để tìm tài liệu nội bộ trong một điểm vào duy nhất.
             </h1>
-            <p className="max-w-xl text-lg leading-8 text-muted">
+            <p className="max-w-2xl text-xl leading-9 text-muted">
               Sau khi đăng nhập, người dùng có thể tra cứu wiki, FAQ và các quy
               trình vận hành bằng instant search ngay tại homepage.
             </p>
@@ -36,7 +36,7 @@ export default async function LoginPage() {
             ].map((item) => (
               <div
                 key={item}
-                className="rounded-[1.5rem] border border-line bg-white/70 px-4 py-4 text-sm leading-7 text-muted"
+                className="rounded-[1.5rem] border border-line bg-white/70 px-5 py-5 text-base leading-8 text-muted"
               >
                 {item}
               </div>
@@ -45,7 +45,7 @@ export default async function LoginPage() {
 
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm font-medium text-accent-strong"
+            className="inline-flex items-center gap-2 text-base font-medium text-accent-strong"
           >
             🔙 Về homepage
           </Link>

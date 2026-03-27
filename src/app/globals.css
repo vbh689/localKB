@@ -7,10 +7,12 @@
   --surface: rgba(255, 253, 248, 0.82);
   --surface-strong: #ffffff;
   --line: rgba(42, 37, 29, 0.08);
-  --muted: #695f4d;
+  --muted: #5b5244;
   --accent: #8a5a22;
   --accent-strong: #5f3a17;
   --success: #2f6a44;
+  --focus-ring: rgba(138, 90, 34, 0.24);
+  --focus-shadow: rgba(138, 90, 34, 0.12);
 }
 
 @theme inline {
@@ -31,15 +33,62 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-space-grotesk), sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(91, 82, 68, 0.76);
+}
+
+a,
+button,
+input,
+select,
+textarea,
+summary,
+[role="button"] {
+  transition:
+    outline-color 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--focus-shadow);
 }
 
 ::selection {

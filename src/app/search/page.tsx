@@ -30,24 +30,24 @@ export default async function SearchPage({ searchParams }: Props) {
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+            <p className="font-mono text-base uppercase tracking-[0.18em] text-accent-strong">
               Search
             </p>
-            <h1 className="mt-2 text-4xl font-semibold tracking-tight">
+            <h1 className="mt-2 text-4xl font-semibold tracking-tight md:text-5xl">
               Kết quả cho &quot;{payload.query || "tất cả"}&quot;
             </h1>
           </div>
-          <Link href="/" className="text-sm font-medium text-accent-strong">
+          <Link href="/" className="text-base font-medium text-accent-strong">
             🔙 Về homepage
           </Link>
         </div>
 
-        <form className="glass-panel rounded-[1.6rem] p-5">
+        <form className="glass-panel rounded-[1.6rem] p-5 md:p-6">
           <div className="grid gap-3 lg:grid-cols-[0.7fr_0.8fr_0.8fr_1fr_auto]">
             <select
               name="type"
               defaultValue={type}
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+              className="w-full rounded-2xl border border-line bg-white px-5 py-4 text-base outline-none focus:border-accent"
             >
               <option value="">Tất cả type</option>
               <option value="article">Wiki</option>
@@ -56,7 +56,7 @@ export default async function SearchPage({ searchParams }: Props) {
             <select
               name="category"
               defaultValue={category}
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+              className="w-full rounded-2xl border border-line bg-white px-5 py-4 text-base outline-none focus:border-accent"
             >
               <option value="">Tất cả category</option>
               {categories.map((item) => (
@@ -68,7 +68,7 @@ export default async function SearchPage({ searchParams }: Props) {
             <select
               name="tag"
               defaultValue={tag}
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+              className="w-full rounded-2xl border border-line bg-white px-5 py-4 text-base outline-none focus:border-accent"
             >
               <option value="">Tất cả tag</option>
               {tags.map((item) => (
@@ -82,18 +82,18 @@ export default async function SearchPage({ searchParams }: Props) {
               name="q"
               defaultValue={q}
               placeholder="Từ khóa tìm kiếm"
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+              className="w-full rounded-2xl border border-line bg-white px-5 py-4 text-base outline-none focus:border-accent"
             />
             <div className="flex items-center gap-2">
               <button
                 type="submit"
-                className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+                className="rounded-full bg-accent px-5 py-4 text-base font-medium text-white"
               >
                 Lọc
               </button>
               <Link
                 href="/search"
-                className="rounded-full border border-line px-4 py-3 text-sm font-medium text-accent-strong"
+                className="rounded-full border border-line px-4 py-4 text-base font-medium text-accent-strong"
               >
                 Reset
               </Link>
@@ -117,17 +117,17 @@ export default async function SearchPage({ searchParams }: Props) {
                   className="glass-panel rounded-[1.6rem] p-5 transition hover:-translate-y-0.5"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <span className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.22em] text-accent-strong">
+                    <span className="rounded-full border border-accent/20 bg-accent/8 px-3 py-1.5 font-mono text-xs uppercase tracking-[0.16em] text-accent-strong">
                       {item.type === "article" ? "Wiki" : "FAQ"}
                     </span>
                     {item.category ? (
-                      <span className="text-sm text-muted">{item.category}</span>
+                      <span className="text-base text-muted">{item.category}</span>
                     ) : null}
                   </div>
-                  <h2 className="mt-3 text-xl font-semibold tracking-tight">
+                  <h2 className="mt-3 text-[1.45rem] font-semibold tracking-tight">
                     {item.title}
                   </h2>
-                  <p className="mt-2 text-sm leading-7 text-muted">
+                  <p className="mt-2 text-base leading-8 text-muted">
                     {item.highlight}
                   </p>
                 </Link>

@@ -11,14 +11,14 @@ export default async function FaqIndexPage() {
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+            <p className="font-mono text-base uppercase tracking-[0.18em] text-accent-strong">
               FAQ
             </p>
-            <h1 className="mt-2 text-4xl font-semibold tracking-tight">
+            <h1 className="mt-2 text-4xl font-semibold tracking-tight md:text-5xl">
               Câu hỏi thường gặp
             </h1>
           </div>
-          <Link href="/" className="text-sm font-medium text-accent-strong">
+          <Link href="/" className="text-base font-medium text-accent-strong">
             🔙 Về homepage
           </Link>
         </div>
@@ -30,14 +30,14 @@ export default async function FaqIndexPage() {
               className="glass-panel rounded-[1.6rem] p-5 transition hover:-translate-y-0.5"
             >
               <div className="flex items-center justify-between gap-3">
-                <h2 className="text-xl font-semibold tracking-tight">
+                <h2 className="text-[1.45rem] font-semibold tracking-tight">
                   {faq.question}
                 </h2>
                 {faq.category ? (
-                  <span className="text-sm text-muted">{faq.category.name}</span>
+                  <span className="text-base text-muted">{faq.category.name}</span>
                 ) : null}
               </div>
-              <p className="mt-3 text-sm leading-7 text-muted">{faq.answer}</p>
+              <p className="mt-3 text-base leading-8 text-muted">{faq.answer}</p>
             </Link>
           ))}
         </div>
