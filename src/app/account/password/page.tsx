@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { FormNotice } from "@/components/ui/form-notice";
 import { changeOwnPassword } from "@/app/admin/actions";
 import { requireUserSession } from "@/lib/auth/session";
+import { canAccessAdmin } from "@/lib/auth/user";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
 
 export const dynamic = "force-dynamic";
@@ -16,6 +18,14 @@ export default async function AccountPasswordPage({ searchParams }: Props) {
   return (
     <main className="section-grid min-h-screen px-6 py-8 md:px-10 xl:px-14">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+        {canAccessAdmin(session.user.role) && (
+          <Link
+            href="/admin"
+            className="inline-flex items-center justify-center self-start rounded-full border border-line bg-white px-5 py-3 text-sm font-medium transition hover:border-accent hover:text-accent-strong"
+          >
+            ⬅️ Quay lại
+          </Link>
+        )}
         <section className="glass-panel rounded-[2rem] p-6 md:p-8">
           <p className="font-mono text-sm uppercase tracking-[0.24em] text-accent-strong">
             Account security
