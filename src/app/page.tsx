@@ -121,6 +121,9 @@ export default async function Home() {
                   Bài viết mới nhất
                 </h2>
               </div>
+              <Link href="/kb" className="text-base font-medium text-accent-strong">
+                Xem tất cả
+              </Link>
             </div>
             <div className="mt-5 grid gap-4">
               {newestArticles.map((article) => (

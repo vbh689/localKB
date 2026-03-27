@@ -58,6 +58,26 @@ export async function getFeaturedArticles(limit = 5) {
   });
 }
 
+export async function getPublishedArticlesPage(page: number, pageSize: number) {
+  return db.article.findMany({
+    where: {
+      status: ContentStatus.PUBLISHED,
+    },
+    orderBy: [{ updatedAt: "desc" }],
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+    include: publishedArticleInclude,
+  });
+}
+
+export async function getPublishedArticlesCount() {
+  return db.article.count({
+    where: {
+      status: ContentStatus.PUBLISHED,
+    },
+  });
+}
+
 export async function getNewestFaqs(limit = 5) {
   return db.faq.findMany({
     where: {
@@ -66,6 +86,26 @@ export async function getNewestFaqs(limit = 5) {
     orderBy: [{ updatedAt: "desc" }],
     take: limit,
     include: publishedFaqInclude,
+  });
+}
+
+export async function getPublishedFaqsPage(page: number, pageSize: number) {
+  return db.faq.findMany({
+    where: {
+      status: ContentStatus.PUBLISHED,
+    },
+    orderBy: [{ updatedAt: "desc" }],
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+    include: publishedFaqInclude,
+  });
+}
+
+export async function getPublishedFaqsCount() {
+  return db.faq.count({
+    where: {
+      status: ContentStatus.PUBLISHED,
+    },
   });
 }
 
@@ -85,16 +125,6 @@ export async function getPublishedFaqBySlug(slug: string) {
       slug,
       status: ContentStatus.PUBLISHED,
     },
-    include: publishedFaqInclude,
-  });
-}
-
-export async function getPublishedFaqs() {
-  return db.faq.findMany({
-    where: {
-      status: ContentStatus.PUBLISHED,
-    },
-    orderBy: [{ updatedAt: "desc" }],
     include: publishedFaqInclude,
   });
 }

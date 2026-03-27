@@ -1,4 +1,4 @@
-type SearchValue = string | string[] | undefined;
+import { PAGE_SIZE_OPTIONS, type SearchValue } from "@/lib/pagination";
 
 type Props = {
   basePath: string;
@@ -7,8 +7,6 @@ type Props = {
   searchParams: Record<string, SearchValue>;
   totalItems: number;
 };
-
-const pageSizeOptions = [20, 50, 100];
 
 function buildPageHref(
   basePath: string,
@@ -88,7 +86,7 @@ export function PaginationControls({
             defaultValue={String(pageSize)}
             className="rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-accent-strong outline-none focus:border-accent"
           >
-            {pageSizeOptions.map((option) => (
+            {PAGE_SIZE_OPTIONS.map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>

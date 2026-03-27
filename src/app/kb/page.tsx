@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { PaginationControls } from "@/components/ui/pagination-controls";
 import {
-  getPublishedFaqsCount,
-  getPublishedFaqsPage,
+  getPublishedArticlesCount,
+  getPublishedArticlesPage,
 } from "@/lib/content";
 import { getCurrentPage, getPageSize } from "@/lib/pagination";
 import { createExcerpt } from "@/lib/utils";
@@ -16,13 +16,13 @@ type Props = {
   }>;
 };
 
-export default async function FaqIndexPage({ searchParams }: Props) {
+export default async function KnowledgeBaseIndexPage({ searchParams }: Props) {
   const resolvedSearchParams = await searchParams;
   const currentPage = getCurrentPage(resolvedSearchParams.page);
   const pageSize = getPageSize(resolvedSearchParams.limit);
-  const [faqs, faqCount] = await Promise.all([
-    getPublishedFaqsPage(currentPage, pageSize),
-    getPublishedFaqsCount(),
+  const [articles, articleCount] = await Promise.all([
+    getPublishedArticlesPage(currentPage, pageSize),
+    getPublishedArticlesCount(),
   ]);
 
   return (
@@ -31,52 +31,55 @@ export default async function FaqIndexPage({ searchParams }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <p className="font-mono text-base uppercase tracking-[0.18em] text-accent-strong">
-              FAQ
+              KB
             </p>
             <h1 className="mt-2 text-4xl font-semibold tracking-tight md:text-5xl">
-              Câu hỏi thường gặp
+              Knowledge Base Articles
             </h1>
             <p className="mt-3 text-base text-muted">
-              Đang hiển thị {faqs.length} / {faqCount} câu hỏi.
+              Đang hiển thị {articles.length} / {articleCount} bài viết.
             </p>
           </div>
           <Link href="/" className="text-base font-medium text-accent-strong">
             🔙 Về homepage
           </Link>
         </div>
+
         <div className="grid gap-4">
-          {faqs.length === 0 ? (
+          {articles.length === 0 ? (
             <div className="glass-panel rounded-[1.6rem] p-6 text-base text-muted">
-              Chưa có FAQ nào được xuất bản.
+              Chưa có article nào được xuất bản.
             </div>
           ) : (
-            faqs.map((faq) => (
+            articles.map((article) => (
               <Link
-                key={faq.id}
-                href={`/faq/${faq.slug}`}
+                key={article.id}
+                href={`/kb/${article.slug}`}
                 className="glass-panel rounded-[1.6rem] p-5 transition hover:-translate-y-0.5"
               >
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <h2 className="text-[1.45rem] font-semibold tracking-tight">
-                    {faq.question}
+                    {article.title}
                   </h2>
-                  {faq.category ? (
-                    <span className="text-base text-muted">{faq.category.name}</span>
-                  ) : null}
+                  <div className="flex flex-wrap items-center gap-3 text-base text-muted">
+                    {article.category ? <span>{article.category.name}</span> : null}
+                    <span>{article.updatedAt.toLocaleDateString("vi-VN")}</span>
+                  </div>
                 </div>
                 <p className="mt-3 text-base leading-8 text-muted">
-                  {createExcerpt(faq.answer, 220)}
+                  {createExcerpt(article.summary || article.body, 220)}
                 </p>
               </Link>
             ))
           )}
         </div>
+
         <PaginationControls
-          basePath="/faq"
+          basePath="/kb"
           currentPage={currentPage}
           pageSize={pageSize}
           searchParams={resolvedSearchParams}
-          totalItems={faqCount}
+          totalItems={articleCount}
         />
       </div>
     </main>

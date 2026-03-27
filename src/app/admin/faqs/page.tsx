@@ -16,6 +16,7 @@ import {
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
+import { getCurrentPage, getFirstSearchParam, getPageSize } from "@/lib/pagination";
 
 export const dynamic = "force-dynamic";
 
@@ -23,24 +24,8 @@ type Props = {
   searchParams: SearchParamInput;
 };
 
-function getParam(
-  value: string | string[] | undefined,
-) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function getPageSize(value: string | string[] | undefined) {
-  const limit = Number.parseInt(getParam(value) ?? "20", 10);
-
-  if (![20, 50, 100].includes(limit)) {
-    return 20;
-  }
-
-  return limit;
-}
-
 function getStatusFilter(value: string | string[] | undefined) {
-  const status = getParam(value);
+  const status = getFirstSearchParam(value);
 
   if (
     status === ContentStatus.DRAFT ||
@@ -57,14 +42,11 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
   const resolvedSearchParams = await searchParams;
   const feedback = await getFeedback(resolvedSearchParams);
-  const query = getParam(resolvedSearchParams.q)?.trim() ?? "";
+  const query = getFirstSearchParam(resolvedSearchParams.q)?.trim() ?? "";
   const statusFilter = getStatusFilter(resolvedSearchParams.status);
-  const categoryFilter = getParam(resolvedSearchParams.categoryId) ?? "all";
-  const sort = getParam(resolvedSearchParams.sort) ?? "updated_desc";
-  const currentPage = Math.max(
-    1,
-    Number.parseInt(getParam(resolvedSearchParams.page) ?? "1", 10) || 1,
-  );
+  const categoryFilter = getFirstSearchParam(resolvedSearchParams.categoryId) ?? "all";
+  const sort = getFirstSearchParam(resolvedSearchParams.sort) ?? "updated_desc";
+  const currentPage = getCurrentPage(resolvedSearchParams.page);
   const pageSize = getPageSize(resolvedSearchParams.limit);
 
   const orderBy =
