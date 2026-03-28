@@ -1,6 +1,10 @@
 import { ContentStatus, Role } from "generated/prisma/client";
 import { MarkdownContent } from "@/components/content/markdown-content";
 import { MarkdownTextarea } from "@/components/editor/markdown-textarea";
+import {
+  SharedAdminContentLayout,
+  SharedAdminContentPanel,
+} from "@/components/admin/shared-admin-content-layout";
 import { BulkSelectionControls } from "@/components/ui/bulk-selection-controls";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
@@ -106,78 +110,80 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
   ]);
 
   return (
-    <section className="grid gap-6 xl:grid-cols-4">
-      <div className="grid gap-4 xl:col-span-1 xl:auto-rows-max">
-        <form className="glass-panel rounded-[1.6rem] p-5">
-          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-            Filter
-          </p>
-          <div className="mt-4 grid gap-3">
-            <input
-              type="text"
-              name="q"
-              defaultValue={query}
-              placeholder="Tìm theo question hoặc answer"
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            />
-            <select
-              name="status"
-              defaultValue={statusFilter}
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            >
-              <option value="all">Tất cả status</option>
-              <option value={ContentStatus.DRAFT}>Draft</option>
-              <option value={ContentStatus.PUBLISHED}>Published</option>
-              <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
-            </select>
-            <select
-              name="categoryId"
-              defaultValue={categoryFilter}
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            >
-              <option value="all">Tất cả category</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <select
-              name="sort"
-              defaultValue={sort}
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            >
-              <option value="updated_desc">Mới cập nhật</option>
-              <option value="question_asc">Câu hỏi A-Z</option>
-              <option value="published_desc">Mới xuất bản</option>
-            </select>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="submit"
-                className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+    <SharedAdminContentLayout
+      sidebar={
+        <>
+          <SharedAdminContentPanel as="form" variant="sidebar">
+            <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+              Filter
+            </p>
+            <div className="mt-4 grid gap-3">
+              <input
+                type="text"
+                name="q"
+                defaultValue={query}
+                placeholder="Tìm theo question hoặc answer"
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+              />
+              <select
+                name="status"
+                defaultValue={statusFilter}
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
               >
-                Lọc
-              </button>
-              <a
-                href="/admin/faqs"
-                className="rounded-full border border-line px-4 py-3 text-sm font-medium text-accent-strong"
+                <option value="all">Tất cả status</option>
+                <option value={ContentStatus.DRAFT}>Draft</option>
+                <option value={ContentStatus.PUBLISHED}>Published</option>
+                <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
+              </select>
+              <select
+                name="categoryId"
+                defaultValue={categoryFilter}
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
               >
-                Reset
-              </a>
+                <option value="all">Tất cả category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="sort"
+                defaultValue={sort}
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+              >
+                <option value="updated_desc">Mới cập nhật</option>
+                <option value="question_asc">Câu hỏi A-Z</option>
+                <option value="published_desc">Mới xuất bản</option>
+              </select>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="submit"
+                  className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+                >
+                  Lọc
+                </button>
+                <a
+                  href="/admin/faqs"
+                  className="rounded-full border border-line px-4 py-3 text-sm font-medium text-accent-strong"
+                >
+                  Reset
+                </a>
+              </div>
             </div>
-          </div>
-          <p className="mt-3 text-sm text-muted">
-            Đang hiển thị {faqs.length} / {faqCount} FAQ.
-          </p>
-        </form>
+            <p className="mt-3 text-sm text-muted">
+              Đang hiển thị {faqs.length} / {faqCount} FAQ.
+            </p>
+          </SharedAdminContentPanel>
 
-        <form
-          id="faq-bulk-form"
-          action={bulkUpdateFaqs}
-          className="glass-panel rounded-[1.6rem] p-5"
-        >
-          <input type="hidden" name="redirectTo" value="/admin/faqs" />
-          <div className="flex flex-col gap-3">
+          <SharedAdminContentPanel
+            as="form"
+            action={bulkUpdateFaqs}
+            className="flex flex-col gap-3"
+            id="faq-bulk-form"
+            variant="sidebar"
+          >
+            <input type="hidden" name="redirectTo" value="/admin/faqs" />
             <div>
               <p className="text-sm font-medium">Bulk actions</p>
               <p className="text-sm text-muted">
@@ -213,83 +219,83 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
                 Xóa đã chọn
               </ConfirmSubmitButton>
             </div>
-          </div>
-        </form>
-      </div>
-
-      <div className="grid gap-6 xl:col-span-3">
-        <form action={createFaq} className="glass-panel rounded-[1.8rem] p-6">
-          <input type="hidden" name="redirectTo" value="/admin/faqs" />
-          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-            Tạo FAQ
-          </p>
-          <div className="mt-5 space-y-4">
-            <FormNotice feedback={feedback} />
-            <input
-              type="text"
-              name="question"
-              required
-              placeholder="Câu hỏi"
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            />
-            <MarkdownTextarea
-              name="answer"
-              required
-              rows={8}
-              placeholder="Câu trả lời"
-            />
-            <select
-              name="categoryId"
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-              defaultValue=""
-            >
-              <option value="">Không có category</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <select
-              name="status"
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-              defaultValue={ContentStatus.DRAFT}
-            >
-              <option value={ContentStatus.DRAFT}>Draft</option>
-              <option value={ContentStatus.PUBLISHED}>Published</option>
-              <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
-            </select>
-            <div className="rounded-2xl border border-line bg-white p-4">
-              <p className="text-sm font-medium">Gắn tags</p>
-              <div className="mt-3 flex flex-wrap gap-3">
-                {tags.map((tag) => (
-                  <label key={tag.id} className="flex items-center gap-2 text-sm text-muted">
-                    <input type="checkbox" name="tagIds" value={tag.id} />
-                    {tag.name}
-                  </label>
+          </SharedAdminContentPanel>
+        </>
+      }
+      content={
+        <>
+          <SharedAdminContentPanel as="form" action={createFaq}>
+            <input type="hidden" name="redirectTo" value="/admin/faqs" />
+            <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+              Tạo FAQ
+            </p>
+            <div className="mt-5 space-y-4">
+              <FormNotice feedback={feedback} />
+              <input
+                type="text"
+                name="question"
+                required
+                placeholder="Câu hỏi"
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+              />
+              <MarkdownTextarea
+                name="answer"
+                required
+                rows={8}
+                placeholder="Câu trả lời"
+              />
+              <select
+                name="categoryId"
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                defaultValue=""
+              >
+                <option value="">Không có category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
                 ))}
+              </select>
+              <select
+                name="status"
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                defaultValue={ContentStatus.DRAFT}
+              >
+                <option value={ContentStatus.DRAFT}>Draft</option>
+                <option value={ContentStatus.PUBLISHED}>Published</option>
+                <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
+              </select>
+              <div className="rounded-2xl border border-line bg-white p-4">
+                <p className="text-sm font-medium">Gắn tags</p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  {tags.map((tag) => (
+                    <label key={tag.id} className="flex items-center gap-2 text-sm text-muted">
+                      <input type="checkbox" name="tagIds" value={tag.id} />
+                      {tag.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <button
+                type="submit"
+                className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+              >
+                Tạo FAQ
+              </button>
+            </div>
+          </SharedAdminContentPanel>
+
+          <SharedAdminContentPanel>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+                  Published FAQs
+                </p>
+                <p className="mt-2 text-sm text-muted">
+                  Danh sách FAQ hiện có để chỉnh sửa, xuất bản hoặc khôi phục revision.
+                </p>
               </div>
             </div>
-            <button
-              type="submit"
-              className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
-            >
-              Tạo FAQ
-            </button>
-          </div>
-        </form>
-
-        <div className="glass-panel rounded-[1.8rem] p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-                Published FAQs
-              </p>
-              <p className="mt-2 text-sm text-muted">
-                Danh sách FAQ hiện có để chỉnh sửa, xuất bản hoặc khôi phục revision.
-              </p>
-            </div>
-          </div>
 
           <div className="mt-5 grid gap-4">
             {faqs.map((faq) => (
@@ -520,8 +526,9 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
               totalItems={faqCount}
             />
           </div>
-        </div>
-      </div>
-    </section>
+          </SharedAdminContentPanel>
+        </>
+      }
+    />
   );
 }
