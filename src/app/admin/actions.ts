@@ -669,7 +669,6 @@ export async function createArticle(formData: FormData) {
   const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
   const redirectTo = getRedirectTo(formData, "/admin/articles");
   const title = getString(formData, "title");
-  const summary = getString(formData, "summary");
   const body = getString(formData, "body");
   const categoryId = getOptionalString(formData, "categoryId");
   const tagIds = formData
@@ -678,9 +677,9 @@ export async function createArticle(formData: FormData) {
     .filter(Boolean);
   const status = getStatus(getString(formData, "status"));
 
-  if (!title || !summary || !body) {
+  if (!title || !body) {
     redirectWithFeedback(redirectTo, {
-      message: "Title, summary và body đều là bắt buộc.",
+      message: "Title và body đều là bắt buộc.",
       status: "error",
     });
   }
@@ -702,7 +701,6 @@ export async function createArticle(formData: FormData) {
       publishedAt: getPublishedAt(status),
       slug,
       status,
-      summary,
       tags: {
         connect: tagIds.map((id) => ({ id })),
       },
@@ -828,7 +826,6 @@ export async function updateArticle(formData: FormData) {
   const redirectTo = getRedirectTo(formData, "/admin/articles");
   const id = getString(formData, "id");
   const title = getString(formData, "title");
-  const summary = getString(formData, "summary");
   const body = getString(formData, "body");
   const categoryId = getOptionalString(formData, "categoryId");
   const status = getStatus(getString(formData, "status"));
@@ -837,7 +834,7 @@ export async function updateArticle(formData: FormData) {
     .map((value) => String(value))
     .filter(Boolean);
 
-  if (!id || !title || !summary || !body) {
+  if (!id || !title || !body) {
     redirectWithFeedback(redirectTo, {
       message: "Không đủ thông tin để cập nhật article.",
       status: "error",
@@ -863,7 +860,6 @@ export async function updateArticle(formData: FormData) {
       publishedAt: getPublishedAt(status),
       slug,
       status,
-      summary,
       tags: {
         set: tagIds.map((tagId) => ({ id: tagId })),
       },

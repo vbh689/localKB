@@ -5,7 +5,6 @@ import {
   getPublishedArticlesPage,
 } from "@/lib/content";
 import { getCurrentPage, getPageSize } from "@/lib/pagination";
-import { createExcerpt } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -66,9 +65,6 @@ export default async function KnowledgeBaseIndexPage({ searchParams }: Props) {
                     <span>{article.updatedAt.toLocaleDateString("vi-VN")}</span>
                   </div>
                 </div>
-                <p className="mt-3 text-base leading-8 text-muted">
-                  {createExcerpt(article.summary || article.body, 220)}
-                </p>
               </Link>
             ))
           )}

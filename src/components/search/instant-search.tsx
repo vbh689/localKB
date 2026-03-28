@@ -160,7 +160,9 @@ export function InstantSearch({ initialItems }: Props) {
                   <h3 className="mt-3 text-[1.45rem] font-semibold tracking-tight">
                     {item.title}
                   </h3>
-                  <p className="mt-2 text-base leading-8 text-muted">{item.summary}</p>
+                  {item.summary ? (
+                    <p className="mt-2 text-base leading-8 text-muted">{item.summary}</p>
+                  ) : null}
                 </button>
               ))}
             </>
@@ -202,9 +204,11 @@ export function InstantSearch({ initialItems }: Props) {
                         <h3 className="mt-3 text-[1.45rem] font-semibold tracking-tight">
                           {item.title}
                         </h3>
-                        <p className="mt-2 text-base leading-8 text-muted">
-                          {item.highlight}
-                        </p>
+                        {item.highlight ? (
+                          <p className="mt-2 text-base leading-8 text-muted">
+                            {item.highlight}
+                          </p>
+                        ) : null}
                       </button>
                     );
                   })}
@@ -245,9 +249,11 @@ export function InstantSearch({ initialItems }: Props) {
                         <h3 className="mt-3 text-[1.45rem] font-semibold tracking-tight">
                           {item.title}
                         </h3>
-                        <p className="mt-2 text-base leading-8 text-muted">
-                          {item.highlight}
-                        </p>
+                        {item.highlight ? (
+                          <p className="mt-2 text-base leading-8 text-muted">
+                            {item.highlight}
+                          </p>
+                        ) : null}
                       </button>
                     );
                   })}

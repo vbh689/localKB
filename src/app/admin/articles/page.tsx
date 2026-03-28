@@ -63,15 +63,9 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
         ? undefined
         : (statusFilter as ContentStatus),
     OR: query
-      ? [
+        ? [
           {
             title: {
-              contains: query,
-              mode: "insensitive" as const,
-            },
-          },
-          {
-            summary: {
               contains: query,
               mode: "insensitive" as const,
             },
@@ -124,7 +118,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
               type="text"
               name="q"
               defaultValue={query}
-              placeholder="Tìm theo title, summary, body"
+              placeholder="Tìm theo title, body"
               className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
             />
             <select
@@ -239,13 +233,6 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
               placeholder="Tiêu đề bài viết"
               className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
             />
-            <textarea
-              name="summary"
-              required
-              rows={3}
-              placeholder="Tóm tắt ngắn"
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            />
             <MarkdownTextarea
               name="body"
               required
@@ -329,7 +316,6 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                     <h2 className="text-xl font-semibold tracking-tight">
                       {article.title}
                     </h2>
-                    <p className="text-sm leading-7 text-muted">{article.summary}</p>
                     <MarkdownContent
                       content={article.body}
                       className="text-sm text-muted"
@@ -432,13 +418,6 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                           name="title"
                           required
                           defaultValue={article.title}
-                          className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-                        />
-                        <textarea
-                          name="summary"
-                          required
-                          rows={3}
-                          defaultValue={article.summary}
                           className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
                         />
                         <MarkdownTextarea

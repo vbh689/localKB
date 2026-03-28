@@ -221,8 +221,6 @@ async function main() {
       body:
         "Ngày đầu tiên: nhận laptop, kích hoạt email công ty, đăng nhập Slack, Jira và LocalKB.\n\nTuần đầu tiên: hoàn thành training bắt buộc, gặp mentor, đọc handbook phòng ban.\n\n30 ngày đầu: làm quen quy trình review code, họp team và mục tiêu thử việc.",
       categorySlug: "hr",
-      summary:
-        "Checklist tài khoản, email, tool và 30 ngày đầu tiên cho nhân sự mới.",
       tagSlugs: ["onboarding", "policy"],
       title: "Quy trình onboarding nhân sự mới",
     },
@@ -230,8 +228,6 @@ async function main() {
       body:
         "Repository service dùng tiền tố svc-, frontend dùng web-, package nội bộ dùng pkg-.\n\nNhanh gọn, dễ tìm kiếm và phù hợp convention DevOps nội bộ.",
       categorySlug: "engineering",
-      summary:
-        "Convention đặt tên cho service, frontend app và package nội bộ.",
       tagSlugs: ["repository", "policy"],
       title: "Quy chuẩn đặt tên dự án và repository",
     },
@@ -251,7 +247,6 @@ async function main() {
         categoryId: category?.id,
         publishedAt: new Date(),
         status: ContentStatus.PUBLISHED,
-        summary: article.summary,
         tags: {
           set: articleTags.map((tag) => ({ id: tag.id })),
         },
@@ -264,7 +259,6 @@ async function main() {
         publishedAt: new Date(),
         slug: slugify(article.title),
         status: ContentStatus.PUBLISHED,
-        summary: article.summary,
         tags: {
           connect: articleTags.map((tag) => ({ id: tag.id })),
         },

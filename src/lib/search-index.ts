@@ -11,8 +11,8 @@ type SearchDocument = {
   type: "article" | "faq";
   title: string;
   slug: string;
-  summary: string;
-  highlight: string;
+  summary?: string;
+  highlight?: string;
   category: string | null;
   tags: string[];
   body: string;
@@ -49,11 +49,9 @@ function mapArticleDocument(
   return {
     body: article.body,
     category: article.category?.name ?? null,
-    highlight: article.summary || createExcerpt(article.body, 140),
     id: createDocumentId("article", article.id),
     recordId: article.id,
     slug: article.slug,
-    summary: article.summary,
     tags: article.tags.map((tag) => tag.name),
     title: article.title,
     type: "article",

@@ -149,6 +149,6 @@ npm run db:seed
 ## Ghi chú
 
 - Chỉ nội dung `PUBLISHED` mới xuất hiện trên public app và search.
-- `Article revision` hiện tại khôi phục `title` và `body`; `summary/category/tags/status` được giữ nguyên.
+- `Article revision` hiện tại khôi phục `title` và `body`; `category/tags/status` được giữ nguyên.
 - `FAQ revision` restore `question` và `answer`.
 - Kế hoạch triển khai ban đầu được lưu tại [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md).

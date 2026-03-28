@@ -127,9 +127,11 @@ export default async function SearchPage({ searchParams }: Props) {
                   <h2 className="mt-3 text-[1.45rem] font-semibold tracking-tight">
                     {item.title}
                   </h2>
-                  <p className="mt-2 text-base leading-8 text-muted">
-                    {item.highlight}
-                  </p>
+                  {item.highlight ? (
+                    <p className="mt-2 text-base leading-8 text-muted">
+                      {item.highlight}
+                    </p>
+                  ) : null}
                 </Link>
               );
             })}

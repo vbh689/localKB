@@ -140,9 +140,6 @@ export default async function Home() {
                       {article.category?.name ?? "Wiki"}
                     </span>
                   </div>
-                  <p className="mt-3 text-base leading-8 text-muted">
-                    {createExcerpt(article.summary || article.body, 180)}
-                  </p>
                 </Link>
               ))}
             </div>

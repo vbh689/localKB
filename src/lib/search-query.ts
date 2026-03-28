@@ -10,10 +10,10 @@ export type SearchItem = {
   type: "article" | "faq";
   title: string;
   slug: string;
-  summary: string;
+  summary?: string;
   category: string | null;
   tags: string[];
-  highlight: string;
+  highlight?: string;
 };
 
 export type SearchPayload = {
@@ -92,7 +92,6 @@ async function searchPublishedContentFallback(
             ? {
                 OR: [
                   { title: { contains: query, mode: "insensitive" as const } },
-                  { summary: { contains: query, mode: "insensitive" as const } },
                   { body: { contains: query, mode: "insensitive" as const } },
                   {
                     category: {
@@ -166,10 +165,8 @@ async function searchPublishedContentFallback(
 
   const articleResults: SearchItem[] = articles.map((article) => ({
     category: article.category?.name ?? null,
-    highlight: article.summary || createExcerpt(article.body, 140),
     id: article.id,
     slug: article.slug,
-    summary: article.summary,
     tags: article.tags.map((tag) => tag.name),
     title: article.title,
     type: "article",
@@ -240,8 +237,8 @@ export async function searchPublishedContent(
       type: "article" | "faq";
       title: string;
       slug: string;
-      summary: string;
-      highlight: string;
+      summary?: string;
+      highlight?: string;
       category: string | null;
       tags: string[];
     }>("knowledge_base");
