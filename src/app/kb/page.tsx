@@ -1,27 +1,62 @@
 import Link from "next/link";
+import { PublicContentFilters } from "@/components/content/public-content-filters";
 import { PaginationControls } from "@/components/ui/pagination-controls";
 import {
+  getPublishedContentSort,
   getPublishedArticlesCount,
   getPublishedArticlesPage,
 } from "@/lib/content";
-import { getCurrentPage, getPageSize } from "@/lib/pagination";
+import { db } from "@/lib/db";
+import {
+  getCurrentPage,
+  getDateRangeSearchParams,
+  getFirstSearchParam,
+  getPageSize,
+} from "@/lib/pagination";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
   searchParams: Promise<{
+    category?: string | string[];
+    from?: string | string[];
     limit?: string | string[];
     page?: string | string[];
+    sort?: string | string[];
+    to?: string | string[];
   }>;
 };
 
 export default async function KnowledgeBaseIndexPage({ searchParams }: Props) {
   const resolvedSearchParams = await searchParams;
+  const category = getFirstSearchParam(resolvedSearchParams.category)?.trim() ?? "";
   const currentPage = getCurrentPage(resolvedSearchParams.page);
   const pageSize = getPageSize(resolvedSearchParams.limit);
-  const [articles, articleCount] = await Promise.all([
-    getPublishedArticlesPage(currentPage, pageSize),
-    getPublishedArticlesCount(),
+  const sort = getPublishedContentSort(
+    getFirstSearchParam(resolvedSearchParams.sort),
+  );
+  const { end, endDate, start, startDate } = getDateRangeSearchParams(
+    resolvedSearchParams.from,
+    resolvedSearchParams.to,
+  );
+  const filters = {
+    categorySlug: category || null,
+    sort,
+    updatedFrom: startDate,
+    updatedTo: endDate,
+  };
+
+  const [articles, articleCount, categories] = await Promise.all([
+    getPublishedArticlesPage(currentPage, pageSize, filters),
+    getPublishedArticlesCount(filters),
+    db.category.findMany({
+      orderBy: [{ name: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+      },
+    }),
   ]);
 
   return (
@@ -35,14 +70,32 @@ export default async function KnowledgeBaseIndexPage({ searchParams }: Props) {
             <h1 className="mt-2 text-4xl font-semibold tracking-tight md:text-5xl">
               Knowledge Base Articles
             </h1>
-            <p className="mt-3 text-base text-muted">
-              Đang hiển thị {articles.length} / {articleCount} bài viết.
-            </p>
           </div>
           <Link href="/" className="text-base font-medium text-accent-strong">
             🔙 Về homepage
           </Link>
         </div>
+
+        <PublicContentFilters
+          basePath="/kb"
+          categories={categories}
+          category={category}
+          pageSize={pageSize}
+          resultsLabel="bài viết"
+          sort={sort}
+          totalCount={articleCount}
+          updatedFrom={start}
+          updatedTo={end}
+          visibleCount={articles.length}
+        />
+
+        <PaginationControls
+          basePath="/kb"
+          currentPage={currentPage}
+          pageSize={pageSize}
+          searchParams={resolvedSearchParams}
+          totalItems={articleCount}
+        />
 
         <div className="grid gap-4">
           {articles.length === 0 ? (
@@ -69,14 +122,6 @@ export default async function KnowledgeBaseIndexPage({ searchParams }: Props) {
             ))
           )}
         </div>
-
-        <PaginationControls
-          basePath="/kb"
-          currentPage={currentPage}
-          pageSize={pageSize}
-          searchParams={resolvedSearchParams}
-          totalItems={articleCount}
-        />
       </div>
     </main>
   );
