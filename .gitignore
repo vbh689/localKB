@@ -22,6 +22,9 @@
 /build
 /generated/
 
+/public/uploads
+/docs
+
 # misc
 .DS_Store
 *.pem
@@ -43,4 +46,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-public/uploads
+# Assistant
+.kilo/
+.kilocode/
+
+# Playwright
+/output/playwright
+/screenshots

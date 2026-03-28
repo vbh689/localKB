@@ -34,7 +34,6 @@ export default async function KnowledgeBaseDetailPage({ params }: Props) {
           <h1 className="mt-4 text-4xl font-semibold tracking-tight md:text-5xl">
             {article.title}
           </h1>
-          <p className="mt-4 text-lg leading-8 text-muted">{article.summary}</p>
           <MarkdownContent
             content={article.body}
             className="mt-8 text-base text-foreground"

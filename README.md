@@ -79,13 +79,17 @@ Giá trị này được đọc từ `.env`:
 Mẫu biến môi trường nằm trong [.env.example](./.env.example).
 
 ```env
+APP_URL="http://localhost:3000"
+
 DATABASE_URL="postgresql://localkb:localkb@localhost:5432/localkb?schema=public"
+SESSION_COOKIE_NAME="localkb_session"
+
 MEILISEARCH_URL="http://localhost:7702"
 MEILISEARCH_MASTER_KEY="localkb-master-key"
-APP_URL="http://localhost:3000"
-SESSION_COOKIE_NAME="localkb_session"
+
 SEED_ADMIN_EMAIL="admin@localkb.internal"
 SEED_ADMIN_PASSWORD="ChangeMe123!"
+
 ```
 
 ## Scripts
@@ -107,6 +111,7 @@ npm run db:studio
 - `/` homepage và instant search
 - `/login` đăng nhập
 - `/search?q=` trang kết quả tìm kiếm
+- `/kb` danh sách article
 - `/kb/[slug]` trang article
 - `/faq` danh sách FAQ
 - `/faq/[slug]` chi tiết FAQ
@@ -149,6 +154,6 @@ npm run db:seed
 ## Ghi chú
 
 - Chỉ nội dung `PUBLISHED` mới xuất hiện trên public app và search.
-- `Article revision` hiện tại khôi phục `title` và `body`; `summary/category/tags/status` được giữ nguyên.
+- `Article revision` hiện tại khôi phục `title` và `body`; `category/tags/status` được giữ nguyên.
 - `FAQ revision` restore `question` và `answer`.
 - Kế hoạch triển khai ban đầu được lưu tại [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md).

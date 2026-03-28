@@ -1,6 +1,10 @@
 import { ContentStatus, Role } from "generated/prisma/client";
 import { MarkdownContent } from "@/components/content/markdown-content";
 import { MarkdownTextarea } from "@/components/editor/markdown-textarea";
+import {
+  SharedAdminContentLayout,
+  SharedAdminContentPanel,
+} from "@/components/admin/shared-admin-content-layout";
 import { BulkSelectionControls } from "@/components/ui/bulk-selection-controls";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
@@ -16,6 +20,7 @@ import {
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
+import { getCurrentPage, getFirstSearchParam, getPageSize } from "@/lib/pagination";
 
 export const dynamic = "force-dynamic";
 
@@ -23,24 +28,8 @@ type Props = {
   searchParams: SearchParamInput;
 };
 
-function getParam(
-  value: string | string[] | undefined,
-) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function getPageSize(value: string | string[] | undefined) {
-  const limit = Number.parseInt(getParam(value) ?? "20", 10);
-
-  if (![20, 50, 100].includes(limit)) {
-    return 20;
-  }
-
-  return limit;
-}
-
 function getStatusFilter(value: string | string[] | undefined) {
-  const status = getParam(value);
+  const status = getFirstSearchParam(value);
 
   if (
     status === ContentStatus.DRAFT ||
@@ -57,14 +46,11 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
   const resolvedSearchParams = await searchParams;
   const feedback = await getFeedback(resolvedSearchParams);
-  const query = getParam(resolvedSearchParams.q)?.trim() ?? "";
+  const query = getFirstSearchParam(resolvedSearchParams.q)?.trim() ?? "";
   const statusFilter = getStatusFilter(resolvedSearchParams.status);
-  const categoryFilter = getParam(resolvedSearchParams.categoryId) ?? "all";
-  const sort = getParam(resolvedSearchParams.sort) ?? "updated_desc";
-  const currentPage = Math.max(
-    1,
-    Number.parseInt(getParam(resolvedSearchParams.page) ?? "1", 10) || 1,
-  );
+  const categoryFilter = getFirstSearchParam(resolvedSearchParams.categoryId) ?? "all";
+  const sort = getFirstSearchParam(resolvedSearchParams.sort) ?? "updated_desc";
+  const currentPage = getCurrentPage(resolvedSearchParams.page);
   const pageSize = getPageSize(resolvedSearchParams.limit);
 
   const orderBy =
@@ -81,15 +67,9 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
         ? undefined
         : (statusFilter as ContentStatus),
     OR: query
-      ? [
+        ? [
           {
             title: {
-              contains: query,
-              mode: "insensitive" as const,
-            },
-          },
-          {
-            summary: {
               contains: query,
               mode: "insensitive" as const,
             },
@@ -131,78 +111,80 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
   ]);
 
   return (
-    <section className="grid gap-6 xl:grid-cols-4">
-      <div className="grid gap-4 xl:col-span-1 xl:auto-rows-max">
-        <form className="glass-panel rounded-[1.6rem] p-5">
-          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-            Filter
-          </p>
-          <div className="mt-4 grid gap-3">
-            <input
-              type="text"
-              name="q"
-              defaultValue={query}
-              placeholder="Tìm theo title, summary, body"
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            />
-            <select
-              name="status"
-              defaultValue={statusFilter}
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            >
-              <option value="all">Tất cả status</option>
-              <option value={ContentStatus.DRAFT}>Draft</option>
-              <option value={ContentStatus.PUBLISHED}>Published</option>
-              <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
-            </select>
-            <select
-              name="categoryId"
-              defaultValue={categoryFilter}
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            >
-              <option value="all">Tất cả category</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <select
-              name="sort"
-              defaultValue={sort}
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            >
-              <option value="updated_desc">Mới cập nhật</option>
-              <option value="title_asc">Tiêu đề A-Z</option>
-              <option value="published_desc">Mới xuất bản</option>
-            </select>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="submit"
-                className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+    <SharedAdminContentLayout
+      sidebar={
+        <>
+          <SharedAdminContentPanel as="form" variant="sidebar">
+            <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+              Filter
+            </p>
+            <div className="mt-4 grid gap-3">
+              <input
+                type="text"
+                name="q"
+                defaultValue={query}
+                placeholder="Tìm theo title, body"
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+              />
+              <select
+                name="status"
+                defaultValue={statusFilter}
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
               >
-                Lọc
-              </button>
-              <a
-                href="/admin/articles"
-                className="rounded-full border border-line px-4 py-3 text-sm font-medium text-accent-strong"
+                <option value="all">Tất cả status</option>
+                <option value={ContentStatus.DRAFT}>Draft</option>
+                <option value={ContentStatus.PUBLISHED}>Published</option>
+                <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
+              </select>
+              <select
+                name="categoryId"
+                defaultValue={categoryFilter}
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
               >
-                Reset
-              </a>
+                <option value="all">Tất cả category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+              <select
+                name="sort"
+                defaultValue={sort}
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+              >
+                <option value="updated_desc">Mới cập nhật</option>
+                <option value="title_asc">Tiêu đề A-Z</option>
+                <option value="published_desc">Mới xuất bản</option>
+              </select>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="submit"
+                  className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+                >
+                  Lọc
+                </button>
+                <a
+                  href="/admin/articles"
+                  className="rounded-full border border-line px-4 py-3 text-sm font-medium text-accent-strong"
+                >
+                  Reset
+                </a>
+              </div>
             </div>
-          </div>
-          <p className="mt-3 text-sm text-muted">
-            Đang hiển thị {articles.length} / {articleCount} article.
-          </p>
-        </form>
+            <p className="mt-3 text-sm text-muted">
+              Đang hiển thị {articles.length} / {articleCount} article.
+            </p>
+          </SharedAdminContentPanel>
 
-        <form
-          id="article-bulk-form"
-          action={bulkUpdateArticles}
-          className="glass-panel rounded-[1.6rem] p-5"
-        >
-          <input type="hidden" name="redirectTo" value="/admin/articles" />
-          <div className="flex flex-col gap-3">
+          <SharedAdminContentPanel
+            as="form"
+            action={bulkUpdateArticles}
+            className="flex flex-col gap-3"
+            id="article-bulk-form"
+            variant="sidebar"
+          >
+            <input type="hidden" name="redirectTo" value="/admin/articles" />
             <div>
               <p className="text-sm font-medium">Bulk actions</p>
               <p className="text-sm text-muted">
@@ -211,14 +193,15 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <BulkSelectionControls formId="article-bulk-form" />
-              <button
+              <ConfirmSubmitButton
                 type="submit"
                 name="operation"
                 value="publish"
+                confirmMessage="Bạn có chắc muốn xuất bản các article đã chọn không?"
                 className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
               >
                 Xuất bản đã chọn
-              </button>
+              </ConfirmSubmitButton>
               <ConfirmSubmitButton
                 type="submit"
                 name="operation"
@@ -238,90 +221,83 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                 Xóa đã chọn
               </ConfirmSubmitButton>
             </div>
-          </div>
-        </form>
-      </div>
-
-      <div className="grid gap-6 xl:col-span-3">
-        <form action={createArticle} className="glass-panel rounded-[1.8rem] p-6">
-          <input type="hidden" name="redirectTo" value="/admin/articles" />
-          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-            Tạo article
-          </p>
-          <div className="mt-5 space-y-4">
-            <FormNotice feedback={feedback} />
-            <input
-              type="text"
-              name="title"
-              required
-              placeholder="Tiêu đề bài viết"
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            />
-            <textarea
-              name="summary"
-              required
-              rows={3}
-              placeholder="Tóm tắt ngắn"
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-            />
-            <MarkdownTextarea
-              name="body"
-              required
-              rows={8}
-              placeholder="Nội dung chi tiết"
-            />
-            <select
-              name="categoryId"
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-              defaultValue=""
-            >
-              <option value="">Không có category</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <select
-              name="status"
-              className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-              defaultValue={ContentStatus.DRAFT}
-            >
-              <option value={ContentStatus.DRAFT}>Draft</option>
-              <option value={ContentStatus.PUBLISHED}>Published</option>
-              <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
-            </select>
-            <div className="rounded-2xl border border-line bg-white p-4">
-              <p className="text-sm font-medium">Gắn tags</p>
-              <div className="mt-3 flex flex-wrap gap-3">
-                {tags.map((tag) => (
-                  <label key={tag.id} className="flex items-center gap-2 text-sm text-muted">
-                    <input type="checkbox" name="tagIds" value={tag.id} />
-                    {tag.name}
-                  </label>
+          </SharedAdminContentPanel>
+        </>
+      }
+      content={
+        <>
+          <SharedAdminContentPanel as="form" action={createArticle}>
+            <input type="hidden" name="redirectTo" value="/admin/articles" />
+            <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+              Tạo article
+            </p>
+            <div className="mt-5 space-y-4">
+              <FormNotice feedback={feedback} />
+              <input
+                type="text"
+                name="title"
+                required
+                placeholder="Tiêu đề bài viết"
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+              />
+              <MarkdownTextarea
+                name="body"
+                required
+                rows={8}
+                placeholder="Nội dung chi tiết"
+              />
+              <select
+                name="categoryId"
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                defaultValue=""
+              >
+                <option value="">Không có category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
                 ))}
+              </select>
+              <select
+                name="status"
+                className="w-full rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
+                defaultValue={ContentStatus.DRAFT}
+              >
+                <option value={ContentStatus.DRAFT}>Draft</option>
+                <option value={ContentStatus.PUBLISHED}>Published</option>
+                <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
+              </select>
+              <div className="rounded-2xl border border-line bg-white p-4">
+                <p className="text-sm font-medium">Gắn tags</p>
+                <div className="mt-3 flex flex-wrap gap-3">
+                  {tags.map((tag) => (
+                    <label key={tag.id} className="flex items-center gap-2 text-sm text-muted">
+                      <input type="checkbox" name="tagIds" value={tag.id} />
+                      {tag.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <button
+                type="submit"
+                className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+              >
+                Tạo article
+              </button>
+            </div>
+          </SharedAdminContentPanel>
+
+          <SharedAdminContentPanel>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+                  Published articles
+                </p>
+                <p className="mt-2 text-sm text-muted">
+                  Danh sách article hiện có để chỉnh sửa, xuất bản hoặc khôi phục revision.
+                </p>
               </div>
             </div>
-            <button
-              type="submit"
-              className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
-            >
-              Tạo article
-            </button>
-          </div>
-        </form>
-
-        <div className="glass-panel rounded-[1.8rem] p-6">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-                Published articles
-              </p>
-              <p className="mt-2 text-sm text-muted">
-                Danh sách article hiện có để chỉnh sửa, xuất bản hoặc khôi phục revision.
-              </p>
-            </div>
-          </div>
 
           <div className="mt-5 grid gap-4">
             {articles.map((article) => (
@@ -347,7 +323,6 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                     <h2 className="text-xl font-semibold tracking-tight">
                       {article.title}
                     </h2>
-                    <p className="text-sm leading-7 text-muted">{article.summary}</p>
                     <MarkdownContent
                       content={article.body}
                       className="text-sm text-muted"
@@ -450,13 +425,6 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                           name="title"
                           required
                           defaultValue={article.title}
-                          className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
-                        />
-                        <textarea
-                          name="summary"
-                          required
-                          rows={3}
-                          defaultValue={article.summary}
                           className="rounded-2xl border border-line bg-white px-4 py-3 outline-none focus:border-accent"
                         />
                         <MarkdownTextarea
@@ -563,8 +531,9 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
               totalItems={articleCount}
             />
           </div>
-        </div>
-      </div>
-    </section>
+          </SharedAdminContentPanel>
+        </>
+      }
+    />
   );
 }
