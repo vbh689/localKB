@@ -11,8 +11,11 @@ function setCheckedState(formId: string, checked: boolean) {
     return;
   }
 
-  const checkboxes = form.querySelectorAll<HTMLInputElement>(
-    'input[type="checkbox"][name="ids"]',
+  const checkboxes = Array.from(form.elements).filter(
+    (element): element is HTMLInputElement =>
+      element instanceof HTMLInputElement &&
+      element.type === "checkbox" &&
+      element.name === "ids",
   );
 
   checkboxes.forEach((checkbox) => {

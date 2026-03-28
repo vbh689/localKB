@@ -193,14 +193,15 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <BulkSelectionControls formId="article-bulk-form" />
-              <button
+              <ConfirmSubmitButton
                 type="submit"
                 name="operation"
                 value="publish"
+                confirmMessage="Bạn có chắc muốn xuất bản các article đã chọn không?"
                 className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
               >
                 Xuất bản đã chọn
-              </button>
+              </ConfirmSubmitButton>
               <ConfirmSubmitButton
                 type="submit"
                 name="operation"
