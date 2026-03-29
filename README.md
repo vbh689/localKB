@@ -86,9 +86,7 @@ Phạm vi quyền hiện tại theo code:
 
 - `ADMIN` và `EDITOR` được vào khu vực `/admin`.
 - Chỉ `ADMIN` được vào `/admin/users` và thực hiện tạo / cập nhật user.
-
 - `VIEWER` không có quyền truy cập admin.
-
 - Cả `ADMIN`, `EDITOR`, `VIEWER` đều có thể đổi mật khẩu của chính mình tại `/account/password`.
 
 Một số ràng buộc an toàn khi quản lý user:
