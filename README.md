@@ -142,6 +142,7 @@ npm run db:studio
 
 - Stack production đầy đủ nằm ở [`docker-compose.prod.yml`](./docker-compose.prod.yml)
 - Mẫu biến môi trường production nằm ở [`.env.production.example`](./.env.production.example)
+- Luôn chạy production compose với `--env-file .env.production` để `DATA_ROOT`, `APP_UID` và `APP_GID` được áp dụng cho volume và user mapping
 - Runbook deploy, backup và restore nằm ở [`DEPLOYMENT.md`](./DEPLOYMENT.md)
 
 ## Kiểm tra nhanh
