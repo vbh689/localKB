@@ -10,6 +10,9 @@
 
 2. Cập nhật các giá trị thật trong `.env.production`, đặc biệt là:
    - `APP_URL`
+   - `DATA_ROOT`
+   - `APP_UID`
+   - `APP_GID`
    - `POSTGRES_PASSWORD`
    - `DATABASE_URL`
    - `MEILI_MASTER_KEY`
@@ -17,7 +20,18 @@
 3. Tạo sẵn thư mục dữ liệu trên host:
 
    ```bash
-   mkdir -p app-data/postgres app-data/meilisearch app-data/uploads app-data/backups
+   set -a
+   . ./.env.production
+   set +a
+
+   mkdir -p \
+     "${DATA_ROOT}/postgres" \
+     "${DATA_ROOT}/meilisearch" \
+     "${DATA_ROOT}/uploads" \
+     "${DATA_ROOT}/backups/postgres" \
+     "${DATA_ROOT}/backups/uploads"
+
+   chown -R "${APP_UID}:${APP_GID}" "${DATA_ROOT}/uploads"
    ```
 
 4. Cấu hình reverse proxy hiện có để forward về `127.0.0.1:3000`.
@@ -27,38 +41,46 @@
 1. Build image:
 
    ```bash
-   docker compose -f docker-compose.prod.yml build
+   docker compose --env-file .env.production -f docker-compose.prod.yml build
    ```
 
 2. Khởi động hạ tầng:
 
    ```bash
-   docker compose -f docker-compose.prod.yml up -d postgres meilisearch
+   docker compose --env-file .env.production -f docker-compose.prod.yml up -d postgres meilisearch
    ```
 
-3. Chạy migration:
+3. Chuẩn bị migration metadata cho các hệ thống cũ đã từng dùng `db:push`:
 
    ```bash
-   docker compose -f docker-compose.prod.yml --profile ops run --rm tools npm run db:migrate:deploy
+   docker compose --env-file .env.production -f docker-compose.prod.yml --profile ops run --rm tools npm run db:migrate:prepare
    ```
 
-4. Seed tài khoản admin lần đầu nếu cần:
+   Lệnh này an toàn để chạy nhiều lần. Database mới sẽ tự bỏ qua bước baseline.
+
+4. Chạy migration:
 
    ```bash
-   docker compose -f docker-compose.prod.yml --profile ops run --rm tools npm run db:seed
+   docker compose --env-file .env.production -f docker-compose.prod.yml --profile ops run --rm tools npm run db:migrate:deploy
    ```
 
-5. Khởi động app:
+5. Seed tài khoản admin lần đầu nếu cần:
 
    ```bash
-   docker compose -f docker-compose.prod.yml up -d app
+   docker compose --env-file .env.production -f docker-compose.prod.yml --profile ops run --rm tools npm run db:seed
    ```
 
-6. Kiểm tra sức khỏe hệ thống:
+6. Khởi động app:
+
+   ```bash
+   docker compose --env-file .env.production -f docker-compose.prod.yml up -d app
+   ```
+
+7. Kiểm tra sức khỏe hệ thống:
 
    ```bash
    curl http://127.0.0.1:3000/api/health
-   docker compose -f docker-compose.prod.yml ps
+   docker compose --env-file .env.production -f docker-compose.prod.yml ps
    ```
 
 ## 3. Quy trình release
@@ -73,22 +95,28 @@
 2. Rebuild image:
 
    ```bash
-   docker compose -f docker-compose.prod.yml build app tools
+   docker compose --env-file .env.production -f docker-compose.prod.yml build app tools
    ```
 
-3. Chạy migration production:
+3. Chuẩn bị migration metadata nếu release này là lần đầu đi qua hệ migration:
 
    ```bash
-   docker compose -f docker-compose.prod.yml --profile ops run --rm tools npm run db:migrate:deploy
+   docker compose --env-file .env.production -f docker-compose.prod.yml --profile ops run --rm tools npm run db:migrate:prepare
    ```
 
-4. Cập nhật app:
+4. Chạy migration production:
 
    ```bash
-   docker compose -f docker-compose.prod.yml up -d app
+   docker compose --env-file .env.production -f docker-compose.prod.yml --profile ops run --rm tools npm run db:migrate:deploy
    ```
 
-5. Xác nhận app healthy:
+5. Cập nhật app:
+
+   ```bash
+   docker compose --env-file .env.production -f docker-compose.prod.yml up -d app
+   ```
+
+6. Xác nhận app healthy:
 
    ```bash
    curl http://127.0.0.1:3000/api/health
@@ -108,44 +136,52 @@
   ./scripts/ops/backup-uploads.sh
   ```
 
-Backup sẽ nằm dưới `app-data/backups/`.
+Backup sẽ nằm dưới `${DATA_ROOT}/backups/` trong `.env.production` (mặc định là `./app-data/backups/`).
 
 ## 5. Restore
 
 1. Dừng app để tránh ghi mới trong lúc restore:
 
    ```bash
-   docker compose -f docker-compose.prod.yml stop app
+   docker compose --env-file .env.production -f docker-compose.prod.yml stop app
    ```
 
-2. Restore PostgreSQL:
+2. Nạp biến môi trường nếu bạn dùng `DATA_ROOT` khác mặc định:
 
    ```bash
-   ./scripts/ops/restore-postgres.sh app-data/backups/postgres/<file>.sql.gz
+   set -a
+   . ./.env.production
+   set +a
    ```
 
-3. Restore uploads:
+3. Restore PostgreSQL:
 
    ```bash
-   ./scripts/ops/restore-uploads.sh app-data/backups/uploads/<file>.tar.gz
+   ./scripts/ops/restore-postgres.sh "${DATA_ROOT:-./app-data}/backups/postgres/<file>.sql.gz"
    ```
 
-4. Khởi động lại app:
+4. Restore uploads:
 
    ```bash
-   docker compose -f docker-compose.prod.yml up -d app
+   ./scripts/ops/restore-uploads.sh "${DATA_ROOT:-./app-data}/backups/uploads/<file>.tar.gz"
    ```
 
-5. Rebuild search index từ DB:
+5. Khởi động lại app:
 
    ```bash
-   docker compose -f docker-compose.prod.yml --profile ops run --rm tools npm run search:reindex
+   docker compose --env-file .env.production -f docker-compose.prod.yml up -d app
+   ```
+
+6. Rebuild search index từ DB:
+
+   ```bash
+   docker compose --env-file .env.production -f docker-compose.prod.yml --profile ops run --rm tools npm run search:reindex
    ```
 
 ## 6. Cấu trúc dữ liệu production
 
 ```text
-app-data/
+${DATA_ROOT}/
   backups/
     postgres/
     uploads/
