@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/content/markdown-content";
 import { getPublishedArticleBySlug } from "@/lib/content";
+import { areTagsEnabled } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,7 @@ export default async function KnowledgeBaseDetailPage({ params }: Props) {
             content={article.body}
             className="mt-8 text-base text-foreground"
           />
-          {article.tags.length > 0 ? (
+          {areTagsEnabled && article.tags.length > 0 ? (
             <div className="mt-8 flex flex-wrap gap-2">
               {article.tags.map((tag) => (
                 <span

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/content/markdown-content";
 import { getPublishedFaqBySlug } from "@/lib/content";
+import { areTagsEnabled } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +39,7 @@ export default async function FaqDetailPage({ params }: Props) {
             content={faq.answer}
             className="mt-8 text-base text-foreground"
           />
-          {faq.tags.length > 0 ? (
+          {areTagsEnabled && faq.tags.length > 0 ? (
             <div className="mt-8 flex flex-wrap gap-2">
               {faq.tags.map((tag) => (
                 <span

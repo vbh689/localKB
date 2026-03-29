@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
+import { areTagsEnabled } from "@/lib/features";
 import { searchPublishedContent } from "@/lib/search-query";
 
 export const dynamic = "force-dynamic";
@@ -17,11 +18,13 @@ export default async function SearchPage({ searchParams }: Props) {
   const { category = "", q = "", tag = "", type = "" } = await searchParams;
   const [categories, tags] = await Promise.all([
     db.category.findMany({ orderBy: [{ name: "asc" }] }),
-    db.tag.findMany({ orderBy: [{ name: "asc" }] }),
+    areTagsEnabled
+      ? db.tag.findMany({ orderBy: [{ name: "asc" }] })
+      : Promise.resolve([]),
   ]);
   const payload = await searchPublishedContent(q, 10, {
     category: category || null,
-    tag: tag || null,
+    tag: areTagsEnabled ? tag || null : null,
     type: type === "article" || type === "faq" ? type : null,
   });
 
@@ -43,7 +46,13 @@ export default async function SearchPage({ searchParams }: Props) {
         </div>
 
         <form className="glass-panel rounded-[1.6rem] p-5 md:p-6">
-          <div className="grid gap-3 lg:grid-cols-[0.7fr_0.8fr_0.8fr_1fr_auto]">
+          <div
+            className={`grid gap-3 ${
+              areTagsEnabled
+                ? "lg:grid-cols-[0.7fr_0.8fr_0.8fr_1fr_auto]"
+                : "lg:grid-cols-[0.7fr_0.8fr_1fr_auto]"
+            }`}
+          >
             <select
               name="type"
               defaultValue={type}
@@ -65,18 +74,20 @@ export default async function SearchPage({ searchParams }: Props) {
                 </option>
               ))}
             </select>
-            <select
-              name="tag"
-              defaultValue={tag}
-              className="w-full rounded-2xl border border-line bg-white px-5 py-4 text-base outline-none focus:border-accent"
-            >
-              <option value="">Tất cả tag</option>
-              {tags.map((item) => (
-                <option key={item.id} value={item.name}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
+            {areTagsEnabled ? (
+              <select
+                name="tag"
+                defaultValue={tag}
+                className="w-full rounded-2xl border border-line bg-white px-5 py-4 text-base outline-none focus:border-accent"
+              >
+                <option value="">Tất cả tag</option>
+                {tags.map((item) => (
+                  <option key={item.id} value={item.name}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            ) : null}
             <input
               type="text"
               name="q"

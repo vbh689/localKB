@@ -14,6 +14,7 @@ import { checkSystemHealth } from "@/lib/health";
 import { db } from "@/lib/db";
 import { requireRoles } from "@/lib/auth/session";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
+import { areTagsEnabled } from "@/lib/features";
 import { rebuildSearchIndex } from "@/app/admin/actions";
 
 export const dynamic = "force-dynamic";
@@ -39,7 +40,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
     articles,
     faqs,
     categories,
-    tags,
+    tagCount,
     drafts,
     publishedArticles,
     publishedFaqs,
@@ -54,7 +55,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
     db.article.count(),
     db.faq.count(),
     db.category.count(),
-    db.tag.count(),
+    areTagsEnabled ? db.tag.count() : Promise.resolve(0),
     db.article.count({
       where: {
         status: ContentStatus.DRAFT,
@@ -136,7 +137,9 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
     { label: "Articles", value: articles, href: "/admin/articles" },
     { label: "FAQs", value: faqs, href: "/admin/faqs" },
     { label: "Categories", value: categories, href: "/admin/categories" },
-    { label: "Tags", value: tags, href: "/admin/tags" },
+    ...(areTagsEnabled
+      ? [{ label: "Tags", value: tagCount, href: "/admin/tags" }]
+      : []),
     {
       label: "Draft articles",
       value: drafts,

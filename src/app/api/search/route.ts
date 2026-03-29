@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { searchPublishedContent } from "@/lib/search-query";
+import { areTagsEnabled } from "@/lib/features";
 import { logError } from "@/lib/logger";
 
 export async function GET(request: Request) {
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
 
     const payload = await searchPublishedContent(query, Math.min(limit, 10), {
       category,
-      tag,
+      tag: areTagsEnabled ? tag : null,
       type: type === "article" || type === "faq" ? type : null,
     });
 

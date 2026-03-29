@@ -1,9 +1,11 @@
 import { Role } from "generated/prisma/client";
+import { notFound } from "next/navigation";
 import { ConfirmSubmitButton } from "@/components/ui/confirm-submit-button";
 import { FormNotice } from "@/components/ui/form-notice";
 import { createTag, deleteTag, updateTag } from "@/app/admin/actions";
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
+import { areTagsEnabled } from "@/lib/features";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +16,11 @@ type Props = {
 
 export default async function AdminTagsPage({ searchParams }: Props) {
   await requireRoles([Role.ADMIN, Role.EDITOR]);
+
+  if (!areTagsEnabled) {
+    notFound();
+  }
+
   const feedback = await getFeedback(searchParams);
   const tags = await db.tag.findMany({
     orderBy: [{ name: "asc" }],

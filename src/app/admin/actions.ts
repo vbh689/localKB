@@ -18,6 +18,7 @@ import {
   syncFaqDocument,
 } from "@/lib/search-index";
 import { logError } from "@/lib/logger";
+import { areTagsEnabled } from "@/lib/features";
 import { slugify } from "@/lib/utils";
 
 function getString(formData: FormData, key: string) {
@@ -50,6 +51,30 @@ function getPublishedAt(status: ContentStatus) {
 
 function getRedirectTo(formData: FormData, fallback: string) {
   return getString(formData, "redirectTo") || fallback;
+}
+
+function shouldManageTags(formData: FormData) {
+  return areTagsEnabled && getString(formData, "manageTags") === "1";
+}
+
+function getTagConnectInput(formData: FormData) {
+  if (!shouldManageTags(formData)) {
+    return undefined;
+  }
+
+  return {
+    connect: getStringList(formData, "tagIds").map((id) => ({ id })),
+  };
+}
+
+function getTagSetInput(formData: FormData) {
+  if (!shouldManageTags(formData)) {
+    return undefined;
+  }
+
+  return {
+    set: getStringList(formData, "tagIds").map((id) => ({ id })),
+  };
 }
 
 async function ensureUniqueSlug(
@@ -671,11 +696,8 @@ export async function createArticle(formData: FormData) {
   const title = getString(formData, "title");
   const body = getString(formData, "body");
   const categoryId = getOptionalString(formData, "categoryId");
-  const tagIds = formData
-    .getAll("tagIds")
-    .map((value) => String(value))
-    .filter(Boolean);
   const status = getStatus(getString(formData, "status"));
+  const tagConnectInput = getTagConnectInput(formData);
 
   if (!title || !body) {
     redirectWithFeedback(redirectTo, {
@@ -701,9 +723,7 @@ export async function createArticle(formData: FormData) {
       publishedAt: getPublishedAt(status),
       slug,
       status,
-      tags: {
-        connect: tagIds.map((id) => ({ id })),
-      },
+      ...(tagConnectInput ? { tags: tagConnectInput } : {}),
       title,
       ...(status === ContentStatus.PUBLISHED
         ? {
@@ -829,10 +849,7 @@ export async function updateArticle(formData: FormData) {
   const body = getString(formData, "body");
   const categoryId = getOptionalString(formData, "categoryId");
   const status = getStatus(getString(formData, "status"));
-  const tagIds = formData
-    .getAll("tagIds")
-    .map((value) => String(value))
-    .filter(Boolean);
+  const tagSetInput = getTagSetInput(formData);
 
   if (!id || !title || !body) {
     redirectWithFeedback(redirectTo, {
@@ -860,9 +877,7 @@ export async function updateArticle(formData: FormData) {
       publishedAt: getPublishedAt(status),
       slug,
       status,
-      tags: {
-        set: tagIds.map((tagId) => ({ id: tagId })),
-      },
+      ...(tagSetInput ? { tags: tagSetInput } : {}),
       title,
     },
   });
@@ -1041,11 +1056,8 @@ export async function createFaq(formData: FormData) {
   const question = getString(formData, "question");
   const answer = getString(formData, "answer");
   const categoryId = getOptionalString(formData, "categoryId");
-  const tagIds = formData
-    .getAll("tagIds")
-    .map((value) => String(value))
-    .filter(Boolean);
   const status = getStatus(getString(formData, "status"));
+  const tagConnectInput = getTagConnectInput(formData);
 
   if (!question || !answer) {
     redirectWithFeedback(redirectTo, {
@@ -1071,9 +1083,7 @@ export async function createFaq(formData: FormData) {
       question,
       slug,
       status,
-      tags: {
-        connect: tagIds.map((id) => ({ id })),
-      },
+      ...(tagConnectInput ? { tags: tagConnectInput } : {}),
       ...(status === ContentStatus.PUBLISHED
         ? {
             revisions: {
@@ -1200,10 +1210,7 @@ export async function updateFaq(formData: FormData) {
   const answer = getString(formData, "answer");
   const categoryId = getOptionalString(formData, "categoryId");
   const status = getStatus(getString(formData, "status"));
-  const tagIds = formData
-    .getAll("tagIds")
-    .map((value) => String(value))
-    .filter(Boolean);
+  const tagSetInput = getTagSetInput(formData);
 
   if (!id || !question || !answer) {
     redirectWithFeedback(redirectTo, {
@@ -1232,9 +1239,7 @@ export async function updateFaq(formData: FormData) {
       question,
       slug,
       status,
-      tags: {
-        set: tagIds.map((tagId) => ({ id: tagId })),
-      },
+      ...(tagSetInput ? { tags: tagSetInput } : {}),
     },
   });
 
