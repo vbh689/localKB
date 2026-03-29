@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
+import { areTagsEnabled } from "@/lib/features";
 import type { SearchItem, SearchPayload } from "@/lib/search-query";
 
 type Props = {
@@ -154,7 +155,7 @@ export function InstantSearch({ initialItems }: Props) {
                       {item.type === "article" ? "Wiki" : "FAQ"}
                     </span>
                     <span className="text-base text-muted">
-                      {item.category ?? item.tags[0] ?? "Nội bộ"}
+                      {item.category ?? (areTagsEnabled ? item.tags[0] : null) ?? "Nội bộ"}
                     </span>
                   </div>
                   <h3 className="mt-3 text-[1.45rem] font-semibold tracking-tight">

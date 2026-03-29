@@ -16,7 +16,8 @@ export function getConfig() {
   return configSchema.parse({
     APP_URL: process.env.APP_URL,
     DATABASE_URL: process.env.DATABASE_URL,
-    MEILISEARCH_MASTER_KEY: process.env.MEILISEARCH_MASTER_KEY,
+    MEILISEARCH_MASTER_KEY:
+      process.env.MEILISEARCH_MASTER_KEY ?? process.env.MEILI_MASTER_KEY,
     MEILISEARCH_URL: process.env.MEILISEARCH_URL,
     SESSION_COOKIE_NAME: process.env.SESSION_COOKIE_NAME,
   });

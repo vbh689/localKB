@@ -138,6 +138,12 @@ npm run db:studio
 - `postgres` tại `localhost:5432`
 - `meilisearch` tại `localhost:7702`
 
+## Deploy production
+
+- Stack production đầy đủ nằm ở [`docker-compose.prod.yml`](./docker-compose.prod.yml)
+- Mẫu biến môi trường production nằm ở [`.env.production.example`](./.env.production.example)
+- Runbook deploy, backup và restore nằm ở [`DEPLOYMENT.md`](./DEPLOYMENT.md)
+
 ## Kiểm tra nhanh
 
 ```bash

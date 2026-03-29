@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MarkdownContent } from "@/components/content/markdown-content";
 import { getPublishedArticleBySlug } from "@/lib/content";
+import { areTagsEnabled } from "@/lib/features";
 
 export const dynamic = "force-dynamic";
 
@@ -20,8 +21,8 @@ export default async function KnowledgeBaseDetailPage({ params }: Props) {
   return (
     <main className="section-grid min-h-screen px-6 py-8 md:px-10 xl:px-14">
       <div className="mx-auto flex max-w-4xl flex-col gap-8">
-        <Link href="/" className="text-sm font-medium text-accent-strong">
-          🔙 Về homepage
+        <Link href="/kb" className="text-sm font-medium text-accent-strong">
+          🔙 Về danh sách bài viết
         </Link>
         <article className="glass-panel rounded-[2rem] p-6 md:p-8">
           <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
@@ -38,7 +39,7 @@ export default async function KnowledgeBaseDetailPage({ params }: Props) {
             content={article.body}
             className="mt-8 text-base text-foreground"
           />
-          {article.tags.length > 0 ? (
+          {areTagsEnabled && article.tags.length > 0 ? (
             <div className="mt-8 flex flex-wrap gap-2">
               {article.tags.map((tag) => (
                 <span

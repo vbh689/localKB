@@ -20,6 +20,7 @@ import {
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
+import { areTagsEnabled } from "@/lib/features";
 import { getCurrentPage, getFirstSearchParam, getPageSize } from "@/lib/pagination";
 
 export const dynamic = "force-dynamic";
@@ -107,7 +108,9 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
       where: articleWhere,
     }),
     db.category.findMany({ orderBy: [{ name: "asc" }] }),
-    db.tag.findMany({ orderBy: [{ name: "asc" }] }),
+    areTagsEnabled
+      ? db.tag.findMany({ orderBy: [{ name: "asc" }] })
+      : Promise.resolve([]),
   ]);
 
   return (
@@ -267,17 +270,20 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                 <option value={ContentStatus.PUBLISHED}>Published</option>
                 <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
               </select>
-              <div className="rounded-2xl border border-line bg-white p-4">
-                <p className="text-sm font-medium">Gắn tags</p>
-                <div className="mt-3 flex flex-wrap gap-3">
-                  {tags.map((tag) => (
-                    <label key={tag.id} className="flex items-center gap-2 text-sm text-muted">
-                      <input type="checkbox" name="tagIds" value={tag.id} />
-                      {tag.name}
-                    </label>
-                  ))}
+              {areTagsEnabled ? (
+                <div className="rounded-2xl border border-line bg-white p-4">
+                  <input type="hidden" name="manageTags" value="1" />
+                  <p className="text-sm font-medium">Gắn tags</p>
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {tags.map((tag) => (
+                      <label key={tag.id} className="flex items-center gap-2 text-sm text-muted">
+                        <input type="checkbox" name="tagIds" value={tag.id} />
+                        {tag.name}
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              ) : null}
               <button
                 type="submit"
                 className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
@@ -327,16 +333,18 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                       content={article.body}
                       className="text-sm text-muted"
                     />
-                    <div className="flex flex-wrap gap-2">
-                      {article.tags.map((tag) => (
-                        <span
-                          key={tag.id}
-                          className="rounded-full border border-line bg-white px-3 py-1 text-xs text-muted"
-                        >
-                          #{tag.name}
-                        </span>
-                      ))}
-                    </div>
+                    {areTagsEnabled && article.tags.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {article.tags.map((tag) => (
+                          <span
+                            key={tag.id}
+                            className="rounded-full border border-line bg-white px-3 py-1 text-xs text-muted"
+                          >
+                            #{tag.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                     <details className="rounded-[1.25rem] border border-line bg-white/70 p-4">
                       <summary className="cursor-pointer text-sm font-medium text-accent-strong">
                         Revision history ({article.revisions.length})
@@ -454,27 +462,30 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                           <option value={ContentStatus.PUBLISHED}>Published</option>
                           <option value={ContentStatus.UNPUBLISHED}>Đã ẩn</option>
                         </select>
-                        <div className="rounded-2xl border border-line bg-background p-4">
-                          <p className="text-sm font-medium">Gắn tags</p>
-                          <div className="mt-3 flex flex-wrap gap-3">
-                            {tags.map((tag) => (
-                              <label
-                                key={`${article.id}-${tag.id}`}
-                                className="flex items-center gap-2 text-sm text-muted"
-                              >
-                                <input
-                                  type="checkbox"
-                                  name="tagIds"
-                                  value={tag.id}
-                                  defaultChecked={article.tags.some(
-                                    (articleTag) => articleTag.id === tag.id,
-                                  )}
-                                />
-                                {tag.name}
-                              </label>
-                            ))}
+                        {areTagsEnabled ? (
+                          <div className="rounded-2xl border border-line bg-background p-4">
+                            <input type="hidden" name="manageTags" value="1" />
+                            <p className="text-sm font-medium">Gắn tags</p>
+                            <div className="mt-3 flex flex-wrap gap-3">
+                              {tags.map((tag) => (
+                                <label
+                                  key={`${article.id}-${tag.id}`}
+                                  className="flex items-center gap-2 text-sm text-muted"
+                                >
+                                  <input
+                                    type="checkbox"
+                                    name="tagIds"
+                                    value={tag.id}
+                                    defaultChecked={article.tags.some(
+                                      (articleTag) => articleTag.id === tag.id,
+                                    )}
+                                  />
+                                  {tag.name}
+                                </label>
+                              ))}
+                            </div>
                           </div>
-                        </div>
+                        ) : null}
                         <button
                           type="submit"
                           className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"

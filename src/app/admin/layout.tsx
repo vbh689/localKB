@@ -2,13 +2,14 @@ import Link from "next/link";
 import { Role } from "generated/prisma/client";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { requireRoles } from "@/lib/auth/session";
+import { areTagsEnabled } from "@/lib/features";
 
 const adminLinks = [
   { href: "/admin", label: "Tổng quan" },
   { href: "/admin/articles", label: "Articles" },
   { href: "/admin/faqs", label: "FAQs" },
   { href: "/admin/categories", label: "Categories" },
-  { href: "/admin/tags", label: "Tags" },
+  ...(areTagsEnabled ? [{ href: "/admin/tags", label: "Tags" }] : []),
   { href: "/admin/users", label: "Users" },
   { href: "/admin/media", label: "Media" },
   { href: "/admin/search-logs", label: "Search logs" },
