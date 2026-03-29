@@ -72,7 +72,10 @@ export default async function AdminSearchLogsPage({ searchParams }: Props) {
     <section className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
       <div className="glass-panel rounded-[1.8rem] p-6">
         <FormNotice feedback={feedback} />
-        <form className="mb-6 grid gap-3 lg:grid-cols-[1.2fr_0.8fr_0.8fr_auto]">
+        <form className="mb-6 grid gap-4">
+          <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+            Filter
+          </p>
           <input
             type="text"
             name="q"
