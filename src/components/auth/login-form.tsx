@@ -64,12 +64,11 @@ export function LoginForm() {
         <p className="font-mono text-base uppercase tracking-[0.18em] text-accent-strong">
           Đăng nhập nội bộ
         </p>
-        <h1 className="text-[2.2rem] font-semibold tracking-tight md:text-[2.5rem]">
+        <h2 className="text-[2.2rem] font-semibold tracking-tight md:text-[2.5rem]">
           Truy cập LocalKB
-        </h1>
+        </h2>
         <p className="max-w-xl text-base leading-8 text-muted">
-          Sử dụng tài khoản được admin cấp để vào wiki, FAQ và các quy trình nội
-          bộ của công ty.
+          Sử dụng tài khoản công ty để tiếp tục.
         </p>
       </div>
 
@@ -82,7 +81,7 @@ export function LoginForm() {
             name="email"
             autoComplete="email"
             className="w-full rounded-2xl border border-line bg-white px-5 py-4 text-lg outline-none transition focus:border-accent"
-            placeholder="admin@localkb.internal"
+            placeholder="you@company.com"
           />
         </label>
 

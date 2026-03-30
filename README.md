@@ -2,6 +2,19 @@
 
 LocalKB là ứng dụng wiki / knowledge base / FAQ nội bộ cho công ty, xây dựng bằng `Next.js`, `Prisma`, `PostgreSQL` và `Meilisearch`.
 
+Ứng dụng cung cấp một điểm vào chung để tra cứu tài liệu nội bộ, câu hỏi thường gặp và nội dung quản trị với giao diện public-facing rõ ràng cho người dùng cuối và CMS riêng cho đội vận hành.
+
+## Giao diện nhanh
+
+<p align="center">
+  <img src="./public/readme/home.png" alt="Homepage LocalKB" width="48%" />
+  <img src="./public/readme/kb.png" alt="Knowledge Base listing" width="48%" />
+</p>
+<p align="center">
+  <img src="./public/readme/faq.png" alt="FAQ listing" width="48%" />
+  <img src="./public/readme/login.png" alt="Login page" width="48%" />
+</p>
+
 ## Tính năng hiện có
 
 - Đăng nhập nội bộ bằng `email/password` và session `HttpOnly cookie`
@@ -98,6 +111,7 @@ npm run dev
 npm run build
 npm run start
 npm run lint
+npm run docs:screenshots
 npm run db:generate
 npm run db:push
 npm run db:migrate
