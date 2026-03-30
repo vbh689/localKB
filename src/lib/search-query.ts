@@ -297,9 +297,8 @@ export async function searchPublishedContent(
     const result = await index.search(query, {
       attributesToHighlight: ["title", "summary", "highlight"],
       filter: filterExpressions.length > 0 ? filterExpressions.join(" AND ") : undefined,
+      page: safePage,
       hitsPerPage: safePageSize,
-      limit: safePageSize,
-      offset: (safePage - 1) * safePageSize,
       showMatchesPosition: false,
     });
 
