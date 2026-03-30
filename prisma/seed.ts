@@ -327,8 +327,17 @@ async function main() {
     `Seeded ${articleSeeds.length} articles, ${faqSeeds.length} FAQs and ${categories.length} categories.`,
   );
 
-  await syncAllPublishedContent();
-  console.log("Synced published content to Meilisearch.");
+  try {
+    await syncAllPublishedContent();
+    console.log("Synced published content to Meilisearch.");
+  } catch (error) {
+    console.warn(
+      `Skipped Meilisearch sync. Make sure Meilisearch is running at ${
+        process.env.MEILISEARCH_URL ?? "http://localhost:7702"
+      } and rerun npm run search:reindex once it is ready.`,
+    );
+    console.warn(error);
+  }
 }
 
 main()
