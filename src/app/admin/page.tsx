@@ -151,7 +151,11 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
     <div className="space-y-6">
       <FormNotice feedback={feedback} />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <section
+        className={`grid gap-4 md:grid-cols-2 ${
+          cards.length === 5 ? "xl:grid-cols-5" : "xl:grid-cols-4"
+        }`}
+      >
         {cards.map((card) => (
           <Link
             key={card.label}
@@ -337,7 +341,7 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                   Trend range
                 </p>
                 <p className="mt-2 text-sm text-muted">
-                  Chọn khoảng ngày để cập nhật biểu đồ, phần tóm tắt và file export.
+                  Chọn khoảng ngày để cập nhật biểu đồ
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
