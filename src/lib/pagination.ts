@@ -1,5 +1,7 @@
 export const PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
 export const DEFAULT_PAGE_SIZE = PAGE_SIZE_OPTIONS[0];
+export const SEARCH_PAGE_SIZE_OPTIONS = [10, 25, 50] as const;
+export const DEFAULT_SEARCH_PAGE_SIZE = SEARCH_PAGE_SIZE_OPTIONS[0];
 
 export type SearchValue = string | string[] | undefined;
 
@@ -7,14 +9,17 @@ export function getFirstSearchParam(value: SearchValue) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-export function getPageSize(value: SearchValue) {
+export function getPageSize(
+  value: SearchValue,
+  pageSizeOptions: readonly number[] = PAGE_SIZE_OPTIONS,
+) {
   const limit = Number.parseInt(
-    getFirstSearchParam(value) ?? String(DEFAULT_PAGE_SIZE),
+    getFirstSearchParam(value) ?? String(pageSizeOptions[0] ?? DEFAULT_PAGE_SIZE),
     10,
   );
 
-  if (!PAGE_SIZE_OPTIONS.includes(limit as (typeof PAGE_SIZE_OPTIONS)[number])) {
-    return DEFAULT_PAGE_SIZE;
+  if (!pageSizeOptions.includes(limit)) {
+    return pageSizeOptions[0] ?? DEFAULT_PAGE_SIZE;
   }
 
   return limit;
