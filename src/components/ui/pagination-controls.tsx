@@ -4,6 +4,7 @@ type Props = {
   basePath: string;
   currentPage: number;
   pageSize: number;
+  pageSizeOptions?: readonly number[];
   searchParams: Record<string, SearchValue>;
   totalItems: number;
 };
@@ -46,6 +47,7 @@ export function PaginationControls({
   basePath,
   currentPage,
   pageSize,
+  pageSizeOptions = PAGE_SIZE_OPTIONS,
   searchParams,
   totalItems,
 }: Props) {
@@ -86,7 +88,7 @@ export function PaginationControls({
             defaultValue={String(pageSize)}
             className="rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-accent-strong outline-none focus:border-accent"
           >
-            {PAGE_SIZE_OPTIONS.map((option) => (
+            {pageSizeOptions.map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>

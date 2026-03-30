@@ -1,32 +1,55 @@
 import Link from "next/link";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 import { db } from "@/lib/db";
 import { areTagsEnabled } from "@/lib/features";
+import {
+  getCurrentPage,
+  getFirstSearchParam,
+  getPageSize,
+  SEARCH_PAGE_SIZE_OPTIONS,
+  type SearchValue,
+} from "@/lib/pagination";
 import { searchPublishedContent } from "@/lib/search-query";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
   searchParams: Promise<{
-    category?: string;
-    q?: string;
-    tag?: string;
-    type?: string;
+    category?: SearchValue;
+    limit?: SearchValue;
+    page?: SearchValue;
+    q?: SearchValue;
+    tag?: SearchValue;
+    type?: SearchValue;
   }>;
 };
 
 export default async function SearchPage({ searchParams }: Props) {
-  const { category = "", q = "", tag = "", type = "" } = await searchParams;
+  const resolvedSearchParams = await searchParams;
+  const category = getFirstSearchParam(resolvedSearchParams.category)?.trim() ?? "";
+  const q = getFirstSearchParam(resolvedSearchParams.q)?.trim() ?? "";
+  const tag = getFirstSearchParam(resolvedSearchParams.tag)?.trim() ?? "";
+  const type = getFirstSearchParam(resolvedSearchParams.type)?.trim() ?? "";
+  const currentPage = getCurrentPage(resolvedSearchParams.page);
+  const pageSize = getPageSize(resolvedSearchParams.limit, SEARCH_PAGE_SIZE_OPTIONS);
+
   const [categories, tags] = await Promise.all([
     db.category.findMany({ orderBy: [{ name: "asc" }] }),
     areTagsEnabled
       ? db.tag.findMany({ orderBy: [{ name: "asc" }] })
       : Promise.resolve([]),
   ]);
-  const payload = await searchPublishedContent(q, 10, {
-    category: category || null,
-    tag: areTagsEnabled ? tag || null : null,
-    type: type === "article" || type === "faq" ? type : null,
-  });
+
+  const payload = await searchPublishedContent(
+    q,
+    pageSize,
+    {
+      category: category || null,
+      tag: areTagsEnabled ? tag || null : null,
+      type: type === "article" || type === "faq" ? type : null,
+    },
+    currentPage,
+  );
 
   return (
     <main className="section-grid min-h-screen px-6 py-8 md:px-10 xl:px-14">
@@ -46,13 +69,7 @@ export default async function SearchPage({ searchParams }: Props) {
         </div>
 
         <form className="glass-panel rounded-[1.6rem] p-5 md:p-6">
-          <div
-            className={`grid gap-3 ${
-              areTagsEnabled
-                ? "lg:grid-cols-[0.7fr_0.8fr_0.8fr_1fr_auto]"
-                : "lg:grid-cols-[0.7fr_0.8fr_1fr_auto]"
-            }`}
-          >
+          <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-[0.65fr_0.8fr_0.8fr_0.75fr_1fr_auto]">
             <select
               name="type"
               defaultValue={type}
@@ -88,6 +105,17 @@ export default async function SearchPage({ searchParams }: Props) {
                 ))}
               </select>
             ) : null}
+            <select
+              name="limit"
+              defaultValue={String(pageSize)}
+              className="w-full rounded-2xl border border-line bg-white px-5 py-4 text-base outline-none focus:border-accent"
+            >
+              {SEARCH_PAGE_SIZE_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option} kết quả / trang
+                </option>
+              ))}
+            </select>
             <input
               type="text"
               name="q"
@@ -112,12 +140,24 @@ export default async function SearchPage({ searchParams }: Props) {
           </div>
         </form>
 
+        <PaginationControls
+          basePath="/search"
+          currentPage={currentPage}
+          pageSize={pageSize}
+          pageSizeOptions={SEARCH_PAGE_SIZE_OPTIONS}
+          searchParams={resolvedSearchParams}
+          totalItems={payload.totalCount}
+        />
+
         {payload.results.length === 0 ? (
           <div className="glass-panel rounded-[1.8rem] p-6 text-muted">
             Không tìm thấy nội dung phù hợp. Thử từ khóa khác hoặc bỏ bớt ký tự.
           </div>
         ) : (
           <div className="grid gap-4">
+            <p className="text-sm text-muted">
+              Hiển thị {payload.results.length} / {payload.totalCount} kết quả.
+            </p>
             {payload.results.map((item) => {
               const href = item.type === "article" ? `/kb/${item.slug}` : `/faq/${item.slug}`;
 

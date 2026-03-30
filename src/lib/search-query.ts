@@ -17,8 +17,12 @@ export type SearchItem = {
 };
 
 export type SearchPayload = {
+  page: number;
+  pageSize: number;
   query: string;
   results: SearchItem[];
+  totalCount: number;
+  totalPages: number;
   totalByType: {
     article: number;
     faq: number;
@@ -63,10 +67,18 @@ function buildFallbackWhere(filters: SearchFilters) {
   };
 }
 
-function createEmptyPayload(query: string): SearchPayload {
+function createEmptyPayload(
+  query: string,
+  page: number,
+  pageSize: number,
+): SearchPayload {
   return {
+    page,
+    pageSize,
     query,
     results: [],
+    totalCount: 0,
+    totalPages: 0,
     totalByType: {
       article: 0,
       faq: 0,
@@ -76,11 +88,14 @@ function createEmptyPayload(query: string): SearchPayload {
 
 async function searchPublishedContentFallback(
   query: string,
-  limitPerType: number,
+  pageSize: number,
+  page: number,
   filters: SearchFilters,
 ): Promise<SearchPayload> {
   const typeFilter = filters.type ?? null;
   const baseWhere = buildFallbackWhere(filters);
+  const safePage = Math.max(1, page);
+  const offset = (safePage - 1) * pageSize;
 
   const articleWhere: Prisma.ArticleWhereInput | null =
     typeFilter === "faq"
@@ -138,8 +153,35 @@ async function searchPublishedContentFallback(
             : {}),
         };
 
+  const [articleCount, faqCount] = await Promise.all([
+    articleWhere ? db.article.count({ where: articleWhere }) : Promise.resolve(0),
+    faqWhere ? db.faq.count({ where: faqWhere }) : Promise.resolve(0),
+  ]);
+
+  const totalCount = articleCount + faqCount;
+
+  if (totalCount === 0) {
+    return {
+      page: safePage,
+      pageSize,
+      query,
+      results: [],
+      totalCount,
+      totalPages: 0,
+      totalByType: {
+        article: articleCount,
+        faq: faqCount,
+      },
+    };
+  }
+
+  const articleSkip = offset < articleCount ? offset : articleCount;
+  const articlesToTake = Math.max(0, Math.min(pageSize, articleCount - articleSkip));
+  const faqSkip = offset < articleCount ? 0 : offset - articleCount;
+  const faqsToTake = Math.max(0, pageSize - articlesToTake);
+
   const [articles, faqs] = await Promise.all([
-    articleWhere
+    articleWhere && articlesToTake > 0
       ? db.article.findMany({
           where: articleWhere,
           include: {
@@ -147,10 +189,11 @@ async function searchPublishedContentFallback(
             tags: true,
           },
           orderBy: [{ updatedAt: "desc" }],
-          take: limitPerType,
+          skip: articleSkip,
+          take: articlesToTake,
         })
       : Promise.resolve([]),
-    faqWhere
+    faqWhere && faqsToTake > 0
       ? db.faq.findMany({
           where: faqWhere,
           include: {
@@ -158,7 +201,8 @@ async function searchPublishedContentFallback(
             tags: true,
           },
           orderBy: [{ updatedAt: "desc" }],
-          take: limitPerType,
+          skip: faqSkip,
+          take: faqsToTake,
         })
       : Promise.resolve([]),
   ]);
@@ -184,30 +228,37 @@ async function searchPublishedContentFallback(
   }));
 
   return {
+    page: safePage,
+    pageSize,
     query,
     results: [...articleResults, ...faqResults],
+    totalCount,
+    totalPages: Math.ceil(totalCount / pageSize),
     totalByType: {
-      article: articleResults.length,
-      faq: faqResults.length,
+      article: articleCount,
+      faq: faqCount,
     },
   };
 }
 
 export async function searchPublishedContent(
   rawQuery: string,
-  limitPerType = 5,
+  pageSize = 10,
   filters: SearchFilters = {},
+  page = 1,
 ): Promise<SearchPayload> {
   const query = rawQuery.trim();
+  const safePageSize = Math.max(1, pageSize);
+  const safePage = Math.max(1, page);
   const hasFilters =
     Boolean(filters.type) || Boolean(filters.category?.trim()) || Boolean(filters.tag?.trim());
 
   if (query.length < 2 && !hasFilters) {
-    return createEmptyPayload(query);
+    return createEmptyPayload(query, safePage, safePageSize);
   }
 
   if (query.length < 2 && hasFilters) {
-    return searchPublishedContentFallback(query, limitPerType, filters);
+    return searchPublishedContentFallback(query, safePageSize, safePage, filters);
   }
 
   let payload: SearchPayload;
@@ -246,8 +297,9 @@ export async function searchPublishedContent(
     const result = await index.search(query, {
       attributesToHighlight: ["title", "summary", "highlight"],
       filter: filterExpressions.length > 0 ? filterExpressions.join(" AND ") : undefined,
-      hitsPerPage: limitPerType * 2,
-      limit: limitPerType * 2,
+      hitsPerPage: safePageSize,
+      limit: safePageSize,
+      offset: (safePage - 1) * safePageSize,
       showMatchesPosition: false,
     });
 
@@ -262,9 +314,20 @@ export async function searchPublishedContent(
       type: item.type,
     }));
 
+    const totalCount =
+      ("estimatedTotalHits" in result && typeof result.estimatedTotalHits === "number"
+        ? result.estimatedTotalHits
+        : "totalHits" in result && typeof result.totalHits === "number"
+          ? result.totalHits
+          : results.length);
+
     payload = {
+      page: safePage,
+      pageSize: safePageSize,
       query,
       results,
+      totalCount,
+      totalPages: Math.ceil(totalCount / safePageSize),
       totalByType: {
         article: results.filter((item) => item.type === "article").length,
         faq: results.filter((item) => item.type === "faq").length,
@@ -275,7 +338,7 @@ export async function searchPublishedContent(
       filters,
       query,
     });
-    payload = await searchPublishedContentFallback(query, limitPerType, filters);
+    payload = await searchPublishedContentFallback(query, safePageSize, safePage, filters);
   }
 
   await db.searchLog.create({
