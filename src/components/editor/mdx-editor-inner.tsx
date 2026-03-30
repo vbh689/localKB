@@ -9,6 +9,7 @@ import {
   CreateLink,
   diffSourcePlugin,
   DiffSourceToggleWrapper,
+  defaultSvgIcons,
   headingsPlugin,
   imagePlugin,
   InsertImage,
@@ -16,9 +17,10 @@ import {
   InsertThematicBreak,
   linkPlugin,
   listsPlugin,
-  ListsToggle,
   markdownShortcutPlugin,
   MDXEditor,
+  applyListType$,
+  currentListType$,
   type MDXEditorMethods,
   quotePlugin,
   Separator,
@@ -27,7 +29,48 @@ import {
   toolbarPlugin,
   UndoRedo,
 } from "@mdxeditor/editor";
+import { useCellValue, usePublisher } from "@mdxeditor/gurx";
 import type { RefObject } from "react";
+
+function ListTypeButtons() {
+  const currentListType = useCellValue(currentListType$);
+  const applyListType = usePublisher(applyListType$);
+
+  return (
+    <div className="localkb-editor__list-buttons" aria-label="List formatting">
+      <button
+        type="button"
+        aria-label="Bulleted list"
+        aria-pressed={currentListType === "bullet"}
+        className="localkb-editor__list-button"
+        data-active={currentListType === "bullet" ? "true" : "false"}
+        onMouseDown={(event) => {
+          event.preventDefault();
+        }}
+        onClick={() => {
+          applyListType(currentListType === "bullet" ? "" : "bullet");
+        }}
+      >
+        <span className="localkb-editor__list-icon">{defaultSvgIcons.format_list_bulleted}</span>
+      </button>
+      <button
+        type="button"
+        aria-label="Numbered list"
+        aria-pressed={currentListType === "number"}
+        className="localkb-editor__list-button"
+        data-active={currentListType === "number" ? "true" : "false"}
+        onMouseDown={(event) => {
+          event.preventDefault();
+        }}
+        onClick={() => {
+          applyListType(currentListType === "number" ? "" : "number");
+        }}
+      >
+        <span className="localkb-editor__list-icon">{defaultSvgIcons.format_list_numbered}</span>
+      </button>
+    </div>
+  );
+}
 
 type Props = {
   editorRef: RefObject<MDXEditorMethods | null>;
@@ -158,7 +201,7 @@ export function MdxEditorInner({
               <BoldItalicUnderlineToggles />
               <CodeToggle />
               <Separator />
-              <ListsToggle />
+              <ListTypeButtons />
               <CreateLink />
               <InsertImage />
               <InsertTable />

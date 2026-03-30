@@ -139,11 +139,73 @@ summary:focus-visible,
   margin-bottom: 0.75rem;
 }
 
+.localkb-editor__list-buttons {
+  display: inline-flex;
+  align-items: center;
+}
+
+.localkb-editor__list-button {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.4rem;
+  background-color: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.3rem;
+}
+
+.localkb-editor__list-button:hover {
+  background: rgba(138, 90, 34, 0.08);
+}
+
+.localkb-editor__list-button[data-active="true"] {
+  background: rgba(138, 90, 34, 0.14);
+  color: var(--accent-strong);
+}
+
+.localkb-editor__list-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.localkb-editor__list-icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
 .localkb-editor__content {
   border: 1px solid var(--line);
   border-radius: 1.25rem;
   min-height: 20rem;
   padding: 1rem 1rem 1.25rem;
+}
+
+.localkb-editor__content ul,
+.localkb-editor__content ol {
+  margin: 1rem 0;
+  padding-inline-start: 1.5rem;
+}
+
+.localkb-editor__content ul {
+  list-style: disc;
+}
+
+.localkb-editor__content ol {
+  list-style: decimal;
+}
+
+.localkb-editor__content li {
+  margin: 0.3rem 0;
+}
+
+.localkb-editor__content li > ul,
+.localkb-editor__content li > ol {
+  margin: 0.4rem 0 0;
 }
 
 .localkb-editor .cm-editor {
