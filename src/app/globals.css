@@ -185,6 +185,45 @@ summary:focus-visible,
   padding: 1rem 1rem 1.25rem;
 }
 
+.localkb-editor__content h1,
+.localkb-editor__content h2,
+.localkb-editor__content h3,
+.localkb-editor__content h4,
+.localkb-editor__content h5,
+.localkb-editor__content h6 {
+  color: var(--accent-strong);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 1.1rem 0 0.55rem;
+}
+
+.localkb-editor__content h1 {
+  font-size: 2rem;
+}
+
+.localkb-editor__content h2 {
+  font-size: 1.6rem;
+}
+
+.localkb-editor__content h3 {
+  font-size: 1.35rem;
+}
+
+.localkb-editor__content h4 {
+  font-size: 1.2rem;
+}
+
+.localkb-editor__content h5 {
+  font-size: 1.05rem;
+}
+
+.localkb-editor__content h6 {
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
 .localkb-editor__content ul,
 .localkb-editor__content ol {
   margin: 1rem 0;

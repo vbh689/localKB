@@ -112,7 +112,9 @@ export function MdxEditorInner({
       spellCheck
       suppressHtmlProcessing
       plugins={[
-        headingsPlugin(),
+        headingsPlugin({
+          allowedHeadingLevels: [1, 2],
+        }),
         listsPlugin(),
         quotePlugin(),
         linkPlugin(),
