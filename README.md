@@ -121,30 +121,57 @@ npm run db:seed
 npm run db:studio
 ```
 
-## Route chính
+## Route hiện có
 
-- `/` homepage và instant search
-- `/login` đăng nhập
-- `/search?q=` trang kết quả tìm kiếm
-- `/kb` danh sách article
-- `/kb/[slug]` trang article
-- `/faq` danh sách FAQ
-- `/faq/[slug]` chi tiết FAQ
-- `/admin` dashboard quản trị
-- `/admin/articles`
-- `/admin/faqs`
-- `/admin/categories`
-- `/admin/tags`
-- `/admin/users`
-- `/admin/search-logs`
-- `/account/password`
+### Public routes
 
-## API route
+- `/` homepage, quick stats, bài viết mới, FAQ mới và `instant search`
+- `/login` trang đăng nhập nội bộ
+- `/account/password` đổi mật khẩu cho user đã đăng nhập
+- `/search?q=&type=&category=&tag=` trang kết quả tìm kiếm public, hỗ trợ lọc theo loại nội dung, category và tag
+- `/kb?page=&limit=&sort=&category=&from=&to=` danh sách article đã publish, có phân trang, sắp xếp và lọc theo category / ngày cập nhật
+- `/kb/[slug]` trang chi tiết article đã publish
+- `/faq?page=&limit=&sort=&category=&from=&to=` danh sách FAQ đã publish, có phân trang, sắp xếp và lọc theo category / ngày cập nhật
+- `/faq/[slug]` trang chi tiết FAQ đã publish
 
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `GET /api/auth/me`
-- `GET /api/search?q=`
+### Admin routes
+
+- `/admin` dashboard quản trị, thống kê usage, health check, top queries, recent content, export stats CSV và trigger reindex search
+- `/admin/articles` quản lý article: tạo mới, lọc, sửa, publish / unpublish, revision history, compare preview và restore revision
+- `/admin/faqs` quản lý FAQ: tạo mới, lọc, sửa, publish / unpublish, revision history, compare preview và restore revision
+- `/admin/categories` quản lý category
+- `/admin/tags` quản lý tag, chỉ hiển thị khi tính năng tag được bật
+- `/admin/users` quản lý user nội bộ, role, trạng thái và mật khẩu
+- `/admin/media` media library, upload ảnh và lấy Markdown embed cho editor
+- `/admin/search-logs` xem search logs, lọc no-result, phân trang và export CSV
+
+### Upload/file routes
+
+- `/uploads/[...segments]` route handler phục vụ file ảnh đã upload với cache header dài hạn
+
+## API route hiện có
+
+### Auth API
+
+- `POST /api/auth/login` đăng nhập bằng JSON payload `{ "email": string, "password": string }`, tạo session `HttpOnly cookie`
+- `POST /api/auth/logout` xóa session hiện tại và clear cookie
+- `GET /api/auth/me` lấy thông tin user từ session hiện tại
+
+### Public API
+
+- `GET /api/search?q=&limit=&type=&category=&tag=` tìm kiếm nội dung đã publish, giới hạn tối đa `10` kết quả
+- `GET /api/health` kiểm tra tình trạng hệ thống và trả về HTTP `200` hoặc `503`
+
+### Admin API
+
+- `POST /api/admin/uploads` upload ảnh cho CMS/editor bằng `multipart/form-data`, trả về `url` và Markdown image snippet
+- `GET /api/admin/stats/export?days=` export CSV thống kê search và publish trend theo số ngày đã chọn trên dashboard admin
+- `GET /api/admin/search-logs/export?q=&resultFilter=&sort=` export CSV search logs theo bộ lọc hiện tại
+
+### Ghi chú phân quyền
+
+- Nhóm route `/admin/*` và API admin yêu cầu đăng nhập với role `ADMIN` hoặc `EDITOR`, ngoại trừ `/admin/users` chỉ cho `ADMIN`
+- Các route public chỉ hiển thị nội dung có trạng thái `PUBLISHED`
 
 ## Docker services
 
