@@ -200,7 +200,7 @@ async function main() {
   const email = (process.env.SEED_ADMIN_EMAIL ?? "admin@localkb.internal")
     .trim()
     .toLowerCase();
-  const password = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe123!";
+  const password = process.env.SEED_ADMIN_PASSWORD ?? "ChangeMe123";
 
   const passwordHash = await hashPassword(password);
 

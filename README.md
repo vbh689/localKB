@@ -82,7 +82,7 @@ App mặc định chạy tại [http://localhost:3000](http://localhost:3000).
 ## Tài khoản mặc định sau khi seed
 
 - Email: `admin@localkb.internal`
-- Password: `ChangeMe123!`
+- Password: `ChangeMe123`
 
 Giá trị này được đọc từ `.env`:
 
@@ -103,7 +103,7 @@ MEILISEARCH_URL="http://localhost:7702"
 MEILISEARCH_MASTER_KEY="localkb-master-key"
 
 SEED_ADMIN_EMAIL="admin@localkb.internal"
-SEED_ADMIN_PASSWORD="ChangeMe123!"
+SEED_ADMIN_PASSWORD="ChangeMe123"
 ```
 
 ## Scripts
