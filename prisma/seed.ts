@@ -22,7 +22,7 @@ const prisma = new PrismaClient({
   adapter,
 });
 
-const BASE_FAQ_PATH = path.join(process.cwd(), "prisma/data/base-faq.md");
+const BASE_FAQ_PATH = path.join(process.cwd(), "prisma/data/base-faq-2.md");
 
 type ParsedFaqSeed = {
   answer: string;
@@ -35,8 +35,47 @@ function stripMarkdown(value: string) {
     .replace(/\\-/g, "-")
     .replace(/\*\*(.+?)\*\*/g, "$1")
     .replace(/\*(.+?)\*/g, "$1")
+    .replace(/^#+\s*/g, "")
+    .replace(/^>\s*/g, "")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function parseQuestionLine(content: string) {
+  const normalizedContent = content.trim();
+  const boldWithArrowAnswerMatch = /^\*\*(.+?)\*\*\s*[.:]\s*(.+)$/.exec(
+    normalizedContent,
+  );
+  const boldWithParenMatch = /^\*\*(.+?)\*\*\s*\((.+)\)\.?$/.exec(
+    normalizedContent,
+  );
+  const boldOnlyMatch = /^\*\*(.+?)\*\*\.?$/.exec(normalizedContent);
+
+  if (boldWithArrowAnswerMatch) {
+    return {
+      answerParts: [stripMarkdown(boldWithArrowAnswerMatch[2])],
+      question: stripMarkdown(boldWithArrowAnswerMatch[1]).replace(/:$/, ""),
+    };
+  }
+
+  if (boldWithParenMatch) {
+    return {
+      answerParts: [stripMarkdown(boldWithParenMatch[2])],
+      question: stripMarkdown(boldWithParenMatch[1]).replace(/:$/, ""),
+    };
+  }
+
+  if (boldOnlyMatch) {
+    return {
+      answerParts: [] as string[],
+      question: stripMarkdown(boldOnlyMatch[1]).replace(/:$/, ""),
+    };
+  }
+
+  return {
+    answerParts: [] as string[],
+    question: stripMarkdown(normalizedContent).replace(/:$/, ""),
+  };
 }
 
 function finalizeFaqSeed(
@@ -91,11 +130,20 @@ async function parseBaseFaqSeeds() {
       continue;
     }
 
-    const categoryMatch = /^\*\*Nhóm\s+\d+:\s*(.+?)\*\*$/i.exec(line);
+    if (line === "---") {
+      continue;
+    }
+
+    const categoryMatch =
+      /^(?:##\s+)?(?:\*\*)?Nhóm\s+\d+:\s*(.+?)(?:\*\*)?$/i.exec(line);
 
     if (categoryMatch) {
       flushCurrent();
       currentCategory = stripMarkdown(categoryMatch[1]);
+      continue;
+    }
+
+    if (/^###\s+/.test(line) || /^>\s*/.test(line) || /^#\s+/.test(line)) {
       continue;
     }
 
@@ -110,38 +158,33 @@ async function parseBaseFaqSeeds() {
       }
 
       flushCurrent();
-
-      const boldWithParenMatch = /^\*\*(.+?)\*\*\s*\((.+)\)\.?$/.exec(content);
-      const boldWithColonMatch = /^\*\*(.+?)\*\*:\s*(.+)$/.exec(content);
-      const boldOnlyMatch = /^\*\*(.+?)\*\*\.?$/.exec(content);
-
-      if (boldWithParenMatch) {
-        currentQuestion = stripMarkdown(boldWithParenMatch[1]).replace(/:$/, "");
-        currentAnswerParts = [boldWithParenMatch[2]];
-        continue;
-      }
-
-      if (boldWithColonMatch) {
-        currentQuestion = stripMarkdown(boldWithColonMatch[1]).replace(/:$/, "");
-        currentAnswerParts = [boldWithColonMatch[2]];
-        continue;
-      }
-
-      if (boldOnlyMatch) {
-        currentQuestion = stripMarkdown(boldOnlyMatch[1]).replace(/:$/, "");
-        currentAnswerParts = [];
-        continue;
-      }
-
-      currentQuestion = stripMarkdown(content).replace(/:$/, "");
-      currentAnswerParts = [];
+      const parsedQuestion = parseQuestionLine(content);
+      currentQuestion = parsedQuestion.question;
+      currentAnswerParts = parsedQuestion.answerParts;
       continue;
     }
 
-    const bulletMatch = /^\*\s+(.*)$/.exec(line);
+    const questionBulletMatch = /^[-*]\s+(\*\*.+)$/.exec(line);
 
-    if (bulletMatch && currentQuestion) {
-      const bulletContent = stripMarkdown(bulletMatch[1]);
+    if (questionBulletMatch) {
+      flushCurrent();
+      const parsedQuestion = parseQuestionLine(questionBulletMatch[1]);
+      currentQuestion = parsedQuestion.question;
+      currentAnswerParts = parsedQuestion.answerParts;
+      continue;
+    }
+
+    const arrowAnswerMatch = /^→\s*(.+)$/.exec(line);
+
+    if (arrowAnswerMatch && currentQuestion) {
+      currentAnswerParts.push(stripMarkdown(arrowAnswerMatch[1]));
+      continue;
+    }
+
+    const bulletAnswerMatch = /^[-*]\s+(.*)$/.exec(line);
+
+    if (bulletAnswerMatch && currentQuestion) {
+      const bulletContent = stripMarkdown(bulletAnswerMatch[1]);
 
       if (bulletContent) {
         currentAnswerParts.push(bulletContent);
@@ -231,6 +274,13 @@ async function main() {
       tagSlugs: ["repository", "policy"],
       title: "Quy chuẩn đặt tên dự án và repository",
     },
+    ...Array.from({ length: 20 }, (_, index) => ({
+      body: "Lorem ipsum",
+      categorySlug:
+        index % 3 === 0 ? "hr" : index % 3 === 1 ? "it-support" : "engineering",
+      tagSlugs: [] as string[],
+      title: `Lorem ipsum article ${index + 1}`,
+    })),
   ];
 
   for (const article of articleSeeds) {
