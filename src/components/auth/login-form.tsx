@@ -62,13 +62,13 @@ export function LoginForm() {
     >
       <div className="space-y-2">
         <p className="font-mono text-base uppercase tracking-[0.18em] text-accent-strong">
-          Đăng nhập nội bộ
+          Đăng nhập
         </p>
         <h2 className="text-[2.2rem] font-semibold tracking-tight md:text-[2.5rem]">
-          Truy cập LocalKB
+          Truy cập vào trang quản trị
         </h2>
         <p className="max-w-xl text-base leading-8 text-muted">
-          Sử dụng tài khoản công ty để tiếp tục.
+          Sử dụng tài khoản được cấp để đăng nhập.
         </p>
       </div>
 

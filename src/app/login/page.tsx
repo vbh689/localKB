@@ -23,17 +23,16 @@ export default async function LoginPage() {
               Đăng nhập vào LocalKB
             </h1>
             <p className="text-xl leading-9 text-muted">
-              Truy cập kho tài liệu nội bộ, câu hỏi thường gặp và quy trình vận hành
-              từ một điểm vào duy nhất dành cho nhân sự trong công ty.
+              Đăng nhập trang quản lý tài liệu nội bộ, câu hỏi thường gặp và quy trình vận hành.
             </p>
           </div>
 
           <div className="space-y-3 text-base leading-8 text-muted">
-            <p>Chỉ tài khoản nội bộ được cấp bởi admin mới có thể truy cập hệ thống.</p>
+            {/* <p>Chỉ tài khoản nội bộ được cấp bởi admin mới có thể truy cập hệ thống.</p>
             <p>
               Sau khi đăng nhập, bạn có thể tìm kiếm wiki, FAQ và các tài liệu đang
               được xuất bản ngay trên homepage.
-            </p>
+            </p> */}
           </div>
 
           <Link
