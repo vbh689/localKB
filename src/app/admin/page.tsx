@@ -151,7 +151,11 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
     <div className="space-y-6">
       <FormNotice feedback={feedback} />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+      <section
+        className={`grid gap-4 md:grid-cols-2 ${
+          cards.length === 5 ? "xl:grid-cols-5" : "xl:grid-cols-4"
+        }`}
+      >
         {cards.map((card) => (
           <Link
             key={card.label}
@@ -269,6 +273,128 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
             </div>
         </div>
 
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+        <div className="xl:col-span-2">
+          <form className="glass-panel rounded-[1.8rem] p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+                  Trend range
+                </p>
+                <p className="mt-2 text-sm text-muted">
+                  Chọn khoảng ngày để cập nhật biểu đồ
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  name="days"
+                  defaultValue={String(selectedDays)}
+                  className="rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
+                >
+                  <option value="7">7 ngày</option>
+                  <option value="14">14 ngày</option>
+                  <option value="30">30 ngày</option>
+                  <option value="90">90 ngày</option>
+                </select>
+                <button
+                  type="submit"
+                  className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
+                >
+                  Cập nhật
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <TrendChart
+          title={`Search trend ${selectedDays} ngày`}
+          description="Lượng tìm kiếm và số truy vấn không có kết quả theo từng ngày."
+          series={[
+            {
+              color: "#c46a2f",
+              name: "Searches",
+              points: searchTrendSelected.map((item) => ({
+                label: formatShortDate(new Date(item.day)),
+                value: item.total,
+              })),
+            },
+            {
+              color: "#d97706",
+              name: "No-result",
+              points: searchTrendSelected.map((item) => ({
+                label: formatShortDate(new Date(item.day)),
+                value: item.no_result,
+              })),
+            },
+          ]}
+        />
+
+        <div className="grid gap-6">
+          <div className="glass-panel rounded-[1.8rem] p-6">
+            <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
+              Range summary
+            </p>
+            <div className="mt-5 grid gap-4">
+              <Link
+                href="/admin/search-logs"
+                className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+              >
+                <p className="text-sm text-muted">
+                  Searches vs {selectedDays} ngày trước
+                </p>
+                <p className="mt-2 text-3xl font-semibold">{currentSearchRange}</p>
+                <p className="mt-1 text-sm text-muted">
+                  {getTrendDelta(currentSearchRange, previousSearchRange)}
+                </p>
+              </Link>
+              <Link
+                href="/admin/search-logs?resultFilter=no_result"
+                className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+              >
+                <p className="text-sm text-muted">
+                  No-result vs {selectedDays} ngày trước
+                </p>
+                <p className="mt-2 text-3xl font-semibold">{currentNoResultRange}</p>
+                <p className="mt-1 text-sm text-muted">
+                  {getTrendDelta(currentNoResultRange, previousNoResultRange)}
+                </p>
+              </Link>
+              <Link
+                href={`/admin/articles?status=${ContentStatus.PUBLISHED}`}
+                className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
+              >
+                <p className="text-sm text-muted">
+                  Published content / {selectedDays} ngày
+                </p>
+                <p className="mt-2 text-3xl font-semibold">{currentPublishedRange}</p>
+                <p className="mt-1 text-sm text-muted">
+                  Tổng article và FAQ được xuất bản trong khoảng đã chọn.
+                </p>
+              </Link>
+            </div>
+          </div>
+
+          <TrendChart
+            title={`Publishing trend ${selectedDays} ngày`}
+            description="Số article và FAQ được xuất bản theo từng ngày."
+            series={[
+              {
+                color: "#0f766e",
+                name: "Published",
+                points: publishTrendSelected.map((item) => ({
+                  label: formatShortDate(new Date(item.day)),
+                  value: item.published,
+                })),
+              },
+            ]}
+          />
+        </div>
+      </section>
+
+      <section className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-[1.8rem] border border-line bg-white p-5 shadow-[0_12px_40px_rgba(23,27,32,0.06)]">
           <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
             Search index
@@ -325,133 +451,6 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
           <p className="mt-4 text-sm text-muted">
             Xem trực tiếp tại <Link href="/api/health" className="text-accent-strong">/api/health</Link>.
           </p>
-        </div>
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
-        <div className="xl:col-span-2">
-          <form className="glass-panel rounded-[1.8rem] p-5">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-                  Trend range
-                </p>
-                <p className="mt-2 text-sm text-muted">
-                  Chọn khoảng ngày để cập nhật biểu đồ, phần tóm tắt và file export.
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <select
-                  name="days"
-                  defaultValue={String(selectedDays)}
-                  className="rounded-2xl border border-line bg-white px-4 py-3 text-sm outline-none focus:border-accent"
-                >
-                  <option value="7">7 ngày</option>
-                  <option value="14">14 ngày</option>
-                  <option value="30">30 ngày</option>
-                  <option value="90">90 ngày</option>
-                </select>
-                <button
-                  type="submit"
-                  className="rounded-full bg-accent px-5 py-3 text-sm font-medium text-white"
-                >
-                  Cập nhật
-                </button>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        <TrendChart
-          title={`Search trend ${selectedDays} ngày`}
-          description="Lượng tìm kiếm và số truy vấn không có kết quả theo từng ngày."
-          series={[
-            {
-              color: "#c46a2f",
-              name: "Searches",
-              points: searchTrendSelected.map((item) => ({
-                label: formatShortDate(new Date(item.day)),
-                value: item.total,
-              })),
-            },
-            {
-              color: "#d97706",
-              name: "No-result",
-              points: searchTrendSelected.map((item) => ({
-                label: formatShortDate(new Date(item.day)),
-                value: item.no_result,
-              })),
-            },
-          ]}
-        />
-
-        <div className="grid gap-6">
-          <div className="glass-panel rounded-[1.8rem] p-6">
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
-                Range summary
-              </p>
-              <a
-                href={`/api/admin/stats/export?days=${selectedDays}`}
-                className="rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong"
-              >
-                Export CSV
-              </a>
-            </div>
-            <div className="mt-5 grid gap-4">
-              <Link
-                href="/admin/search-logs"
-                className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
-              >
-                <p className="text-sm text-muted">
-                  Searches vs {selectedDays} ngày trước
-                </p>
-                <p className="mt-2 text-3xl font-semibold">{currentSearchRange}</p>
-                <p className="mt-1 text-sm text-muted">
-                  {getTrendDelta(currentSearchRange, previousSearchRange)}
-                </p>
-              </Link>
-              <Link
-                href="/admin/search-logs?resultFilter=no_result"
-                className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
-              >
-                <p className="text-sm text-muted">
-                  No-result vs {selectedDays} ngày trước
-                </p>
-                <p className="mt-2 text-3xl font-semibold">{currentNoResultRange}</p>
-                <p className="mt-1 text-sm text-muted">
-                  {getTrendDelta(currentNoResultRange, previousNoResultRange)}
-                </p>
-              </Link>
-              <Link
-                href={`/admin/articles?status=${ContentStatus.PUBLISHED}`}
-                className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
-              >
-                <p className="text-sm text-muted">
-                  Published content / {selectedDays} ngày
-                </p>
-                <p className="mt-2 text-3xl font-semibold">{currentPublishedRange}</p>
-                <p className="mt-1 text-sm text-muted">
-                  Tổng article và FAQ được xuất bản trong khoảng đã chọn.
-                </p>
-              </Link>
-            </div>
-          </div>
-
-          <TrendChart
-            title={`Publishing trend ${selectedDays} ngày`}
-            description="Số article và FAQ được xuất bản theo từng ngày."
-            series={[
-              {
-                color: "#0f766e",
-                name: "Published",
-                points: publishTrendSelected.map((item) => ({
-                  label: formatShortDate(new Date(item.day)),
-                  value: item.published,
-                })),
-              },
-            ]}
-          />
         </div>
       </section>
     </div>

@@ -24,7 +24,7 @@ export default async function AdminLayout({
 
   return (
     <main className="section-grid min-h-screen px-6 py-8 md:px-10 xl:px-14">
-      <div className="mx-auto flex max-w-7xl flex-col gap-8">
+      <div className="mx-auto flex w-full max-w-[96rem] flex-col gap-8">
         <header className="glass-panel rounded-[2rem] px-6 py-5">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="space-y-2">

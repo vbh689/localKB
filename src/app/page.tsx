@@ -95,12 +95,12 @@ export default async function Home() {
         <section className="space-y-6">
           <div className="space-y-6">
             <div className="space-y-4">
-              <p className="font-mono text-base uppercase tracking-[0.22em] text-accent-strong">
+              {/* <p className="font-mono text-base uppercase tracking-[0.22em] text-accent-strong">
                 Knowledge Base tổng hợp
-              </p>
-              <h2 className="max-w-4xl text-4xl font-semibold leading-[1.04] tracking-tight md:text-6xl xl:text-[4.5rem]">
+              </p> */}
+              {/* <h2 className="max-w-4xl text-4xl font-semibold leading-[1.04] tracking-tight md:text-6xl xl:text-[4.5rem]">
                 Knowledge Base tổng hợp
-              </h2>
+              </h2> */}
               <p className="max-w-3xl text-xl leading-9 text-muted">
                 Tham khảo các Câu hỏi thường gặp (FAQ) và các bài viết hướng dẫn tại đây
               </p>
