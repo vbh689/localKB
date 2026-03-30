@@ -74,28 +74,7 @@ Giá trị này được đọc từ `.env`:
 - `SEED_ADMIN_EMAIL`
 - `SEED_ADMIN_PASSWORD`
 
-## Phân quyền tài khoản
-
-Ứng dụng hiện có 3 role tài khoản nội bộ:
-
-- `ADMIN`: có toàn quyền trong admin CMS, bao gồm quản lý nội dung và quản lý người dùng.
-- `EDITOR`: được vào admin CMS để quản lý nội dung, nhưng không được tạo hoặc sửa tài khoản người dùng.
-- `VIEWER`: không được vào admin CMS, chủ yếu dùng để đăng nhập và sử dụng tài khoản ở mức cơ bản.
-
-Phạm vi quyền hiện tại theo code:
-
-- `ADMIN` và `EDITOR` được vào khu vực `/admin`.
-- Chỉ `ADMIN` được vào `/admin/users` và thực hiện tạo / cập nhật user.
-- `VIEWER` không có quyền truy cập admin.
-- Cả `ADMIN`, `EDITOR`, `VIEWER` đều có thể đổi mật khẩu của chính mình tại `/account/password`.
-
-Một số ràng buộc an toàn khi quản lý user:
-
-- `ADMIN` không thể tự hạ quyền tài khoản đang đăng nhập khỏi `ADMIN`.
-- `ADMIN` không thể tự chuyển tài khoản đang đăng nhập sang `INACTIVE`.
-- Hệ thống không cho phép hạ quyền `admin` cuối cùng.
-
-## Biến môi trường
+## Biến .env
 
 Mẫu biến môi trường nằm trong [.env.example](./.env.example).
 
