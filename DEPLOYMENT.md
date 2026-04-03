@@ -17,6 +17,14 @@
    - `DATABASE_URL`
    - `MEILI_MASTER_KEY`
 
+   Với `MEILISEARCH_URL`, khi app và job chạy qua `docker compose` hãy dùng URL nội bộ giữa containers:
+
+   ```bash
+   MEILISEARCH_URL="http://meilisearch:7700"
+   ```
+
+   Không dùng `:7702` ở đây vì `7702` chỉ phù hợp cho truy cập từ host nếu bạn tự publish port ra ngoài.
+
 3. Tạo sẵn thư mục dữ liệu trên host:
 
    ```bash
