@@ -8,6 +8,7 @@ import {
 } from "generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirectWithFeedback } from "@/lib/feedback";
+import { removeEncodedSpaces } from "@/lib/content-cleaning";
 import { db } from "@/lib/db";
 import { requireRoles } from "@/lib/auth/session";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
@@ -694,7 +695,7 @@ export async function createArticle(formData: FormData) {
   const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
   const redirectTo = getRedirectTo(formData, "/admin/articles");
   const title = getString(formData, "title");
-  const body = getString(formData, "body");
+  const body = removeEncodedSpaces(getString(formData, "body"));
   const categoryId = getOptionalString(formData, "categoryId");
   const status = getStatus(getString(formData, "status"));
   const tagConnectInput = getTagConnectInput(formData);
@@ -846,7 +847,7 @@ export async function updateArticle(formData: FormData) {
   const redirectTo = getRedirectTo(formData, "/admin/articles");
   const id = getString(formData, "id");
   const title = getString(formData, "title");
-  const body = getString(formData, "body");
+  const body = removeEncodedSpaces(getString(formData, "body"));
   const categoryId = getOptionalString(formData, "categoryId");
   const status = getStatus(getString(formData, "status"));
   const tagSetInput = getTagSetInput(formData);
@@ -1054,7 +1055,7 @@ export async function createFaq(formData: FormData) {
   const session = await requireRoles([Role.ADMIN, Role.EDITOR]);
   const redirectTo = getRedirectTo(formData, "/admin/faqs");
   const question = getString(formData, "question");
-  const answer = getString(formData, "answer");
+  const answer = removeEncodedSpaces(getString(formData, "answer"));
   const categoryId = getOptionalString(formData, "categoryId");
   const status = getStatus(getString(formData, "status"));
   const tagConnectInput = getTagConnectInput(formData);
@@ -1207,7 +1208,7 @@ export async function updateFaq(formData: FormData) {
   const redirectTo = getRedirectTo(formData, "/admin/faqs");
   const id = getString(formData, "id");
   const question = getString(formData, "question");
-  const answer = getString(formData, "answer");
+  const answer = removeEncodedSpaces(getString(formData, "answer"));
   const categoryId = getOptionalString(formData, "categoryId");
   const status = getStatus(getString(formData, "status"));
   const tagSetInput = getTagSetInput(formData);

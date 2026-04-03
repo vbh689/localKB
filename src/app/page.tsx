@@ -2,8 +2,8 @@ import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { getCurrentSession } from "@/lib/auth/session";
 import { canAccessAdmin } from "@/lib/auth/user";
+import { createContentExcerpt, createTitlePreview } from "@/lib/content-preview";
 import { getFeaturedArticles, getHomepageCounts, getNewestFaqs } from "@/lib/content";
-import { createExcerpt } from "@/lib/utils";
 import { InstantSearch } from "@/components/search/instant-search";
 
 export const dynamic = "force-dynamic";
@@ -24,12 +24,12 @@ export default async function Home() {
 
   const featuredItems = newestFaqs.map((item) => ({
     category: item.category?.name ?? null,
-    highlight: item.answer,
+    highlight: createContentExcerpt(item.answer),
     id: item.id,
     slug: item.slug,
-    summary: createExcerpt(item.answer, 140),
+    summary: createContentExcerpt(item.answer),
     tags: item.tags.map((tag) => tag.name),
-    title: item.question,
+    title: createTitlePreview(item.question),
     type: "faq" as const,
   }));
 
@@ -132,14 +132,17 @@ export default async function Home() {
                   href={`/kb/${article.slug}`}
                   className="rounded-[1.6rem] border border-line bg-white/90 p-5 transition hover:-translate-y-0.5 hover:border-accent/30"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-[1.45rem] font-semibold tracking-tight">
-                      {article.title}
-                    </h3>
-                    <span className="text-base text-muted">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-right text-sm text-muted">
                       {article.category?.name ?? "Wiki"}
                     </span>
+                    <h3 className="text-[1.45rem] font-semibold tracking-tight">
+                      {createTitlePreview(article.title)}
+                    </h3>
                   </div>
+                  <p className="mt-3 text-base leading-8 text-muted">
+                    {createContentExcerpt(article.body)}
+                  </p>
                 </Link>
               ))}
             </div>
@@ -166,16 +169,16 @@ export default async function Home() {
                   href={`/faq/${faq.slug}`}
                   className="rounded-[1.6rem] border border-line bg-white/90 p-5 transition hover:-translate-y-0.5 hover:border-accent/30"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-[1.45rem] font-semibold tracking-tight">
-                      {faq.question}
-                    </h3>
-                    <span className="text-base text-muted">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-right text-sm text-muted">
                       {faq.category?.name ?? "FAQ"}
                     </span>
+                    <h3 className="text-[1.45rem] font-semibold tracking-tight">
+                      {createTitlePreview(faq.question)}
+                    </h3>
                   </div>
                   <p className="mt-3 text-base leading-8 text-muted">
-                    {createExcerpt(faq.answer, 180)}
+                    {createContentExcerpt(faq.answer)}
                   </p>
                 </Link>
               ))}

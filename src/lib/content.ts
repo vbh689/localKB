@@ -12,6 +12,7 @@ export type PublishedContentSort = (typeof PUBLISHED_CONTENT_SORT_OPTIONS)[numbe
 
 export type PublishedContentFilters = {
   categorySlug?: string | null;
+  query?: string | null;
   sort?: PublishedContentSort;
   updatedFrom?: Date | null;
   updatedTo?: Date | null;
@@ -52,6 +53,22 @@ function buildPublishedArticleWhere(filters: PublishedContentFilters = {}) {
           slug: filters.categorySlug,
         }
       : undefined,
+    OR: filters.query
+      ? [
+          {
+            title: {
+              contains: filters.query,
+              mode: "insensitive",
+            },
+          },
+          {
+            body: {
+              contains: filters.query,
+              mode: "insensitive",
+            },
+          },
+        ]
+      : undefined,
     status: ContentStatus.PUBLISHED,
     updatedAt: buildUpdatedAtFilter(filters),
   } satisfies Prisma.ArticleWhereInput;
@@ -63,6 +80,22 @@ function buildPublishedFaqWhere(filters: PublishedContentFilters = {}) {
       ? {
           slug: filters.categorySlug,
         }
+      : undefined,
+    OR: filters.query
+      ? [
+          {
+            question: {
+              contains: filters.query,
+              mode: "insensitive",
+            },
+          },
+          {
+            answer: {
+              contains: filters.query,
+              mode: "insensitive",
+            },
+          },
+        ]
       : undefined,
     status: ContentStatus.PUBLISHED,
     updatedAt: buildUpdatedAtFilter(filters),

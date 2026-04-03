@@ -1,6 +1,6 @@
 import { ContentStatus, Prisma } from "generated/prisma/client";
+import { createContentExcerpt, createTitlePreview } from "@/lib/content-preview";
 import { db } from "@/lib/db";
-import { createExcerpt } from "@/lib/utils";
 import { ensureSearchIndex } from "@/lib/search-index";
 import { searchClient } from "@/lib/search";
 import { logError } from "@/lib/logger";
@@ -209,21 +209,23 @@ async function searchPublishedContentFallback(
 
   const articleResults: SearchItem[] = articles.map((article) => ({
     category: article.category?.name ?? null,
+    highlight: createContentExcerpt(article.body),
     id: article.id,
     slug: article.slug,
+    summary: createContentExcerpt(article.body),
     tags: article.tags.map((tag) => tag.name),
-    title: article.title,
+    title: createTitlePreview(article.title),
     type: "article",
   }));
 
   const faqResults: SearchItem[] = faqs.map((faq) => ({
     category: faq.category?.name ?? null,
-    highlight: createExcerpt(faq.answer, 140),
+    highlight: createContentExcerpt(faq.answer),
     id: faq.id,
     slug: faq.slug,
-    summary: createExcerpt(faq.answer, 160),
+    summary: createContentExcerpt(faq.answer),
     tags: faq.tags.map((tag) => tag.name),
-    title: faq.question,
+    title: createTitlePreview(faq.question),
     type: "faq",
   }));
 
@@ -288,6 +290,7 @@ export async function searchPublishedContent(
       type: "article" | "faq";
       title: string;
       slug: string;
+      body?: string;
       summary?: string;
       highlight?: string;
       category: string | null;
@@ -304,12 +307,12 @@ export async function searchPublishedContent(
 
     const results: SearchItem[] = result.hits.map((item) => ({
       category: item.category,
-      highlight: item.highlight,
+      highlight: createContentExcerpt(item.highlight ?? item.summary ?? item.body),
       id: item.recordId,
       slug: item.slug,
-      summary: item.summary,
+      summary: createContentExcerpt(item.summary ?? item.highlight ?? item.body),
       tags: item.tags,
-      title: item.title,
+      title: createTitlePreview(item.title),
       type: item.type,
     }));
 

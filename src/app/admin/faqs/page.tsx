@@ -13,10 +13,11 @@ import {
   bulkUpdateFaqs,
   createFaq,
   deleteFaq,
-  restoreFaqRevision,
   updateFaq,
   updateFaqStatus,
 } from "@/app/admin/actions";
+// To re-enable revision restore UI later, add `restoreFaqRevision` back from
+// `@/app/admin/actions` and uncomment the revision sections below.
 import { requireRoles } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
@@ -93,13 +94,13 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
       take: pageSize,
       include: {
         category: true,
-        revisions: {
-          orderBy: [{ createdAt: "desc" }],
-          take: 5,
-          include: {
-            createdBy: true,
-          },
-        },
+        // revisions: {
+        //   orderBy: [{ createdAt: "desc" }],
+        //   take: 5,
+        //   include: {
+        //     createdBy: true,
+        //   },
+        // },
         tags: true,
       },
     }),
@@ -298,8 +299,13 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
                 <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
                   Published FAQs
                 </p>
+                {/* Restore this copy if revision UI comes back:
                 <p className="mt-2 text-sm text-muted">
                   Danh sách FAQ hiện có để chỉnh sửa, xuất bản hoặc khôi phục revision.
+                </p>
+                */}
+                <p className="mt-2 text-sm text-muted">
+                  Danh sách FAQ hiện có để chỉnh sửa, xuất bản hoặc ẩn.
                 </p>
               </div>
             </div>
@@ -343,6 +349,7 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
                         ))}
                       </div>
                     ) : null}
+                    {/* Revision UI is intentionally hidden for now.
                     <details className="rounded-[1.25rem] border border-line bg-white/70 p-4">
                       <summary className="cursor-pointer text-sm font-medium text-accent-strong">
                         Revision history ({faq.revisions.length})
@@ -414,6 +421,7 @@ export default async function AdminFaqsPage({ searchParams }: Props) {
                         )}
                       </div>
                     </details>
+                    */}
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <details>

@@ -1,7 +1,7 @@
 import { ContentStatus, type Prisma } from "generated/prisma/client";
+import { createContentExcerpt, createTitlePreview } from "@/lib/content-preview";
 import { db } from "@/lib/db";
 import { searchClient } from "@/lib/search";
-import { createExcerpt } from "@/lib/utils";
 
 const KB_INDEX = "knowledge_base";
 
@@ -52,8 +52,9 @@ function mapArticleDocument(
     id: createDocumentId("article", article.id),
     recordId: article.id,
     slug: article.slug,
+    summary: createContentExcerpt(article.body),
     tags: article.tags.map((tag) => tag.name),
-    title: article.title,
+    title: createTitlePreview(article.title),
     type: "article",
     updatedAt: article.updatedAt.toISOString(),
   };
@@ -65,13 +66,13 @@ function mapFaqDocument(
   return {
     body: faq.answer,
     category: faq.category?.name ?? null,
-    highlight: createExcerpt(faq.answer, 140),
+    highlight: createContentExcerpt(faq.answer),
     id: createDocumentId("faq", faq.id),
     recordId: faq.id,
     slug: faq.slug,
-    summary: createExcerpt(faq.answer, 160),
+    summary: createContentExcerpt(faq.answer),
     tags: faq.tags.map((tag) => tag.name),
-    title: faq.question,
+    title: createTitlePreview(faq.question),
     type: "faq",
     updatedAt: faq.updatedAt.toISOString(),
   };

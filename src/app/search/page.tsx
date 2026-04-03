@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PaginationControls } from "@/components/ui/pagination-controls";
+import { createContentExcerpt, createTitlePreview } from "@/lib/content-preview";
 import { db } from "@/lib/db";
 import { areTagsEnabled } from "@/lib/features";
 import {
@@ -176,11 +177,11 @@ export default async function SearchPage({ searchParams }: Props) {
                     ) : null}
                   </div>
                   <h2 className="mt-3 text-[1.45rem] font-semibold tracking-tight">
-                    {item.title}
+                    {createTitlePreview(item.title)}
                   </h2>
                   {item.highlight ? (
                     <p className="mt-2 text-base leading-8 text-muted">
-                      {item.highlight}
+                      {createContentExcerpt(item.highlight)}
                     </p>
                   ) : null}
                 </Link>

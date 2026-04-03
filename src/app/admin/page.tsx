@@ -11,6 +11,7 @@ import {
   normalizeRangeDays,
 } from "@/lib/admin-analytics";
 import { checkSystemHealth } from "@/lib/health";
+import { createTitlePreview } from "@/lib/content-preview";
 import { db } from "@/lib/db";
 import { requireRoles } from "@/lib/auth/session";
 import { getFeedback, type SearchParamInput } from "@/lib/feedback";
@@ -243,7 +244,17 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                     href={`/admin/articles?q=${encodeURIComponent(article.title)}`}
                     className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
                   >
-                    <p className="font-medium">{article.title}</p>
+                    <p
+                      title={article.title}
+                      className="overflow-hidden text-sm font-medium"
+                      style={{
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: 2,
+                        display: "-webkit-box",
+                      }}
+                    >
+                      {createTitlePreview(article.title)}
+                    </p>
                     <p className="mt-1 text-sm text-muted">
                       {article.status} - {article.updatedAt.toLocaleString("vi-VN")}
                     </p>
@@ -263,7 +274,17 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                     href={`/admin/faqs?q=${encodeURIComponent(faq.question)}`}
                     className="rounded-2xl border border-line bg-white p-4 transition hover:-translate-y-0.5 hover:border-accent/30"
                   >
-                    <p className="font-medium">{faq.question}</p>
+                    <p
+                      title={faq.question}
+                      className="overflow-hidden text-sm font-medium"
+                      style={{
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: 2,
+                        display: "-webkit-box",
+                      }}
+                    >
+                      {createTitlePreview(faq.question)}
+                    </p>
                     <p className="mt-1 text-sm text-muted">
                       {faq.status} - {faq.updatedAt.toLocaleString("vi-VN")}
                     </p>
