@@ -15,7 +15,7 @@
    - `APP_GID`
    - `POSTGRES_PASSWORD`
    - `DATABASE_URL`
-   - `MEILI_MASTER_KEY`
+   - `MEILISEARCH_MASTER_KEY`
 
    Với `MEILISEARCH_URL`, khi app và job chạy qua `docker compose` hãy dùng URL nội bộ giữa containers:
 
