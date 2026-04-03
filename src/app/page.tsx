@@ -132,13 +132,13 @@ export default async function Home() {
                   href={`/kb/${article.slug}`}
                   className="rounded-[1.6rem] border border-line bg-white/90 p-5 transition hover:-translate-y-0.5 hover:border-accent/30"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="flex-1 text-[1.45rem] font-semibold tracking-tight">
-                      {createTitlePreview(article.title)}
-                    </h3>
-                    <span className="shrink-0 text-right text-sm text-muted">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-right text-sm text-muted">
                       {article.category?.name ?? "Wiki"}
                     </span>
+                    <h3 className="text-[1.45rem] font-semibold tracking-tight">
+                      {createTitlePreview(article.title)}
+                    </h3>
                   </div>
                   <p className="mt-3 text-base leading-8 text-muted">
                     {createContentExcerpt(article.body)}
@@ -169,13 +169,13 @@ export default async function Home() {
                   href={`/faq/${faq.slug}`}
                   className="rounded-[1.6rem] border border-line bg-white/90 p-5 transition hover:-translate-y-0.5 hover:border-accent/30"
                 >
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="flex-1 text-[1.45rem] font-semibold tracking-tight">
-                      {createTitlePreview(faq.question)}
-                    </h3>
-                    <span className="shrink-0 text-right text-sm text-muted">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-right text-sm text-muted">
                       {faq.category?.name ?? "FAQ"}
                     </span>
+                    <h3 className="text-[1.45rem] font-semibold tracking-tight">
+                      {createTitlePreview(faq.question)}
+                    </h3>
                   </div>
                   <p className="mt-3 text-base leading-8 text-muted">
                     {createContentExcerpt(faq.answer)}
