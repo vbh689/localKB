@@ -246,7 +246,12 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                   >
                     <p
                       title={article.title}
-                      className="overflow-hidden text-sm font-medium [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+                      className="overflow-hidden text-sm font-medium"
+                      style={{
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: 2,
+                        display: "-webkit-box",
+                      }}
                     >
                       {createTitlePreview(article.title)}
                     </p>
@@ -271,7 +276,12 @@ export default async function AdminDashboardPage({ searchParams }: Props) {
                   >
                     <p
                       title={faq.question}
-                      className="overflow-hidden text-sm font-medium [display:-webkit-box] [-webkit-box-orient:vertical] [-webkit-line-clamp:2]"
+                      className="overflow-hidden text-sm font-medium"
+                      style={{
+                        WebkitBoxOrient: "vertical",
+                        WebkitLineClamp: 2,
+                        display: "-webkit-box",
+                      }}
                     >
                       {createTitlePreview(faq.question)}
                     </p>
