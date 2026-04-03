@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getConfig } from "@/lib/config";
+import { removeEncodedSpaces } from "@/lib/content-cleaning";
 
 type PreviewOptions = {
   maxLength: number;
@@ -12,7 +13,7 @@ const MARKDOWN_REFERENCE_IMAGE_PATTERN = /!\[[^\]]*]\[[^\]]*]/g;
 const HTML_IMAGE_PATTERN = /<img\b[^>]*>/gi;
 
 function normalizePreviewSource(value: string | null | undefined) {
-  return (value ?? "")
+  return removeEncodedSpaces(value ?? "")
     .replace(MARKDOWN_IMAGE_PATTERN, " ")
     .replace(MARKDOWN_REFERENCE_IMAGE_PATTERN, " ")
     .replace(HTML_IMAGE_PATTERN, " ")
