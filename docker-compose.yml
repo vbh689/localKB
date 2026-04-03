@@ -22,7 +22,7 @@ services:
     container_name: localkb-meilisearch
     restart: unless-stopped
     environment:
-      MEILISEARCH_MASTER_KEY: localkb-master-key
+      MEILI_MASTER_KEY: localkb-master-key
       MEILI_ENV: production
     ports:
       - "7702:7700"
