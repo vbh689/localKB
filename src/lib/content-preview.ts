@@ -1,4 +1,4 @@
-import "server-only";
+// import "server-only";
 
 import { getConfig } from "@/lib/config";
 import { removeEncodedSpaces } from "@/lib/content-cleaning";
