@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PublicContentFilters } from "@/components/content/public-content-filters";
+import { InstantSearchBox } from "@/components/search/instant-search-box";
 import { PaginationControls } from "@/components/ui/pagination-controls";
 import {
   getPublishedContentSort,
@@ -23,6 +24,7 @@ type Props = {
     from?: string | string[];
     limit?: string | string[];
     page?: string | string[];
+    q?: string | string[];
     sort?: string | string[];
     to?: string | string[];
   }>;
@@ -33,6 +35,7 @@ export default async function FaqIndexPage({ searchParams }: Props) {
   const category = getFirstSearchParam(resolvedSearchParams.category)?.trim() ?? "";
   const currentPage = getCurrentPage(resolvedSearchParams.page);
   const pageSize = getPageSize(resolvedSearchParams.limit);
+  const query = getFirstSearchParam(resolvedSearchParams.q)?.trim() ?? "";
   const sort = getPublishedContentSort(
     getFirstSearchParam(resolvedSearchParams.sort),
   );
@@ -42,6 +45,7 @@ export default async function FaqIndexPage({ searchParams }: Props) {
   );
   const filters = {
     categorySlug: category || null,
+    query: query || null,
     sort,
     updatedFrom: startDate,
     updatedTo: endDate,
@@ -77,11 +81,17 @@ export default async function FaqIndexPage({ searchParams }: Props) {
           </Link>
         </div>
 
+        <InstantSearchBox
+          initialValue={query}
+          placeholder="Ví dụ: đăng nhập, reset mật khẩu, lỗi ..."
+        />
+
         <PublicContentFilters
           basePath="/faq"
           categories={categories}
           category={category}
           pageSize={pageSize}
+          query={query}
           resultsLabel="câu hỏi"
           sort={sort}
           totalCount={faqCount}

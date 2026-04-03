@@ -13,6 +13,7 @@ type Props = {
   categories: CategoryOption[];
   category: string;
   pageSize: number;
+  query?: string;
   resultsLabel: string;
   sort: PublishedContentSort;
   totalCount: number;
@@ -21,12 +22,19 @@ type Props = {
   updatedTo: string;
 };
 
-function buildResetHref(basePath: string, pageSize: number) {
-  if (pageSize === DEFAULT_PAGE_SIZE) {
-    return basePath;
+function buildResetHref(basePath: string, pageSize: number, query = "") {
+  const params = new URLSearchParams();
+
+  if (pageSize !== DEFAULT_PAGE_SIZE) {
+    params.set("limit", String(pageSize));
   }
 
-  return `${basePath}?limit=${pageSize}`;
+  if (query.trim()) {
+    params.set("q", query.trim());
+  }
+
+  const search = params.toString();
+  return search ? `${basePath}?${search}` : basePath;
 }
 
 export function PublicContentFilters({
@@ -34,6 +42,7 @@ export function PublicContentFilters({
   categories,
   category,
   pageSize,
+  query = "",
   resultsLabel,
   sort,
   totalCount,
@@ -48,6 +57,7 @@ export function PublicContentFilters({
       className="glass-panel rounded-[1.6rem] p-5 md:p-6"
     >
       <input type="hidden" name="limit" value={pageSize} />
+      {query.trim() ? <input type="hidden" name="q" value={query} /> : null}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="font-mono text-sm uppercase tracking-[0.22em] text-accent-strong">
@@ -109,7 +119,7 @@ export function PublicContentFilters({
             Lọc
           </button>
           <Link
-            href={buildResetHref(basePath, pageSize)}
+            href={buildResetHref(basePath, pageSize, query)}
             className="rounded-full border border-line px-4 py-4 text-base font-medium text-accent-strong"
           >
             Reset
