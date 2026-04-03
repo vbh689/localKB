@@ -120,15 +120,12 @@ export default async function FaqIndexPage({ searchParams }: Props) {
                 href={`/faq/${faq.slug}`}
                 className="glass-panel rounded-[1.6rem] p-5 transition hover:-translate-y-0.5"
               >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="text-[1.45rem] font-semibold tracking-tight">
-                    {createTitlePreview(faq.question)}
-                  </h2>
-                  <div className="flex flex-wrap items-center gap-3 text-base text-muted">
-                    {faq.category ? <span>{faq.category.name}</span> : null}
-                    <span>{faq.updatedAt.toLocaleDateString("vi-VN")}</span>
-                  </div>
-                </div>
+                <h2 className="text-[1.45rem] font-semibold tracking-tight">
+                  {createTitlePreview(faq.question)}
+                </h2>
+                <p className="mt-2 text-sm text-muted">
+                  {faq.category?.name ?? "FAQ"} - {faq.updatedAt.toLocaleDateString("vi-VN")}
+                </p>
                 <p className="mt-3 text-base leading-8 text-muted">
                   {createContentExcerpt(faq.answer)}
                 </p>

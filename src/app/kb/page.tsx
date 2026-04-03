@@ -120,15 +120,12 @@ export default async function KnowledgeBaseIndexPage({ searchParams }: Props) {
                 href={`/kb/${article.slug}`}
                 className="glass-panel rounded-[1.6rem] p-5 transition hover:-translate-y-0.5"
               >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h2 className="text-[1.45rem] font-semibold tracking-tight">
-                    {createTitlePreview(article.title)}
-                  </h2>
-                  <div className="flex flex-wrap items-center gap-3 text-base text-muted">
-                    {article.category ? <span>{article.category.name}</span> : null}
-                    <span>{article.updatedAt.toLocaleDateString("vi-VN")}</span>
-                  </div>
-                </div>
+                <h2 className="text-[1.45rem] font-semibold tracking-tight">
+                  {createTitlePreview(article.title)}
+                </h2>
+                <p className="mt-2 text-sm text-muted">
+                  {article.category?.name ?? "Wiki"} - {article.updatedAt.toLocaleDateString("vi-VN")}
+                </p>
                 <p className="mt-3 text-base leading-8 text-muted">
                   {createContentExcerpt(article.body)}
                 </p>
