@@ -311,10 +311,12 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
               </div>
             </div>
 
-          <div className="mt-5 grid gap-4">
-            {articles.map((article) => (
-              <article key={article.id} className="rounded-[1.6rem] border border-line bg-white/75 p-5">
-                <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="mt-5 grid gap-4">
+              {articles.map((article) => (
+                <article
+                  key={article.id}
+                  className="flex flex-col rounded-[1.6rem] border border-line bg-white/75 p-5"
+                >
                   <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
                       <label className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-3 py-1 text-xs font-medium text-accent-strong">
@@ -425,7 +427,7 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                     </details>
                     */}
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line/70 pt-4">
                     <details>
                       <summary className="cursor-pointer rounded-full border border-line px-4 py-2 text-sm font-medium text-accent-strong">
                         Sửa
@@ -538,18 +540,17 @@ export default async function AdminArticlesPage({ searchParams }: Props) {
                       </ConfirmSubmitButton>
                     </form>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              ))}
 
-            <PaginationControls
-              basePath="/admin/articles"
-              currentPage={currentPage}
-              pageSize={pageSize}
-              searchParams={resolvedSearchParams}
-              totalItems={articleCount}
-            />
-          </div>
+              <PaginationControls
+                basePath="/admin/articles"
+                currentPage={currentPage}
+                pageSize={pageSize}
+                searchParams={resolvedSearchParams}
+                totalItems={articleCount}
+              />
+            </div>
           </SharedAdminContentPanel>
         </>
       }
