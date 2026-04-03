@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PublicContentFilters } from "@/components/content/public-content-filters";
 import { InstantSearchBox } from "@/components/search/instant-search-box";
 import { PaginationControls } from "@/components/ui/pagination-controls";
+import { createContentExcerpt, createTitlePreview } from "@/lib/content-preview";
 import {
   getPublishedContentSort,
   getPublishedFaqsCount,
@@ -14,7 +15,6 @@ import {
   getFirstSearchParam,
   getPageSize,
 } from "@/lib/pagination";
-import { createExcerpt } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -122,7 +122,7 @@ export default async function FaqIndexPage({ searchParams }: Props) {
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h2 className="text-[1.45rem] font-semibold tracking-tight">
-                    {faq.question}
+                    {createTitlePreview(faq.question)}
                   </h2>
                   <div className="flex flex-wrap items-center gap-3 text-base text-muted">
                     {faq.category ? <span>{faq.category.name}</span> : null}
@@ -130,7 +130,7 @@ export default async function FaqIndexPage({ searchParams }: Props) {
                   </div>
                 </div>
                 <p className="mt-3 text-base leading-8 text-muted">
-                  {createExcerpt(faq.answer, 220)}
+                  {createContentExcerpt(faq.answer)}
                 </p>
               </Link>
             ))

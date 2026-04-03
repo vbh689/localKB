@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PublicContentFilters } from "@/components/content/public-content-filters";
 import { InstantSearchBox } from "@/components/search/instant-search-box";
 import { PaginationControls } from "@/components/ui/pagination-controls";
+import { createContentExcerpt, createTitlePreview } from "@/lib/content-preview";
 import {
   getPublishedContentSort,
   getPublishedArticlesCount,
@@ -121,13 +122,16 @@ export default async function KnowledgeBaseIndexPage({ searchParams }: Props) {
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h2 className="text-[1.45rem] font-semibold tracking-tight">
-                    {article.title}
+                    {createTitlePreview(article.title)}
                   </h2>
                   <div className="flex flex-wrap items-center gap-3 text-base text-muted">
                     {article.category ? <span>{article.category.name}</span> : null}
                     <span>{article.updatedAt.toLocaleDateString("vi-VN")}</span>
                   </div>
                 </div>
+                <p className="mt-3 text-base leading-8 text-muted">
+                  {createContentExcerpt(article.body)}
+                </p>
               </Link>
             ))
           )}

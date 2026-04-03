@@ -5,6 +5,10 @@ const configSchema = z.object({
   DATABASE_URL: z
     .string()
     .default("postgresql://localkb:localkb@localhost:5432/localkb?schema=public"),
+  HOMEPAGE_EXCERPT_PREVIEW_LENGTH: z.coerce.number().int().positive().default(200),
+  HOMEPAGE_EXCERPT_PREVIEW_WORDS: z.coerce.number().int().positive().default(20),
+  HOMEPAGE_TITLE_PREVIEW_LENGTH: z.coerce.number().int().positive().default(150),
+  HOMEPAGE_TITLE_PREVIEW_WORDS: z.coerce.number().int().positive().default(15),
   MEILISEARCH_MASTER_KEY: z
     .string()
     .default("localkb-master-key"),
@@ -16,6 +20,10 @@ export function getConfig() {
   return configSchema.parse({
     APP_URL: process.env.APP_URL,
     DATABASE_URL: process.env.DATABASE_URL,
+    HOMEPAGE_EXCERPT_PREVIEW_LENGTH: process.env.HOMEPAGE_EXCERPT_PREVIEW_LENGTH,
+    HOMEPAGE_EXCERPT_PREVIEW_WORDS: process.env.HOMEPAGE_EXCERPT_PREVIEW_WORDS,
+    HOMEPAGE_TITLE_PREVIEW_LENGTH: process.env.HOMEPAGE_TITLE_PREVIEW_LENGTH,
+    HOMEPAGE_TITLE_PREVIEW_WORDS: process.env.HOMEPAGE_TITLE_PREVIEW_WORDS,
     MEILISEARCH_MASTER_KEY:
       process.env.MEILISEARCH_MASTER_KEY ?? process.env.MEILI_MASTER_KEY,
     MEILISEARCH_URL: process.env.MEILISEARCH_URL,

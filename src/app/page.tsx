@@ -2,8 +2,8 @@ import Link from "next/link";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { getCurrentSession } from "@/lib/auth/session";
 import { canAccessAdmin } from "@/lib/auth/user";
+import { createContentExcerpt, createTitlePreview } from "@/lib/content-preview";
 import { getFeaturedArticles, getHomepageCounts, getNewestFaqs } from "@/lib/content";
-import { createExcerpt } from "@/lib/utils";
 import { InstantSearch } from "@/components/search/instant-search";
 
 export const dynamic = "force-dynamic";
@@ -24,12 +24,12 @@ export default async function Home() {
 
   const featuredItems = newestFaqs.map((item) => ({
     category: item.category?.name ?? null,
-    highlight: item.answer,
+    highlight: createContentExcerpt(item.answer),
     id: item.id,
     slug: item.slug,
-    summary: createExcerpt(item.answer, 140),
+    summary: createContentExcerpt(item.answer),
     tags: item.tags.map((tag) => tag.name),
-    title: item.question,
+    title: createTitlePreview(item.question),
     type: "faq" as const,
   }));
 
@@ -134,12 +134,15 @@ export default async function Home() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="text-[1.45rem] font-semibold tracking-tight">
-                      {article.title}
+                      {createTitlePreview(article.title)}
                     </h3>
                     <span className="text-base text-muted">
                       {article.category?.name ?? "Wiki"}
                     </span>
                   </div>
+                  <p className="mt-3 text-base leading-8 text-muted">
+                    {createContentExcerpt(article.body)}
+                  </p>
                 </Link>
               ))}
             </div>
@@ -168,14 +171,14 @@ export default async function Home() {
                 >
                   <div className="flex items-center justify-between gap-3">
                     <h3 className="text-[1.45rem] font-semibold tracking-tight">
-                      {faq.question}
+                      {createTitlePreview(faq.question)}
                     </h3>
                     <span className="text-base text-muted">
                       {faq.category?.name ?? "FAQ"}
                     </span>
                   </div>
                   <p className="mt-3 text-base leading-8 text-muted">
-                    {createExcerpt(faq.answer, 180)}
+                    {createContentExcerpt(faq.answer)}
                   </p>
                 </Link>
               ))}
