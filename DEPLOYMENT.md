@@ -23,7 +23,7 @@
    MEILISEARCH_URL="http://localhost:7700"
    ```
 
-   Không dùng `:7702`, vì `7702` chỉ phù hợp cho truy cập từ host nếu publish port ra ngoài.
+   Không dùng `:7702`, `7702` chỉ phù hợp cho truy cập từ host nếu publish port ra ngoài.
 
 3. Tạo sẵn thư mục dữ liệu trên host:
 
@@ -39,7 +39,7 @@
      "${DATA_ROOT}/backups/postgres" \
      "${DATA_ROOT}/backups/uploads"
 
-   chown -R "${APP_UID}:${APP_GID}" "${DATA_ROOT}/uploads"
+   sudo chown -R "${APP_UID}:${APP_GID}" "${DATA_ROOT}/uploads"
    ```
 
 4. Cấu hình reverse proxy hiện có để forward về `127.0.0.1:3000`.
@@ -64,7 +64,7 @@
    docker compose --env-file .env.production -f docker-compose.prod.yml --profile ops run --rm tools npm run db:migrate:prepare
    ```
 
-   Lệnh này an toàn để chạy nhiều lần. Database mới sẽ tự bỏ qua bước baseline.
+   Lệnh này an toàn để chạy nhiều lần. Database mới sẽ tự bỏ qua bước prepare baseline.
 
 4. Chạy migration:
 
