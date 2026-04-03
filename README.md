@@ -2,30 +2,17 @@
 
 LocalKB là ứng dụng wiki / knowledge base / FAQ nội bộ cho công ty, xây dựng bằng `Next.js`, `Prisma`, `PostgreSQL` và `Meilisearch`.
 
-Ứng dụng cung cấp một điểm vào chung để tra cứu tài liệu nội bộ, câu hỏi thường gặp và nội dung quản trị với giao diện public-facing rõ ràng cho người dùng cuối và CMS riêng cho đội vận hành.
+Ứng dụng cung cấp một điểm chung để tra cứu tài liệu nội bộ, câu hỏi thường gặp và nội dung quản trị, có giao diện public cho người dùng cuối và CMS riêng cho đội vận hành.
 
 ## Tính năng hiện có
 
 - Đăng nhập nội bộ bằng `email/password` và session `HttpOnly cookie`
 - Homepage có `instant search`
 - Trang public cho `wiki`, `FAQ` và `search`
-- Admin CMS cho `articles`, `FAQs`, `categories`, `tags`, `users`
-- Xuất bản / ẩn bài và đồng bộ nội dung `published` sang `Meilisearch`
+- Admin CMS cho `articles`, `FAQs`, `categories`, `tags` (optional), `users`
+- Xuất bản / ẩn bài và đồng bộ nội dung đã `published` sang `Meilisearch`
 - Search logs và dashboard usage trong admin
 - Revision history, compare preview và khôi phục revision cho article / FAQ
-
-<details>
-  <summary>Screenshot</summary>
-
-  <p align="center">
-    <img src="./public/readme/home.png" alt="Homepage LocalKB" width="48%" />
-    <img src="./public/readme/kb.png" alt="Knowledge Base listing" width="48%" />
-  </p>
-  <p align="center">
-    <img src="./public/readme/faq.png" alt="FAQ listing" width="48%" />
-    <img src="./public/readme/login.png" alt="Login page" width="48%" />
-  </p>
-</details>
 
 ## Stack
 
@@ -96,8 +83,17 @@ Mẫu biến môi trường nằm trong [.env.example](./.env.example).
 ```env
 APP_URL="http://localhost:3000"
 
-DATABASE_URL="postgresql://localkb:localkb@localhost:5432/localkb?schema=public"
+POSTGRES_DB="localkb"
+POSTGRES_USER="localkb"
+POSTGRES_PASSWORD="change-this-postgres-password"
+DATABASE_URL="postgresql://localkb:change-this-postgres-password@postgres:5432/localkb?schema=public"
+
 SESSION_COOKIE_NAME="localkb_session"
+
+HOMEPAGE_TITLE_PREVIEW_LENGTH=150
+HOMEPAGE_TITLE_PREVIEW_WORDS=15
+HOMEPAGE_EXCERPT_PREVIEW_LENGTH=200
+HOMEPAGE_EXCERPT_PREVIEW_WORDS=20
 
 MEILISEARCH_URL="http://localhost:7702"
 MEILISEARCH_MASTER_KEY="localkb-master-key"
@@ -147,7 +143,7 @@ npm run db:studio
 
 ### Upload/file routes
 
-- `/uploads/[...segments]` route handler phục vụ file ảnh đã upload với cache header dài hạn
+- `/uploads/[...segments]` route handler phục vụ file ảnh đã upload
 
 ## API route hiện có
 
@@ -203,5 +199,3 @@ npm run db:seed
 ## Ghi chú
 
 - Chỉ nội dung `PUBLISHED` mới xuất hiện trên public app và search.
-- `Article revision` hiện tại khôi phục `title` và `body`; `category/tags (nếu có)/status` được giữ nguyên.
-- `FAQ revision` restore `question` và `answer`.
