@@ -132,7 +132,7 @@ npm run db:studio
 
 ### Admin routes
 
-- `/admin` dashboard quản trị, thống kê usage, health check, top queries, recent content, export stats CSV và trigger reindex search
+- `/admin` dashboard quản trị, thống kê usage, health check, top queries, recent content và trigger reindex search
 - `/admin/articles` quản lý article: tạo mới, lọc, sửa, publish / unpublish, revision history, compare preview và restore revision
 - `/admin/faqs` quản lý FAQ: tạo mới, lọc, sửa, publish / unpublish, revision history, compare preview và restore revision
 - `/admin/categories` quản lý category
@@ -161,7 +161,6 @@ npm run db:studio
 ### Admin API
 
 - `POST /api/admin/uploads` upload ảnh cho CMS/editor bằng `multipart/form-data`, trả về `url` và Markdown image snippet
-- `GET /api/admin/stats/export?days=` export CSV thống kê search và publish trend theo số ngày đã chọn trên dashboard admin
 - `GET /api/admin/search-logs/export?q=&resultFilter=&sort=` export CSV search logs theo bộ lọc hiện tại
 
 ### Ghi chú phân quyền
