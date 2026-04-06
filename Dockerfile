@@ -29,7 +29,7 @@ CMD ["sh"]
 
 FROM node:22-alpine AS runner
 
-RUN apk add --no-cache libc6-compat wget
+RUN apk add --no-cache libc6-compat su-exec wget
 
 WORKDIR /app
 
@@ -38,16 +38,18 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/generated ./generated
 COPY --from=builder /app/prisma ./prisma
 
-RUN mkdir -p /app/public/uploads && chown -R node:node /app
-
-USER node
+RUN chmod +x ./docker-entrypoint.sh \
+  && mkdir -p /app/public/uploads \
+  && chown -R node:node /app
 
 EXPOSE 3000
 
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["node", "server.js"]

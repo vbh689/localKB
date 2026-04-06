@@ -43,7 +43,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env.production
-    user: "${APP_UID:-1000}:${APP_GID:-1000}"
     environment:
       NODE_ENV: production
       HOSTNAME: 0.0.0.0
