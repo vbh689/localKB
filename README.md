@@ -113,8 +113,11 @@ npm run docs:screenshots
 npm run db:generate
 npm run db:push
 npm run db:migrate
+npm run db:migrate:prepare        # for Docker prod
+npm run db:migrate:deploy         # for Docker prod
 npm run db:seed
 npm run db:studio
+npm run search:reindex            # for Docker prod
 ```
 
 ## Route hiện có
@@ -179,6 +182,7 @@ npm run db:studio
 
 - Stack production đầy đủ nằm ở [`docker-compose.prod.yml`](./docker-compose.prod.yml)
 - Mẫu biến môi trường production nằm ở [`.env.production.example`](./.env.production.example)
+- Trước khi chạy production compose, cập nhật `APP_UID`/`APP_GID` trong `.env.production` bằng kết quả `id -u`/`id -g` của máy đang deploy
 - Luôn chạy production compose với `--env-file .env.production` để `DATA_ROOT`, `APP_UID` và `APP_GID` được áp dụng cho volume và user mapping
 - Runbook deploy, backup và restore nằm ở [`DEPLOYMENT.md`](./DEPLOYMENT.md)
 
