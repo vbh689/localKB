@@ -45,11 +45,13 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/generated ./generated
 COPY --from=builder /app/prisma ./prisma
 
-RUN chmod +x ./docker-entrypoint.sh \
+# Normalize CRLF to LF so Windows checkouts do not break the Alpine entrypoint.
+RUN sed -i 's/\r$//' ./docker-entrypoint.sh \
+  && chmod +x ./docker-entrypoint.sh \
   && mkdir -p /app/public/uploads \
   && chown -R node:node /app
 
 EXPOSE 3000
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["node", "server.js"]

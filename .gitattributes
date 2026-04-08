@@ -1,0 +1,4 @@
+#
+# Keep shell scripts on LF so Docker/Alpine can execute them correctly
+# even when the repo is checked out on Windows.
+*.sh text eol=lf

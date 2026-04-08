@@ -77,7 +77,7 @@
    docker compose --env-file .env.production -f docker-compose.prod.yml up -d postgres meilisearch
    ```
 
-3. Chuẩn bị migration metadata cho các hệ thống cũ đã từng dùng `db:push`:
+3. Chuẩn bị migration metadata **cho các hệ thống cũ đã từng dùng `db:push`**:
 
    ```bash
    docker compose --env-file .env.production -f docker-compose.prod.yml --profile ops run --rm tools npm run db:migrate:prepare
